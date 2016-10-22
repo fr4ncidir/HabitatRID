@@ -1,0 +1,172 @@
+\section{serial.\+h File Reference}
+\label{serial_8h}\index{serial.\+h@{serial.\+h}}
+{\ttfamily \#include $<$stdlib.\+h$>$}\\*
+{\ttfamily \#include $<$stdio.\+h$>$}\\*
+{\ttfamily \#include $<$unistd.\+h$>$}\\*
+{\ttfamily \#include $<$fcntl.\+h$>$}\\*
+{\ttfamily \#include $<$termios.\+h$>$}\\*
+{\ttfamily \#include $<$errno.\+h$>$}\\*
+{\ttfamily \#include $<$inttypes.\+h$>$}\\*
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct {\bf serial\+\_\+options}
+\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define {\bf E\+R\+R\+OR}~-\/1
+\item 
+\#define {\bf N\+O\+\_\+\+P\+A\+C\+K\+ET}~-\/2
+\item 
+\#define {\bf N\+O\+\_\+\+P\+A\+R\+I\+TY}~0
+\item 
+\#define {\bf E\+V\+E\+N\+\_\+\+P\+A\+R\+I\+TY}~1
+\item 
+\#define {\bf O\+D\+D\+\_\+\+P\+A\+R\+I\+TY}~2
+\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef struct {\bf serial\+\_\+options} {\bf Serial\+Options}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int {\bf open\+\_\+serial} (const char name[$\,$], {\bf Serial\+Options} options)
+\item 
+int {\bf fixed\+\_\+read} (int file\+\_\+descriptor, size\+\_\+t fixed\+\_\+lenght, void $\ast$buffer)
+\item 
+int {\bf read\+\_\+serial\+\_\+packet} (int file\+\_\+descriptor, size\+\_\+t fixed\+\_\+lenght, void $\ast$buffer, uint8\+\_\+t start)
+\item 
+int {\bf write\+\_\+serial} (int file\+\_\+descriptor, size\+\_\+t lenght, void $\ast$buffer)
+\end{DoxyCompactItemize}
+
+
+\subsection{Macro Definition Documentation}
+\index{serial.\+h@{serial.\+h}!E\+R\+R\+OR@{E\+R\+R\+OR}}
+\index{E\+R\+R\+OR@{E\+R\+R\+OR}!serial.\+h@{serial.\+h}}
+\subsubsection[{E\+R\+R\+OR}]{\setlength{\rightskip}{0pt plus 5cm}\#define E\+R\+R\+OR~-\/1}\label{serial_8h_a8fe83ac76edc595f6b98cd4a4127aed5}
+\doxyref{serial.\+h}{p.}{serial_8h} \begin{DoxyAuthor}{Author}
+Francesco Antoniazzi 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Version}
+0.\+9 
+\end{DoxyVersion}
+\begin{DoxyDate}{Date}
+20 oct 2016 
+\end{DoxyDate}
+\index{serial.\+h@{serial.\+h}!E\+V\+E\+N\+\_\+\+P\+A\+R\+I\+TY@{E\+V\+E\+N\+\_\+\+P\+A\+R\+I\+TY}}
+\index{E\+V\+E\+N\+\_\+\+P\+A\+R\+I\+TY@{E\+V\+E\+N\+\_\+\+P\+A\+R\+I\+TY}!serial.\+h@{serial.\+h}}
+\subsubsection[{E\+V\+E\+N\+\_\+\+P\+A\+R\+I\+TY}]{\setlength{\rightskip}{0pt plus 5cm}\#define E\+V\+E\+N\+\_\+\+P\+A\+R\+I\+TY~1}\label{serial_8h_a30a963ff1432e4cfbdd83e74045ef142}
+\index{serial.\+h@{serial.\+h}!N\+O\+\_\+\+P\+A\+C\+K\+ET@{N\+O\+\_\+\+P\+A\+C\+K\+ET}}
+\index{N\+O\+\_\+\+P\+A\+C\+K\+ET@{N\+O\+\_\+\+P\+A\+C\+K\+ET}!serial.\+h@{serial.\+h}}
+\subsubsection[{N\+O\+\_\+\+P\+A\+C\+K\+ET}]{\setlength{\rightskip}{0pt plus 5cm}\#define N\+O\+\_\+\+P\+A\+C\+K\+ET~-\/2}\label{serial_8h_a8ac4964a6cca903f40f29b27f71ef9a1}
+\index{serial.\+h@{serial.\+h}!N\+O\+\_\+\+P\+A\+R\+I\+TY@{N\+O\+\_\+\+P\+A\+R\+I\+TY}}
+\index{N\+O\+\_\+\+P\+A\+R\+I\+TY@{N\+O\+\_\+\+P\+A\+R\+I\+TY}!serial.\+h@{serial.\+h}}
+\subsubsection[{N\+O\+\_\+\+P\+A\+R\+I\+TY}]{\setlength{\rightskip}{0pt plus 5cm}\#define N\+O\+\_\+\+P\+A\+R\+I\+TY~0}\label{serial_8h_a6e39c5c443322398878f10e0f1e6f023}
+\index{serial.\+h@{serial.\+h}!O\+D\+D\+\_\+\+P\+A\+R\+I\+TY@{O\+D\+D\+\_\+\+P\+A\+R\+I\+TY}}
+\index{O\+D\+D\+\_\+\+P\+A\+R\+I\+TY@{O\+D\+D\+\_\+\+P\+A\+R\+I\+TY}!serial.\+h@{serial.\+h}}
+\subsubsection[{O\+D\+D\+\_\+\+P\+A\+R\+I\+TY}]{\setlength{\rightskip}{0pt plus 5cm}\#define O\+D\+D\+\_\+\+P\+A\+R\+I\+TY~2}\label{serial_8h_a898d7631f24dd6b1deebf808a2214ea2}
+
+
+\subsection{Typedef Documentation}
+\index{serial.\+h@{serial.\+h}!Serial\+Options@{Serial\+Options}}
+\index{Serial\+Options@{Serial\+Options}!serial.\+h@{serial.\+h}}
+\subsubsection[{Serial\+Options}]{\setlength{\rightskip}{0pt plus 5cm}typedef struct {\bf serial\+\_\+options}  {\bf Serial\+Options}}\label{serial_8h_ade6fce17c7fb873847e3e098ede6efa8}
+Serial\+Options\+: a simple struct for basic setups of serial port 
+
+\subsection{Function Documentation}
+\index{serial.\+h@{serial.\+h}!fixed\+\_\+read@{fixed\+\_\+read}}
+\index{fixed\+\_\+read@{fixed\+\_\+read}!serial.\+h@{serial.\+h}}
+\subsubsection[{fixed\+\_\+read(int file\+\_\+descriptor, size\+\_\+t fixed\+\_\+lenght, void $\ast$buffer)}]{\setlength{\rightskip}{0pt plus 5cm}int fixed\+\_\+read (
+\begin{DoxyParamCaption}
+\item[{int}]{file\+\_\+descriptor, }
+\item[{size\+\_\+t}]{fixed\+\_\+lenght, }
+\item[{void $\ast$}]{buffer}
+\end{DoxyParamCaption}
+)}\label{serial_8h_a2991200e4cecdbebbb32f8d6dccf9f5a}
+fixed\+\_\+read reads a certain number of bytes from the serial port 
+\begin{DoxyParams}{Parameters}
+{\em file\+\_\+descriptor} & is the identifier for the serial port \\
+\hline
+{\em fixed\+\_\+lenght} & is the exact number of bytes to be read \\
+\hline
+{\em buffer} & is the place to store the bytes read \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+E\+X\+I\+T\+\_\+\+F\+A\+I\+L\+U\+RE or E\+X\+I\+T\+\_\+\+S\+U\+C\+C\+E\+SS 
+\end{DoxyReturn}
+\index{serial.\+h@{serial.\+h}!open\+\_\+serial@{open\+\_\+serial}}
+\index{open\+\_\+serial@{open\+\_\+serial}!serial.\+h@{serial.\+h}}
+\subsubsection[{open\+\_\+serial(const char name[], Serial\+Options options)}]{\setlength{\rightskip}{0pt plus 5cm}int open\+\_\+serial (
+\begin{DoxyParamCaption}
+\item[{const char}]{name[$\,$], }
+\item[{{\bf Serial\+Options}}]{options}
+\end{DoxyParamCaption}
+)}\label{serial_8h_ad312471fcce975f150cb6513979f2ad8}
+open\+\_\+serial opens the serial port 
+\begin{DoxyParams}{Parameters}
+{\em name\mbox{[}$\,$\mbox{]}} & might be something like \char`\"{}/dev/tty\+A\+C\+M0\char`\"{} \\
+\hline
+{\em options} & is a setup for the serial port \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+E\+X\+I\+T\+\_\+\+F\+A\+I\+L\+U\+RE or the serial file descriptor
+\end{DoxyReturn}
+\doxyref{serial.\+c}{p.}{serial_8c} \begin{DoxyAuthor}{Author}
+Francesco Antoniazzi 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Version}
+0.\+9 
+\end{DoxyVersion}
+\begin{DoxyDate}{Date}
+20 oct 2016 
+\end{DoxyDate}
+\index{serial.\+h@{serial.\+h}!read\+\_\+serial\+\_\+packet@{read\+\_\+serial\+\_\+packet}}
+\index{read\+\_\+serial\+\_\+packet@{read\+\_\+serial\+\_\+packet}!serial.\+h@{serial.\+h}}
+\subsubsection[{read\+\_\+serial\+\_\+packet(int file\+\_\+descriptor, size\+\_\+t fixed\+\_\+lenght, void $\ast$buffer, uint8\+\_\+t start)}]{\setlength{\rightskip}{0pt plus 5cm}int read\+\_\+serial\+\_\+packet (
+\begin{DoxyParamCaption}
+\item[{int}]{file\+\_\+descriptor, }
+\item[{size\+\_\+t}]{fixed\+\_\+lenght, }
+\item[{void $\ast$}]{buffer, }
+\item[{uint8\+\_\+t}]{start}
+\end{DoxyParamCaption}
+)}\label{serial_8h_ae7939a4ef693fed67b07e3afe77d9855}
+read\+\_\+serial\+\_\+packet reads a packet from serial port. The packet is identified with a starting byte. So, while reading the first time, we ignore all is coming before this packet and then we start read packet-\/by-\/packet. The packet has a fixed lenght. 
+\begin{DoxyParams}{Parameters}
+{\em file\+\_\+descriptor} & is the identifier for the serial port \\
+\hline
+{\em fixed\+\_\+lenght} & is the exact number of bytes to be read \\
+\hline
+{\em buffer} & is the place to store the bytes read \\
+\hline
+{\em start} & is the starting byte of the packet \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+E\+X\+I\+T\+\_\+\+F\+A\+I\+L\+U\+RE, E\+X\+I\+T\+\_\+\+S\+U\+C\+C\+E\+SS or N\+O\+\_\+\+P\+A\+C\+K\+ET 
+\end{DoxyReturn}
+\index{serial.\+h@{serial.\+h}!write\+\_\+serial@{write\+\_\+serial}}
+\index{write\+\_\+serial@{write\+\_\+serial}!serial.\+h@{serial.\+h}}
+\subsubsection[{write\+\_\+serial(int file\+\_\+descriptor, size\+\_\+t lenght, void $\ast$buffer)}]{\setlength{\rightskip}{0pt plus 5cm}int write\+\_\+serial (
+\begin{DoxyParamCaption}
+\item[{int}]{file\+\_\+descriptor, }
+\item[{size\+\_\+t}]{lenght, }
+\item[{void $\ast$}]{buffer}
+\end{DoxyParamCaption}
+)}\label{serial_8h_ac6c3ebd85e1647e7f72e0e35b3d8b62d}
+write\+\_\+serial writes to a serial port previously opened. 
+\begin{DoxyParams}{Parameters}
+{\em file\+\_\+descriptor} & is the identifier for the serial port \\
+\hline
+{\em lenght} & is the lenght of the item to be sent out \\
+\hline
+{\em buffer} & is a pointer to the item to be sent out \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+E\+X\+I\+T\+\_\+\+F\+A\+I\+L\+U\+RE or E\+X\+I\+T\+\_\+\+S\+U\+C\+C\+E\+SS 
+\end{DoxyReturn}

@@ -1,0 +1,100 @@
+\section{serial.\+c File Reference}
+\label{serial_8c}\index{serial.\+c@{serial.\+c}}
+{\ttfamily \#include \char`\"{}serial.\+h\char`\"{}}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int {\bf open\+\_\+serial} (const char name[$\,$], {\bf Serial\+Options} options)
+\item 
+int {\bf fixed\+\_\+read} (int file\+\_\+descriptor, size\+\_\+t fixed\+\_\+lenght, void $\ast$buffer)
+\item 
+int {\bf read\+\_\+serial\+\_\+packet} (int file\+\_\+descriptor, size\+\_\+t fixed\+\_\+lenght, void $\ast$buffer, uint8\+\_\+t start)
+\item 
+int {\bf write\+\_\+serial} (int file\+\_\+descriptor, size\+\_\+t lenght, void $\ast$buffer)
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\index{serial.\+c@{serial.\+c}!fixed\+\_\+read@{fixed\+\_\+read}}
+\index{fixed\+\_\+read@{fixed\+\_\+read}!serial.\+c@{serial.\+c}}
+\subsubsection[{fixed\+\_\+read(int file\+\_\+descriptor, size\+\_\+t fixed\+\_\+lenght, void $\ast$buffer)}]{\setlength{\rightskip}{0pt plus 5cm}int fixed\+\_\+read (
+\begin{DoxyParamCaption}
+\item[{int}]{file\+\_\+descriptor, }
+\item[{size\+\_\+t}]{fixed\+\_\+lenght, }
+\item[{void $\ast$}]{buffer}
+\end{DoxyParamCaption}
+)}\label{serial_8c_a2991200e4cecdbebbb32f8d6dccf9f5a}
+fixed\+\_\+read reads a certain number of bytes from the serial port 
+\begin{DoxyParams}{Parameters}
+{\em file\+\_\+descriptor} & is the identifier for the serial port \\
+\hline
+{\em fixed\+\_\+lenght} & is the exact number of bytes to be read \\
+\hline
+{\em buffer} & is the place to store the bytes read \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+E\+X\+I\+T\+\_\+\+F\+A\+I\+L\+U\+RE or E\+X\+I\+T\+\_\+\+S\+U\+C\+C\+E\+SS 
+\end{DoxyReturn}
+\index{serial.\+c@{serial.\+c}!open\+\_\+serial@{open\+\_\+serial}}
+\index{open\+\_\+serial@{open\+\_\+serial}!serial.\+c@{serial.\+c}}
+\subsubsection[{open\+\_\+serial(const char name[], Serial\+Options options)}]{\setlength{\rightskip}{0pt plus 5cm}int open\+\_\+serial (
+\begin{DoxyParamCaption}
+\item[{const char}]{name[$\,$], }
+\item[{{\bf Serial\+Options}}]{options}
+\end{DoxyParamCaption}
+)}\label{serial_8c_ad312471fcce975f150cb6513979f2ad8}
+\doxyref{serial.\+c}{p.}{serial_8c} \begin{DoxyAuthor}{Author}
+Francesco Antoniazzi 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Version}
+0.\+9 
+\end{DoxyVersion}
+\begin{DoxyDate}{Date}
+20 oct 2016 
+\end{DoxyDate}
+\index{serial.\+c@{serial.\+c}!read\+\_\+serial\+\_\+packet@{read\+\_\+serial\+\_\+packet}}
+\index{read\+\_\+serial\+\_\+packet@{read\+\_\+serial\+\_\+packet}!serial.\+c@{serial.\+c}}
+\subsubsection[{read\+\_\+serial\+\_\+packet(int file\+\_\+descriptor, size\+\_\+t fixed\+\_\+lenght, void $\ast$buffer, uint8\+\_\+t start)}]{\setlength{\rightskip}{0pt plus 5cm}int read\+\_\+serial\+\_\+packet (
+\begin{DoxyParamCaption}
+\item[{int}]{file\+\_\+descriptor, }
+\item[{size\+\_\+t}]{fixed\+\_\+lenght, }
+\item[{void $\ast$}]{buffer, }
+\item[{uint8\+\_\+t}]{start}
+\end{DoxyParamCaption}
+)}\label{serial_8c_ae7939a4ef693fed67b07e3afe77d9855}
+read\+\_\+serial\+\_\+packet reads a packet from serial port. The packet is identified with a starting byte. So, while reading the first time, we ignore all is coming before this packet and then we start read packet-\/by-\/packet. The packet has a fixed lenght. 
+\begin{DoxyParams}{Parameters}
+{\em file\+\_\+descriptor} & is the identifier for the serial port \\
+\hline
+{\em fixed\+\_\+lenght} & is the exact number of bytes to be read \\
+\hline
+{\em buffer} & is the place to store the bytes read \\
+\hline
+{\em start} & is the starting byte of the packet \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+E\+X\+I\+T\+\_\+\+F\+A\+I\+L\+U\+RE, E\+X\+I\+T\+\_\+\+S\+U\+C\+C\+E\+SS or N\+O\+\_\+\+P\+A\+C\+K\+ET 
+\end{DoxyReturn}
+\index{serial.\+c@{serial.\+c}!write\+\_\+serial@{write\+\_\+serial}}
+\index{write\+\_\+serial@{write\+\_\+serial}!serial.\+c@{serial.\+c}}
+\subsubsection[{write\+\_\+serial(int file\+\_\+descriptor, size\+\_\+t lenght, void $\ast$buffer)}]{\setlength{\rightskip}{0pt plus 5cm}int write\+\_\+serial (
+\begin{DoxyParamCaption}
+\item[{int}]{file\+\_\+descriptor, }
+\item[{size\+\_\+t}]{lenght, }
+\item[{void $\ast$}]{buffer}
+\end{DoxyParamCaption}
+)}\label{serial_8c_ac6c3ebd85e1647e7f72e0e35b3d8b62d}
+write\+\_\+serial writes to a serial port previously opened. 
+\begin{DoxyParams}{Parameters}
+{\em file\+\_\+descriptor} & is the identifier for the serial port \\
+\hline
+{\em lenght} & is the lenght of the item to be sent out \\
+\hline
+{\em buffer} & is a pointer to the item to be sent out \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+E\+X\+I\+T\+\_\+\+F\+A\+I\+L\+U\+RE or E\+X\+I\+T\+\_\+\+S\+U\+C\+C\+E\+SS 
+\end{DoxyReturn}

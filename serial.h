@@ -1,8 +1,8 @@
-/*
+/**
  * serial.h
- *
- *  Created on: 18 ott 2016
- *      Author: Francesco Antoniazzi
+ * @author Francesco Antoniazzi
+ * @version 0.9
+ * @date 20 oct 2016
  */
 
 #ifndef SERIAL_H_
@@ -10,7 +10,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <termios.h>
@@ -25,45 +24,82 @@
 #define EVEN_PARITY		1
 #define ODD_PARITY		2
 
-/*
- * baudRate is one of the following:
-	B50		50 baud
-	B75		75 baud
-	B110	110 baud
-	B134	134.5 baud
-	B150	150 baud
-	B200	200 baud
-	B300	300 baud
-	B600	600 baud
-	B1200	1200 baud
-	B1800	1800 baud
-	B2400	2400 baud
-	B4800	4800 baud
-	B9600	9600 baud
-	B19200	19200 baud
-	B38400	38400 baud
-	B57600	57,600 baud
-	B76800	76,800 baud
-	B115200	115,200 baud
- * data bits is one of the following
-	CS5	5 data bits
-	CS6	6 data bits
-	CS7	7 data bits
-	CS8	8 data bits
- * parity bit is one of the following
-	NO_PARITY
-	EVEN_PARITY
-	ODD_PARITY
+/**
+ * SerialOptions: a simple struct for basic setups of serial port
  */
 typedef struct serial_options {
-	int baudRate;
-	int dataBits;
-	int parityBit;
+	int baudRate; /**<
+	The baud rate can be <BR>
+		B50,		50 baud <BR>
+		B75,		75 baud <BR>
+		B110,	110 baud <BR>
+		B134,	134.5 baud<BR>
+		B150,	150 baud<BR>
+		B200,	200 baud<BR>
+		B300,	300 baud<BR>
+		B600,	600 baud<BR>
+		B1200,	1200 baud<BR>
+		B1800,	1800 baud<BR>
+		B2400,	2400 baud<BR>
+		B4800,	4800 baud<BR>
+		B9600,	9600 baud<BR>
+		B19200,	19200 baud<BR>
+		B38400,	38400 baud<BR>
+		B57600,	57,600 baud<BR>
+		B76800,	76,800 baud<BR>
+		B115200,	115,200 baud<BR>
+	*/
+	int dataBits; /**<
+	Data bits can be<BR>
+		CS5,	5 data bits<BR>
+		CS6,	6 data bits<BR>
+		CS7,	7 data bits<BR>
+		CS8,	8 data bits<BR>
+	*/
+	int parityBit; /**<
+	parity bit is one of the following<BR>
+		NO_PARITY<BR>
+		EVEN_PARITY<BR>
+		ODD_PARITY<BR>
+	*/
 } SerialOptions;
 
+/**
+ * open_serial opens the serial port
+ * @param name[] might be something like "/dev/ttyACM0"
+ * @param options is a setup for the serial port
+ * @return EXIT_FAILURE or the serial file descriptor
+ */
 int open_serial(const char name[],SerialOptions options);
+
+/**
+ * fixed_read reads a certain number of bytes from the serial port
+ * @param file_descriptor is the identifier for the serial port
+ * @param fixed_lenght is the exact number of bytes to be read
+ * @param buffer is the place to store the bytes read
+ * @return EXIT_FAILURE or EXIT_SUCCESS
+ */
 int fixed_read(int file_descriptor,size_t fixed_lenght,void * buffer);
+
+/**
+ * read_serial_packet reads a packet from serial port. The packet is identified with a starting byte. So,
+ * while reading the first time, we ignore all is coming before this packet and then we start read packet-by-packet.
+ * The packet has a fixed lenght.
+ * @param file_descriptor is the identifier for the serial port
+ * @param fixed_lenght is the exact number of bytes to be read
+ * @param buffer is the place to store the bytes read
+ * @param start is the starting byte of the packet
+ * @return EXIT_FAILURE, EXIT_SUCCESS or NO_PACKET
+ */
 int read_serial_packet(int file_descriptor,size_t fixed_lenght,void * buffer,uint8_t start);
+
+/**
+ * write_serial writes to a serial port previously opened.
+ * @param file_descriptor is the identifier for the serial port
+ * @param lenght is the lenght of the item to be sent out
+ * @param buffer is a pointer to the item to be sent out
+ * @return EXIT_FAILURE or EXIT_SUCCESS
+ */
 int write_serial(int file_descriptor,size_t lenght,void * buffer);
 
 #endif /* SERIAL_H_ */

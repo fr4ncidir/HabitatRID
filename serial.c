@@ -1,8 +1,13 @@
-/*
+/**
+ * @mainpage C serial libray main page
+ * Contact <francesco.antoniazzi1991@gmail.com>
+ */
+
+/**
  * serial.c
- *
- *  Created on: 18 ott 2016
- *      Author: Francesco Antoniazzi
+ * @author Francesco Antoniazzi
+ * @version 0.9
+ * @date 20 oct 2016
  */
 #include "serial.h"
 

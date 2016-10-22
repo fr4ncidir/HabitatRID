@@ -1,0 +1,91 @@
+\begin{theindex}
+
+  \item {baud\+Rate}
+    \subitem {serial\+\_\+options}, 7
+
+  \indexspace
+
+  \item {data\+Bits}
+    \subitem {serial\+\_\+options}, 7
+
+  \indexspace
+
+  \item {E\+R\+R\+OR}
+    \subitem {serial.\+h}, 12
+  \item {E\+V\+E\+N\+\_\+\+P\+A\+R\+I\+TY}
+    \subitem {serial.\+h}, 12
+
+  \indexspace
+
+  \item {fixed\+\_\+read}
+    \subitem {serial.\+c}, 10
+    \subitem {serial.\+h}, 12
+
+  \indexspace
+
+  \item {M\+E\+S\+S\+A\+G\+E\+\_\+\+S\+I\+ZE}
+    \subitem {main.\+c}, 9
+  \item {main}
+    \subitem {main.\+c}, 9
+  \item {main.\+c}, 9
+    \subitem {M\+E\+S\+S\+A\+G\+E\+\_\+\+S\+I\+ZE}, 9
+    \subitem {main}, 9
+
+  \indexspace
+
+  \item {N\+O\+\_\+\+P\+A\+C\+K\+ET}
+    \subitem {serial.\+h}, 12
+  \item {N\+O\+\_\+\+P\+A\+R\+I\+TY}
+    \subitem {serial.\+h}, 12
+
+  \indexspace
+
+  \item {O\+D\+D\+\_\+\+P\+A\+R\+I\+TY}
+    \subitem {serial.\+h}, 12
+  \item {open\+\_\+serial}
+    \subitem {serial.\+c}, 10
+    \subitem {serial.\+h}, 13
+
+  \indexspace
+
+  \item {parity\+Bit}
+    \subitem {serial\+\_\+options}, 8
+
+  \indexspace
+
+  \item {read\+\_\+serial\+\_\+packet}
+    \subitem {serial.\+c}, 10
+    \subitem {serial.\+h}, 13
+
+  \indexspace
+
+  \item {serial.\+c}, 9
+    \subitem {fixed\+\_\+read}, 10
+    \subitem {open\+\_\+serial}, 10
+    \subitem {read\+\_\+serial\+\_\+packet}, 10
+    \subitem {write\+\_\+serial}, 11
+  \item {serial.\+h}, 11
+    \subitem {E\+R\+R\+OR}, 12
+    \subitem {E\+V\+E\+N\+\_\+\+P\+A\+R\+I\+TY}, 12
+    \subitem {fixed\+\_\+read}, 12
+    \subitem {N\+O\+\_\+\+P\+A\+C\+K\+ET}, 12
+    \subitem {N\+O\+\_\+\+P\+A\+R\+I\+TY}, 12
+    \subitem {O\+D\+D\+\_\+\+P\+A\+R\+I\+TY}, 12
+    \subitem {open\+\_\+serial}, 13
+    \subitem {read\+\_\+serial\+\_\+packet}, 13
+    \subitem {Serial\+Options}, 12
+    \subitem {write\+\_\+serial}, 14
+  \item {serial\+\_\+options}, 7
+    \subitem {baud\+Rate}, 7
+    \subitem {data\+Bits}, 7
+    \subitem {parity\+Bit}, 8
+  \item {Serial\+Options}
+    \subitem {serial.\+h}, 12
+
+  \indexspace
+
+  \item {write\+\_\+serial}
+    \subitem {serial.\+c}, 11
+    \subitem {serial.\+h}, 14
+
+\end{theindex}
