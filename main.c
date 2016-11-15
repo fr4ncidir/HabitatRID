@@ -25,7 +25,7 @@ int main(int argc, char ** argv) {
 	if (serial_descriptor == ERROR) return EXIT_FAILURE;
 
 	do {
-		success = read_serial_packet(serial_descriptor,MESSAGE_SIZE,message,'H');
+		//success = read_serial_packet(serial_descriptor,MESSAGE_SIZE,message,'H');
 		if (success == EXIT_FAILURE) break;
 		else {
 			if (success == NO_PACKET) {
