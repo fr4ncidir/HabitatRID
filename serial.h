@@ -76,9 +76,9 @@ typedef struct serial_options {
  * open_serial opens the serial port
  * @param name[] might be something like "/dev/ttyACM0"
  * @param options is a setup for the serial port
- * @return EXIT_FAILURE or the serial file descriptor
+ * @return ERROR or the serial file descriptor
  */
-int open_serial(const char name[],SerialOptions options);
+int open_serial(const char name[],const SerialOptions options);
 
 /**
  * fixed_read reads a certain number of bytes from the serial port
@@ -115,7 +115,7 @@ int read_until_terminator(int file_descriptor,size_t max_dim,void * buffer,uint8
 /**
  * write_serial writes to a serial port previously opened.
  * @param file_descriptor is the identifier for the serial port
- * @param lenght is the lenght of the item to be sent out
+ * @param length is the length of the item to be sent out
  * @param buffer is a pointer to the item to be sent out
  * @return EXIT_FAILURE or EXIT_SUCCESS
  */

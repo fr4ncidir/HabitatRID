@@ -4,14 +4,17 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../RIDLib.c \
 ../main.c \
 ../serial.c 
 
 OBJS += \
+./RIDLib.o \
 ./main.o \
 ./serial.o 
 
 C_DEPS += \
+./RIDLib.d \
 ./main.d \
 ./serial.d 
 

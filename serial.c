@@ -11,7 +11,7 @@
  */
 #include "serial.h"
 
-int open_serial(const char name[],SerialOptions options) {
+int open_serial(const char name[],const SerialOptions options) {
 	int file_descriptor;
 	char message[50];
 	struct termios opt;
@@ -27,7 +27,7 @@ int open_serial(const char name[],SerialOptions options) {
 		sprintf(message,"open_serial: Unable to open %s -",name);
 		perror(message);
 #endif
-		return EXIT_FAILURE;
+		return ERROR;
 	}
 	else {
 		/*
@@ -89,7 +89,7 @@ int read_nbyte(int file_descriptor,size_t fixed_lenght,void * buffer) {
 
 	while (toBeRead>0) {
 		bytes_read = read(file_descriptor,rebuffer+fixed_lenght-toBeRead,toBeRead);
-		if (bytes_read == ERROR) {
+		if ((bytes_read == ERROR) || (!bytes_read)) {
 #ifdef VERBOSE
 			perror("read_nbyte: Unable to read from the serial port - ");
 #endif
@@ -142,7 +142,7 @@ int read_until_terminator(int file_descriptor,size_t max_dim,void * buffer,uint8
 
 	do {
 		bytes_read = read(file_descriptor,&bytebuffer,1);
-		if (bytes_read == ERROR) {
+		if ((bytes_read == ERROR) || (!bytes_read)) {
 #ifdef VERBOSE
 			perror("read_until_terminator: Unable to read from the serial port - ");
 #endif
@@ -161,7 +161,7 @@ int write_serial(int file_descriptor,size_t lenght,void * buffer) {
 
 	while (bytes_sent<lenght) {
 		result = write(file_descriptor,buffer,lenght);
-		if (result == ERROR) {
+		if ((result == ERROR) || (!result)) {
 #ifdef VERBOSE
 			perror("write_serial: Unable to write from the serial port - ");
 #endif
