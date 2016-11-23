@@ -90,12 +90,32 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="contents">
 <div class="textblock"><code>#include &lt;stdio.h&gt;</code><br />
 <code>#include &lt;stdlib.h&gt;</code><br />
+<code>#include &lt;string.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="serial_8h_source.html">serial.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="RIDLib_8h_source.html">RIDLib.h</a>&quot;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:aeca90e1c1c62b70670514ffc18c9dfd4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#aeca90e1c1c62b70670514ffc18c9dfd4">MESSAGE_SIZE</a>&#160;&#160;&#160;15</td></tr>
-<tr class="separator:aeca90e1c1c62b70670514ffc18c9dfd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac950ebd1ed784f784eb48dfe838a5eb1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#ac950ebd1ed784f784eb48dfe838a5eb1">RESET_COMMAND</a>&#160;&#160;&#160;'+'</td></tr>
+<tr class="separator:ac950ebd1ed784f784eb48dfe838a5eb1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab120d13cc86110be29b504ef2d9a82a3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#ab120d13cc86110be29b504ef2d9a82a3">REQUEST_COMMAND</a>&#160;&#160;&#160;'&lt;'</td></tr>
+<tr class="separator:ab120d13cc86110be29b504ef2d9a82a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2e29b412519027eed0d1643252c76f1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#ab2e29b412519027eed0d1643252c76f1">DETECT_COMMAND</a>&#160;&#160;&#160;'&gt;'</td></tr>
+<tr class="separator:ab2e29b412519027eed0d1643252c76f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad4d8ff998ac7c73ec6ddc6a8c1c01288"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#ad4d8ff998ac7c73ec6ddc6a8c1c01288">SCHWARZENEGGER</a>&#160;&#160;&#160;'\n'</td></tr>
+<tr class="separator:ad4d8ff998ac7c73ec6ddc6a8c1c01288"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0f54ee96cdb2815ae78a193f6ac34593"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a0f54ee96cdb2815ae78a193f6ac34593">STD_PACKET_DIM</a>&#160;&#160;&#160;2</td></tr>
+<tr class="separator:a0f54ee96cdb2815ae78a193f6ac34593"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a041c2e6fd160c7f2fa9186bab2b95387"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a041c2e6fd160c7f2fa9186bab2b95387">STD_PACKET_STRING_DIM</a>&#160;&#160;&#160;3</td></tr>
+<tr class="separator:a041c2e6fd160c7f2fa9186bab2b95387"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a11a133f9f5998f6c7313af60046581ee"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a11a133f9f5998f6c7313af60046581ee">WRONG_NID</a>&#160;&#160;&#160;255</td></tr>
+<tr class="separator:a11a133f9f5998f6c7313af60046581ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2dcd80151babd060e9dc66769d327a92"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a2dcd80151babd060e9dc66769d327a92">CENTRE_RESCALE</a>&#160;&#160;&#160;256</td></tr>
+<tr class="separator:a2dcd80151babd060e9dc66769d327a92"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa8cecfc5c5c054d2875c03e77b7be15d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#aa8cecfc5c5c054d2875c03e77b7be15d">TRUE</a>&#160;&#160;&#160;1</td></tr>
+<tr class="separator:aa8cecfc5c5c054d2875c03e77b7be15d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa93f0eb578d23995850d61f7d61c55c1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#aa93f0eb578d23995850d61f7d61c55c1">FALSE</a>&#160;&#160;&#160;0</td></tr>
+<tr class="separator:aa93f0eb578d23995850d61f7d61c55c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -103,12 +123,120 @@ Functions</h2></td></tr>
 <tr class="separator:a3c04138a5bfe5d72780bb7e82a18e627"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
-<a class="anchor" id="aeca90e1c1c62b70670514ffc18c9dfd4"></a>
+<a class="anchor" id="a2dcd80151babd060e9dc66769d327a92"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define MESSAGE_SIZE&#160;&#160;&#160;15</td>
+          <td class="memname">#define CENTRE_RESCALE&#160;&#160;&#160;256</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ab2e29b412519027eed0d1643252c76f1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define DETECT_COMMAND&#160;&#160;&#160;'&gt;'</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aa93f0eb578d23995850d61f7d61c55c1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define FALSE&#160;&#160;&#160;0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ab120d13cc86110be29b504ef2d9a82a3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define REQUEST_COMMAND&#160;&#160;&#160;'&lt;'</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ac950ebd1ed784f784eb48dfe838a5eb1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RESET_COMMAND&#160;&#160;&#160;'+'</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ad4d8ff998ac7c73ec6ddc6a8c1c01288"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define SCHWARZENEGGER&#160;&#160;&#160;'\n'</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a0f54ee96cdb2815ae78a193f6ac34593"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define STD_PACKET_DIM&#160;&#160;&#160;2</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a041c2e6fd160c7f2fa9186bab2b95387"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define STD_PACKET_STRING_DIM&#160;&#160;&#160;3</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aa8cecfc5c5c054d2875c03e77b7be15d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TRUE&#160;&#160;&#160;1</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a11a133f9f5998f6c7313af60046581ee"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define WRONG_NID&#160;&#160;&#160;255</td>
         </tr>
       </table>
 </div><div class="memdoc">

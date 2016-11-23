@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['message_5fsize',['MESSAGE_SIZE',['../main_8c.html#aeca90e1c1c62b70670514ffc18c9dfd4',1,'main.c']]]
+  ['bottom_5fleft_5fcorner_5fdistance',['BOTTOM_LEFT_CORNER_DISTANCE',['../RIDLib_8h.html#a2f7cfa33a7e63368ee8fe6cb54b43ccd',1,'RIDLib.h']]]
 ];

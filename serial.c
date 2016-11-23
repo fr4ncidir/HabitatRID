@@ -171,3 +171,15 @@ int write_serial(int file_descriptor,size_t lenght,void * buffer) {
 	}
 	return EXIT_SUCCESS;
 }
+
+int send_packet(const int serial_descriptor,const uint8_t packet[],const size_t dim,const char error_msg[]) {
+	int result;
+	result = write_serial(serial_descriptor,dim,(void *) packet);
+	if (result == EXIT_FAILURE) {
+#ifdef VERBOSE
+		printf("%s\n",error_msg);
+#endif
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
+}

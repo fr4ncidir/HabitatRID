@@ -1,7 +1,6 @@
 var searchData=
 [
-  ['serial_2ec',['serial.c',['../serial_8c.html',1,'']]],
-  ['serial_2eh',['serial.h',['../serial_8h.html',1,'']]],
-  ['serial_5foptions',['serial_options',['../structserial__options.html',1,'']]],
-  ['serialoptions',['SerialOptions',['../serial_8h.html#ade6fce17c7fb873847e3e098ede6efa8',1,'serial.h']]]
+  ['odd_5fparity',['ODD_PARITY',['../serial_8h.html#a898d7631f24dd6b1deebf808a2214ea2',1,'serial.h']]],
+  ['one_5fstop',['ONE_STOP',['../serial_8h.html#ac370b5ba27f9a0a5a6305b9feb8912ec',1,'serial.h']]],
+  ['open_5fserial',['open_serial',['../serial_8c.html#ac209470d5ede6c6eab4ec2ab75baa673',1,'open_serial(const char name[], const SerialOptions options):&#160;serial.c'],['../serial_8h.html#ac209470d5ede6c6eab4ec2ab75baa673',1,'open_serial(const char name[], const SerialOptions options):&#160;serial.c']]]
 ];

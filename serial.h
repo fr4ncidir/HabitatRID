@@ -94,12 +94,12 @@ int read_nbyte(int file_descriptor,size_t fixed_lenght,void * buffer);
  * while reading the first time, we ignore all is coming before this packet and then we start read packet-by-packet.
  * The packet has a fixed lenght.
  * @param file_descriptor is the identifier for the serial port
- * @param fixed_lenght is the exact number of bytes to be read
+ * @param fixed_length is the exact number of bytes to be read
  * @param buffer is the place to store the bytes read
  * @param start is the starting byte of the packet
  * @return EXIT_FAILURE, EXIT_SUCCESS or NO_PACKET
  */
-int read_nbyte_packet(int file_descriptor,size_t fixed_lenght,void * buffer,uint8_t start);
+int read_nbyte_packet(int file_descriptor,size_t fixed_length,void * buffer,uint8_t start);
 
 /**
  * reads the serial byte by byte, until it reaches max dimention of the buffer, or it reads the specified
@@ -113,12 +113,22 @@ int read_nbyte_packet(int file_descriptor,size_t fixed_lenght,void * buffer,uint
 int read_until_terminator(int file_descriptor,size_t max_dim,void * buffer,uint8_t terminator);
 
 /**
- * write_serial writes to a serial port previously opened.
+ * write_serial writes to a serial port previously opened a precise number of bytes.
  * @param file_descriptor is the identifier for the serial port
  * @param length is the length of the item to be sent out
  * @param buffer is a pointer to the item to be sent out
  * @return EXIT_FAILURE or EXIT_SUCCESS
  */
-int write_serial(int file_descriptor,size_t lenght,void * buffer);
+int write_serial(int file_descriptor,size_t length,void * buffer);
+
+/**
+ * Sends an array of characters to a serial port. If it fails, it prints an error message
+ * @param serial_descriptor the descriptor of the serial port
+ * @param packet the array containing the packet
+ * @param dim usually is packet_dimension_in_bytes*sizeof(uint8_t)
+ * @param error_msg a string containing an error message
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
+int send_packet(const int serial_descriptor,const uint8_t packet[],const size_t dim,const char error_msg[]);
 
 #endif /* SERIAL_H_ */

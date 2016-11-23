@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['serialoptions',['SerialOptions',['../serial_8h.html#ade6fce17c7fb873847e3e098ede6efa8',1,'serial.h']]]
+  ['coord',['coord',['../RIDLib_8h.html#aebefcb74afa2e2bdc0d9aec5004e93b0',1,'RIDLib.h']]]
 ];

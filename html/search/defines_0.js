@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['error',['ERROR',['../serial_8h.html#a8fe83ac76edc595f6b98cd4a4127aed5',1,'serial.h']]],
-  ['even_5fparity',['EVEN_PARITY',['../serial_8h.html#a30a963ff1432e4cfbdd83e74045ef142',1,'serial.h']]]
+  ['angle_5fiterations',['ANGLE_ITERATIONS',['../RIDLib_8h.html#a1efdd759b0e0e31df94d9e6ef480ada3',1,'RIDLib.h']]]
 ];

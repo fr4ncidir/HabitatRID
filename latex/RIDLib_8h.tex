@@ -1,0 +1,205 @@
+\section{R\+I\+D\+Lib.\+h File Reference}
+\label{RIDLib_8h}\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+{\ttfamily \#include $<$stdio.\+h$>$}\\*
+{\ttfamily \#include $<$stdlib.\+h$>$}\\*
+{\ttfamily \#include $<$string.\+h$>$}\\*
+{\ttfamily \#include $<$gsl/gsl\+\_\+vector\+\_\+int.\+h$>$}\\*
+{\ttfamily \#include $<$gsl/gsl\+\_\+matrix\+\_\+int.\+h$>$}\\*
+{\ttfamily \#include $<$math.\+h$>$}\\*
+{\ttfamily \#include $<$time.\+h$>$}\\*
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct {\bf coordinates}
+\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define {\bf N1}~2
+\item 
+\#define {\bf N2}~2
+\item 
+\#define {\bf N3}~2
+\item 
+\#define {\bf Pr01}~-\/54.\+0
+\item 
+\#define {\bf Pr02}~-\/52.\+0
+\item 
+\#define {\bf Pr03}~-\/52.\+0
+\item 
+\#define {\bf R\+A\+N\+G\+E1}~11
+\item 
+\#define {\bf R\+A\+N\+G\+E2}~31
+\item 
+\#define {\bf d\+Degrees}~90
+\item 
+\#define {\bf d\+Theta0}~-\/45
+\item 
+\#define {\bf A\+N\+G\+L\+E\+\_\+\+I\+T\+E\+R\+A\+T\+I\+O\+NS}~40
+\item 
+\#define {\bf B\+O\+T\+T\+O\+M\+\_\+\+L\+E\+F\+T\+\_\+\+C\+O\+R\+N\+E\+R\+\_\+\+D\+I\+S\+T\+A\+N\+CE}~2.\+74
+\item 
+\#define {\bf S\+U\+M\+\_\+\+C\+O\+R\+R\+E\+C\+T\+I\+ON}~-\/200
+\item 
+\#define {\bf D\+I\+F\+F\+\_\+\+C\+O\+R\+R\+E\+C\+T\+I\+ON}~200
+\item 
+\#define {\bf M\+A\+T\+L\+A\+B\+\_\+\+C\+O\+M\+P\+A\+T\+I\+B\+L\+E\+\_\+\+T\+XT}~1
+\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef struct tm {\bf Time\+Struct}
+\item 
+typedef gsl\+\_\+vector\+\_\+int {\bf int\+Vector}
+\item 
+typedef gsl\+\_\+matrix\+\_\+int {\bf int\+Matrix}
+\item 
+typedef struct {\bf coordinates} {\bf coord}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int {\bf log\+\_\+file\+\_\+txt} ({\bf int\+Vector} $\ast$ids, {\bf int\+Matrix} $\ast$sums, {\bf int\+Matrix} $\ast$diffs, int rows, int cols, int matlab\+\_\+mode)
+\item 
+int {\bf log\+\_\+file\+\_\+bin} ({\bf int\+Vector} $\ast$ids, {\bf int\+Matrix} $\ast$sums, {\bf int\+Matrix} $\ast$diffs, int rows, int cols, char $\ast$log\+File\+Name)
+\item 
+{\bf coord} {\bf localization} (const char log\+File\+Name[$\,$])
+\item 
+double {\bf radius\+Find} (int i\+\_\+ref2, {\bf int\+Vector} $\ast$sum)
+\item 
+double {\bf radius\+Formula} (double A, double B, double C)
+\item 
+double {\bf theta\+Find} (int i\+\_\+ref)
+\item 
+int {\bf vector\+\_\+subst} ({\bf int\+Vector} $\ast$vector, int old\+Val, int new\+Val)
+\end{DoxyCompactItemize}
+
+
+\subsection{Macro Definition Documentation}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!A\+N\+G\+L\+E\+\_\+\+I\+T\+E\+R\+A\+T\+I\+O\+NS@{A\+N\+G\+L\+E\+\_\+\+I\+T\+E\+R\+A\+T\+I\+O\+NS}}
+\index{A\+N\+G\+L\+E\+\_\+\+I\+T\+E\+R\+A\+T\+I\+O\+NS@{A\+N\+G\+L\+E\+\_\+\+I\+T\+E\+R\+A\+T\+I\+O\+NS}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{A\+N\+G\+L\+E\+\_\+\+I\+T\+E\+R\+A\+T\+I\+O\+NS}]{\setlength{\rightskip}{0pt plus 5cm}\#define A\+N\+G\+L\+E\+\_\+\+I\+T\+E\+R\+A\+T\+I\+O\+NS~40}\label{RIDLib_8h_a1efdd759b0e0e31df94d9e6ef480ada3}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!B\+O\+T\+T\+O\+M\+\_\+\+L\+E\+F\+T\+\_\+\+C\+O\+R\+N\+E\+R\+\_\+\+D\+I\+S\+T\+A\+N\+CE@{B\+O\+T\+T\+O\+M\+\_\+\+L\+E\+F\+T\+\_\+\+C\+O\+R\+N\+E\+R\+\_\+\+D\+I\+S\+T\+A\+N\+CE}}
+\index{B\+O\+T\+T\+O\+M\+\_\+\+L\+E\+F\+T\+\_\+\+C\+O\+R\+N\+E\+R\+\_\+\+D\+I\+S\+T\+A\+N\+CE@{B\+O\+T\+T\+O\+M\+\_\+\+L\+E\+F\+T\+\_\+\+C\+O\+R\+N\+E\+R\+\_\+\+D\+I\+S\+T\+A\+N\+CE}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{B\+O\+T\+T\+O\+M\+\_\+\+L\+E\+F\+T\+\_\+\+C\+O\+R\+N\+E\+R\+\_\+\+D\+I\+S\+T\+A\+N\+CE}]{\setlength{\rightskip}{0pt plus 5cm}\#define B\+O\+T\+T\+O\+M\+\_\+\+L\+E\+F\+T\+\_\+\+C\+O\+R\+N\+E\+R\+\_\+\+D\+I\+S\+T\+A\+N\+CE~2.\+74}\label{RIDLib_8h_a2f7cfa33a7e63368ee8fe6cb54b43ccd}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!d\+Degrees@{d\+Degrees}}
+\index{d\+Degrees@{d\+Degrees}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{d\+Degrees}]{\setlength{\rightskip}{0pt plus 5cm}\#define d\+Degrees~90}\label{RIDLib_8h_acb74cf293670fe238b3f3a1de1afcfef}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!D\+I\+F\+F\+\_\+\+C\+O\+R\+R\+E\+C\+T\+I\+ON@{D\+I\+F\+F\+\_\+\+C\+O\+R\+R\+E\+C\+T\+I\+ON}}
+\index{D\+I\+F\+F\+\_\+\+C\+O\+R\+R\+E\+C\+T\+I\+ON@{D\+I\+F\+F\+\_\+\+C\+O\+R\+R\+E\+C\+T\+I\+ON}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{D\+I\+F\+F\+\_\+\+C\+O\+R\+R\+E\+C\+T\+I\+ON}]{\setlength{\rightskip}{0pt plus 5cm}\#define D\+I\+F\+F\+\_\+\+C\+O\+R\+R\+E\+C\+T\+I\+ON~200}\label{RIDLib_8h_a1eb18764393102d5bbbe8c6d3b35e9df}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!d\+Theta0@{d\+Theta0}}
+\index{d\+Theta0@{d\+Theta0}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{d\+Theta0}]{\setlength{\rightskip}{0pt plus 5cm}\#define d\+Theta0~-\/45}\label{RIDLib_8h_a396cf80b4f1ec1199a3a9317ab0d5fe8}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!M\+A\+T\+L\+A\+B\+\_\+\+C\+O\+M\+P\+A\+T\+I\+B\+L\+E\+\_\+\+T\+XT@{M\+A\+T\+L\+A\+B\+\_\+\+C\+O\+M\+P\+A\+T\+I\+B\+L\+E\+\_\+\+T\+XT}}
+\index{M\+A\+T\+L\+A\+B\+\_\+\+C\+O\+M\+P\+A\+T\+I\+B\+L\+E\+\_\+\+T\+XT@{M\+A\+T\+L\+A\+B\+\_\+\+C\+O\+M\+P\+A\+T\+I\+B\+L\+E\+\_\+\+T\+XT}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{M\+A\+T\+L\+A\+B\+\_\+\+C\+O\+M\+P\+A\+T\+I\+B\+L\+E\+\_\+\+T\+XT}]{\setlength{\rightskip}{0pt plus 5cm}\#define M\+A\+T\+L\+A\+B\+\_\+\+C\+O\+M\+P\+A\+T\+I\+B\+L\+E\+\_\+\+T\+XT~1}\label{RIDLib_8h_a821170698def63cefee860268eccd21f}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!N1@{N1}}
+\index{N1@{N1}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{N1}]{\setlength{\rightskip}{0pt plus 5cm}\#define N1~2}\label{RIDLib_8h_abd7b39be02bc15d79b73e5cf2b531299}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!N2@{N2}}
+\index{N2@{N2}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{N2}]{\setlength{\rightskip}{0pt plus 5cm}\#define N2~2}\label{RIDLib_8h_acd864640121c7df2c19f61f7baa507e4}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!N3@{N3}}
+\index{N3@{N3}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{N3}]{\setlength{\rightskip}{0pt plus 5cm}\#define N3~2}\label{RIDLib_8h_ad66109fbdc4d3adc9c3d6ff917038aef}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!Pr01@{Pr01}}
+\index{Pr01@{Pr01}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{Pr01}]{\setlength{\rightskip}{0pt plus 5cm}\#define Pr01~-\/54.\+0}\label{RIDLib_8h_a56cf5cb556e5e1bc337e61bea902d1dc}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!Pr02@{Pr02}}
+\index{Pr02@{Pr02}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{Pr02}]{\setlength{\rightskip}{0pt plus 5cm}\#define Pr02~-\/52.\+0}\label{RIDLib_8h_a9123d3e84964bdd60fcc22d5aff6edc9}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!Pr03@{Pr03}}
+\index{Pr03@{Pr03}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{Pr03}]{\setlength{\rightskip}{0pt plus 5cm}\#define Pr03~-\/52.\+0}\label{RIDLib_8h_a55f7dfd8f87add4fee1c13fd47caf0f8}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!R\+A\+N\+G\+E1@{R\+A\+N\+G\+E1}}
+\index{R\+A\+N\+G\+E1@{R\+A\+N\+G\+E1}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{R\+A\+N\+G\+E1}]{\setlength{\rightskip}{0pt plus 5cm}\#define R\+A\+N\+G\+E1~11}\label{RIDLib_8h_a58ee73814035f6ca661b55e8b9c806a9}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!R\+A\+N\+G\+E2@{R\+A\+N\+G\+E2}}
+\index{R\+A\+N\+G\+E2@{R\+A\+N\+G\+E2}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{R\+A\+N\+G\+E2}]{\setlength{\rightskip}{0pt plus 5cm}\#define R\+A\+N\+G\+E2~31}\label{RIDLib_8h_ae8ae0ff4085f457bdd3a3375b638d546}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!S\+U\+M\+\_\+\+C\+O\+R\+R\+E\+C\+T\+I\+ON@{S\+U\+M\+\_\+\+C\+O\+R\+R\+E\+C\+T\+I\+ON}}
+\index{S\+U\+M\+\_\+\+C\+O\+R\+R\+E\+C\+T\+I\+ON@{S\+U\+M\+\_\+\+C\+O\+R\+R\+E\+C\+T\+I\+ON}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{S\+U\+M\+\_\+\+C\+O\+R\+R\+E\+C\+T\+I\+ON}]{\setlength{\rightskip}{0pt plus 5cm}\#define S\+U\+M\+\_\+\+C\+O\+R\+R\+E\+C\+T\+I\+ON~-\/200}\label{RIDLib_8h_a36fb16978e079f4c1169621fa4f1fb98}
+
+
+\subsection{Typedef Documentation}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!coord@{coord}}
+\index{coord@{coord}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{coord}]{\setlength{\rightskip}{0pt plus 5cm}typedef struct {\bf coordinates} 									 {\bf coord}}\label{RIDLib_8h_aebefcb74afa2e2bdc0d9aec5004e93b0}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!int\+Matrix@{int\+Matrix}}
+\index{int\+Matrix@{int\+Matrix}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{int\+Matrix}]{\setlength{\rightskip}{0pt plus 5cm}typedef gsl\+\_\+matrix\+\_\+int {\bf int\+Matrix}}\label{RIDLib_8h_a0189237edfa4ef31f7e625052e0cf080}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!int\+Vector@{int\+Vector}}
+\index{int\+Vector@{int\+Vector}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{int\+Vector}]{\setlength{\rightskip}{0pt plus 5cm}typedef gsl\+\_\+vector\+\_\+int {\bf int\+Vector}}\label{RIDLib_8h_af9e8ca34afb8d148480ebccbe91a683b}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!Time\+Struct@{Time\+Struct}}
+\index{Time\+Struct@{Time\+Struct}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{Time\+Struct}]{\setlength{\rightskip}{0pt plus 5cm}typedef struct tm {\bf Time\+Struct}}\label{RIDLib_8h_afcc2c73bc141a64f0ccb7990c1c5c544}
+
+
+\subsection{Function Documentation}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!localization@{localization}}
+\index{localization@{localization}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{localization(const char log\+File\+Name[])}]{\setlength{\rightskip}{0pt plus 5cm}{\bf coord} localization (
+\begin{DoxyParamCaption}
+\item[{const char}]{log\+File\+Name[$\,$]}
+\end{DoxyParamCaption}
+)}\label{RIDLib_8h_ae99d763daf7207a5182a64b1e028e761}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!log\+\_\+file\+\_\+bin@{log\+\_\+file\+\_\+bin}}
+\index{log\+\_\+file\+\_\+bin@{log\+\_\+file\+\_\+bin}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{log\+\_\+file\+\_\+bin(int\+Vector $\ast$ids, int\+Matrix $\ast$sums, int\+Matrix $\ast$diffs, int rows, int cols, char $\ast$log\+File\+Name)}]{\setlength{\rightskip}{0pt plus 5cm}int log\+\_\+file\+\_\+bin (
+\begin{DoxyParamCaption}
+\item[{{\bf int\+Vector} $\ast$}]{ids, }
+\item[{{\bf int\+Matrix} $\ast$}]{sums, }
+\item[{{\bf int\+Matrix} $\ast$}]{diffs, }
+\item[{int}]{rows, }
+\item[{int}]{cols, }
+\item[{char $\ast$}]{log\+File\+Name}
+\end{DoxyParamCaption}
+)}\label{RIDLib_8h_a517314324258aabc7e1e3fb243bb03d6}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!log\+\_\+file\+\_\+txt@{log\+\_\+file\+\_\+txt}}
+\index{log\+\_\+file\+\_\+txt@{log\+\_\+file\+\_\+txt}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{log\+\_\+file\+\_\+txt(int\+Vector $\ast$ids, int\+Matrix $\ast$sums, int\+Matrix $\ast$diffs, int rows, int cols, int matlab\+\_\+mode)}]{\setlength{\rightskip}{0pt plus 5cm}int log\+\_\+file\+\_\+txt (
+\begin{DoxyParamCaption}
+\item[{{\bf int\+Vector} $\ast$}]{ids, }
+\item[{{\bf int\+Matrix} $\ast$}]{sums, }
+\item[{{\bf int\+Matrix} $\ast$}]{diffs, }
+\item[{int}]{rows, }
+\item[{int}]{cols, }
+\item[{int}]{matlab\+\_\+mode}
+\end{DoxyParamCaption}
+)}\label{RIDLib_8h_a3abf49fca928c0c93c52c64fffc06e30}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!radius\+Find@{radius\+Find}}
+\index{radius\+Find@{radius\+Find}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{radius\+Find(int i\+\_\+ref2, int\+Vector $\ast$sum)}]{\setlength{\rightskip}{0pt plus 5cm}double radius\+Find (
+\begin{DoxyParamCaption}
+\item[{int}]{i\+\_\+ref2, }
+\item[{{\bf int\+Vector} $\ast$}]{sum}
+\end{DoxyParamCaption}
+)}\label{RIDLib_8h_ad6982766fc14c5276e1bf59ff6b720ca}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!radius\+Formula@{radius\+Formula}}
+\index{radius\+Formula@{radius\+Formula}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{radius\+Formula(double A, double B, double C)}]{\setlength{\rightskip}{0pt plus 5cm}double radius\+Formula (
+\begin{DoxyParamCaption}
+\item[{double}]{A, }
+\item[{double}]{B, }
+\item[{double}]{C}
+\end{DoxyParamCaption}
+)}\label{RIDLib_8h_ab45d47ccc71dcd2d5fcde4af27ac191a}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!theta\+Find@{theta\+Find}}
+\index{theta\+Find@{theta\+Find}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{theta\+Find(int i\+\_\+ref)}]{\setlength{\rightskip}{0pt plus 5cm}double theta\+Find (
+\begin{DoxyParamCaption}
+\item[{int}]{i\+\_\+ref}
+\end{DoxyParamCaption}
+)}\label{RIDLib_8h_ae6528a2a374f2fb8e30d2145a3dbb886}
+\index{R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}!vector\+\_\+subst@{vector\+\_\+subst}}
+\index{vector\+\_\+subst@{vector\+\_\+subst}!R\+I\+D\+Lib.\+h@{R\+I\+D\+Lib.\+h}}
+\subsubsection[{vector\+\_\+subst(int\+Vector $\ast$vector, int old\+Val, int new\+Val)}]{\setlength{\rightskip}{0pt plus 5cm}int vector\+\_\+subst (
+\begin{DoxyParamCaption}
+\item[{{\bf int\+Vector} $\ast$}]{vector, }
+\item[{int}]{old\+Val, }
+\item[{int}]{new\+Val}
+\end{DoxyParamCaption}
+)}\label{RIDLib_8h_ae539b3f4edd29a36ebbe6fa92b0b596b}

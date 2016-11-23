@@ -91,22 +91,55 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ad312471fcce975f150cb6513979f2ad8"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="serial_8c.html#ad312471fcce975f150cb6513979f2ad8">open_serial</a> (const char name[], <a class="el" href="serial_8h.html#ade6fce17c7fb873847e3e098ede6efa8">SerialOptions</a> options)</td></tr>
-<tr class="separator:ad312471fcce975f150cb6513979f2ad8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2991200e4cecdbebbb32f8d6dccf9f5a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="serial_8c.html#a2991200e4cecdbebbb32f8d6dccf9f5a">fixed_read</a> (int file_descriptor, size_t fixed_lenght, void *buffer)</td></tr>
-<tr class="separator:a2991200e4cecdbebbb32f8d6dccf9f5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae7939a4ef693fed67b07e3afe77d9855"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="serial_8c.html#ae7939a4ef693fed67b07e3afe77d9855">read_serial_packet</a> (int file_descriptor, size_t fixed_lenght, void *buffer, uint8_t start)</td></tr>
-<tr class="separator:ae7939a4ef693fed67b07e3afe77d9855"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac209470d5ede6c6eab4ec2ab75baa673"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="serial_8c.html#ac209470d5ede6c6eab4ec2ab75baa673">open_serial</a> (const char name[], const <a class="el" href="serial_8h.html#ade6fce17c7fb873847e3e098ede6efa8">SerialOptions</a> options)</td></tr>
+<tr class="separator:ac209470d5ede6c6eab4ec2ab75baa673"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a447cbfffa2fc3978d73f7fed8579c6d6"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="serial_8c.html#a447cbfffa2fc3978d73f7fed8579c6d6">read_nbyte</a> (int file_descriptor, size_t fixed_lenght, void *buffer)</td></tr>
+<tr class="separator:a447cbfffa2fc3978d73f7fed8579c6d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acbe341fac78dc3ef373d79e8fbb2e981"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="serial_8c.html#acbe341fac78dc3ef373d79e8fbb2e981">read_nbyte_packet</a> (int file_descriptor, size_t fixed_lenght, void *buffer, uint8_t startByte)</td></tr>
+<tr class="separator:acbe341fac78dc3ef373d79e8fbb2e981"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5813b5c5b7d9df7a73f8f94a072131cd"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="serial_8c.html#a5813b5c5b7d9df7a73f8f94a072131cd">read_until_terminator</a> (int file_descriptor, size_t max_dim, void *buffer, uint8_t terminator)</td></tr>
+<tr class="separator:a5813b5c5b7d9df7a73f8f94a072131cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac6c3ebd85e1647e7f72e0e35b3d8b62d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="serial_8c.html#ac6c3ebd85e1647e7f72e0e35b3d8b62d">write_serial</a> (int file_descriptor, size_t lenght, void *buffer)</td></tr>
 <tr class="separator:ac6c3ebd85e1647e7f72e0e35b3d8b62d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a35b1a29004265c3fe5382c05f3e1a69e"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="serial_8c.html#a35b1a29004265c3fe5382c05f3e1a69e">send_packet</a> (const int serial_descriptor, const uint8_t packet[], const size_t dim, const char error_msg[])</td></tr>
+<tr class="separator:a35b1a29004265c3fe5382c05f3e1a69e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="a2991200e4cecdbebbb32f8d6dccf9f5a"></a>
+<a class="anchor" id="ac209470d5ede6c6eab4ec2ab75baa673"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int fixed_read </td>
+          <td class="memname">int open_serial </td>
+          <td>(</td>
+          <td class="paramtype">const char&#160;</td>
+          <td class="paramname"><em>name</em>[], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="serial_8h.html#ade6fce17c7fb873847e3e098ede6efa8">SerialOptions</a>&#160;</td>
+          <td class="paramname"><em>options</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p><a class="el" href="serial_8c.html">serial.c</a> </p><dl class="section author"><dt>Author</dt><dd>Francesco Antoniazzi </dd></dl>
+<dl class="section version"><dt>Version</dt><dd>0.9 </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>20 oct 2016 </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a447cbfffa2fc3978d73f7fed8579c6d6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int read_nbyte </td>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>file_descriptor</em>, </td>
@@ -142,41 +175,12 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ad312471fcce975f150cb6513979f2ad8"></a>
+<a class="anchor" id="acbe341fac78dc3ef373d79e8fbb2e981"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int open_serial </td>
-          <td>(</td>
-          <td class="paramtype">const char&#160;</td>
-          <td class="paramname"><em>name</em>[], </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="serial_8h.html#ade6fce17c7fb873847e3e098ede6efa8">SerialOptions</a>&#160;</td>
-          <td class="paramname"><em>options</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p><a class="el" href="serial_8c.html">serial.c</a> </p><dl class="section author"><dt>Author</dt><dd>Francesco Antoniazzi </dd></dl>
-<dl class="section version"><dt>Version</dt><dd>0.9 </dd></dl>
-<dl class="section date"><dt>Date</dt><dd>20 oct 2016 </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="ae7939a4ef693fed67b07e3afe77d9855"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int read_serial_packet </td>
+          <td class="memname">int read_nbyte_packet </td>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>file_descriptor</em>, </td>
@@ -185,7 +189,7 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>fixed_lenght</em>, </td>
+          <td class="paramname"><em>fixed_length</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -209,13 +213,109 @@ Functions</h2></td></tr>
 <p>read_serial_packet reads a packet from serial port. The packet is identified with a starting byte. So, while reading the first time, we ignore all is coming before this packet and then we start read packet-by-packet. The packet has a fixed lenght. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">file_descriptor</td><td>is the identifier for the serial port </td></tr>
-    <tr><td class="paramname">fixed_lenght</td><td>is the exact number of bytes to be read </td></tr>
+    <tr><td class="paramname">fixed_length</td><td>is the exact number of bytes to be read </td></tr>
     <tr><td class="paramname">buffer</td><td>is the place to store the bytes read </td></tr>
     <tr><td class="paramname">start</td><td>is the starting byte of the packet </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>EXIT_FAILURE, EXIT_SUCCESS or NO_PACKET </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a5813b5c5b7d9df7a73f8f94a072131cd"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int read_until_terminator </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>file_descriptor</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_dim</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>buffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>terminator</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>reads the serial byte by byte, until it reaches max dimention of the buffer, or it reads the specified terminator. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">file_descriptor</td><td>is the identifier for the serial port </td></tr>
+    <tr><td class="paramname">max_dim</td><td>is the maximum size of the storage buffer </td></tr>
+    <tr><td class="paramname">buffer</td><td>is the storage buffer </td></tr>
+    <tr><td class="paramname">terminator</td><td>is the stop-read byte </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>ERROR or the number of bytes read, terminator included </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a35b1a29004265c3fe5382c05f3e1a69e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int send_packet </td>
+          <td>(</td>
+          <td class="paramtype">const int&#160;</td>
+          <td class="paramname"><em>serial_descriptor</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t&#160;</td>
+          <td class="paramname"><em>packet</em>[], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const size_t&#160;</td>
+          <td class="paramname"><em>dim</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char&#160;</td>
+          <td class="paramname"><em>error_msg</em>[]&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Sends an array of characters to a serial port. If it fails, it prints an error message </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">serial_descriptor</td><td>the descriptor of the serial port </td></tr>
+    <tr><td class="paramname">packet</td><td>the array containing the packet </td></tr>
+    <tr><td class="paramname">dim</td><td>usually is packet_dimension_in_bytes*sizeof(uint8_t) </td></tr>
+    <tr><td class="paramname">error_msg</td><td>a string containing an error message </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>EXIT_SUCCESS or EXIT_FAILURE </dd></dl>
 
 </div>
 </div>
@@ -233,7 +333,7 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>lenght</em>, </td>
+          <td class="paramname"><em>length</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -248,10 +348,10 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>write_serial writes to a serial port previously opened. </p><dl class="params"><dt>Parameters</dt><dd>
+<p>write_serial writes to a serial port previously opened a precise number of bytes. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">file_descriptor</td><td>is the identifier for the serial port </td></tr>
-    <tr><td class="paramname">lenght</td><td>is the lenght of the item to be sent out </td></tr>
+    <tr><td class="paramname">length</td><td>is the length of the item to be sent out </td></tr>
     <tr><td class="paramname">buffer</td><td>is a pointer to the item to be sent out </td></tr>
   </table>
   </dd>

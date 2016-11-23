@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['write_5fserial',['write_serial',['../serial_8c.html#ac6c3ebd85e1647e7f72e0e35b3d8b62d',1,'write_serial(int file_descriptor, size_t lenght, void *buffer):&#160;serial.c'],['../serial_8h.html#ac6c3ebd85e1647e7f72e0e35b3d8b62d',1,'write_serial(int file_descriptor, size_t lenght, void *buffer):&#160;serial.c']]]
+  ['send_5fpacket',['send_packet',['../serial_8c.html#a35b1a29004265c3fe5382c05f3e1a69e',1,'send_packet(const int serial_descriptor, const uint8_t packet[], const size_t dim, const char error_msg[]):&#160;serial.c'],['../serial_8h.html#a35b1a29004265c3fe5382c05f3e1a69e',1,'send_packet(const int serial_descriptor, const uint8_t packet[], const size_t dim, const char error_msg[]):&#160;serial.c']]]
 ];
