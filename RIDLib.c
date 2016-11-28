@@ -81,46 +81,18 @@ int log_file_bin(intVector * ids,intMatrix * sums,intMatrix * diffs,int rows,int
 	return EXIT_SUCCESS;
 }
 
-coord localization(const char logFileName[]) {
-	FILE * logFile;
-	coord location;
-	intMatrix * data;
-	intVector * row;
-	intVector * sum;
-	intVector * diff;
+coord locateFromData(intVector * sum,intVector * diff,int nAngles) {
 	intVector * mpr;
-	int i,nID,maxIndexMPR,rows,cols;
+	coord location;
 	double theta,radius;
+	int maxIndexMPR;
 
-	location.x = 0;
-	location.y = 0;
-
-	logFile = fopen(logFileName,"rb");
-	if (logFile == NULL) {
-		printf("Error while opening %s.\n",logFileName);
-		return location;
-	}
-
-	fread(&rows,sizeof(int),1,logFile);
-	fread(&cols,sizeof(int),1,logFile);
-	data = gsl_matrix_int_alloc(rows,cols);
-	row = gsl_vector_int_alloc(cols);
-	gsl_matrix_int_fread(logFile,data);
-	gsl_matrix_int_get_row(row,data,rows-1);
-
-	nID = (cols-4)/2;
-	sum = gsl_vector_int_alloc(nID);
-	diff = gsl_vector_int_alloc(nID);
-	for (i=0; i<nID; i++) {
-		gsl_vector_int_set(sum,i,gsl_vector_int_get(row,4+i));
-		gsl_vector_int_set(diff,i,gsl_vector_int_get(row,4+nID+i));
-	}
 	gsl_vector_int_reverse(sum);
 	gsl_vector_int_reverse(diff);
 	vector_subst(sum,-1,SUM_CORRECTION);
 	vector_subst(diff,-1,DIFF_CORRECTION);
 
-	mpr = gsl_vector_int_alloc(nID);
+	mpr = gsl_vector_int_alloc(nAngles);
 	gsl_vector_int_memcpy(mpr,sum);
 
 #ifdef VERBOSE_CALCULATION
@@ -142,10 +114,45 @@ coord localization(const char logFileName[]) {
 	location.x = radius*cos(theta)+BOTTOM_LEFT_CORNER_DISTANCE;
 	location.y = radius*sin(theta);
 
+	gsl_vector_int_free(mpr);
+	return location;
+}
+
+coord locateFromFile(const char logFileName[]) {
+	FILE * logFile;
+	coord location;
+	intMatrix * data;
+	intVector * row;
+	intVector * sum;
+	intVector * diff;
+	int i,nAngles,rows,cols;
+
+	logFile = fopen(logFileName,"rb");
+	if (logFile == NULL) {
+		printf("Error while opening %s.\n",logFileName);
+		return location;
+	}
+
+	fread(&rows,sizeof(int),1,logFile);
+	fread(&cols,sizeof(int),1,logFile);
+	data = gsl_matrix_int_alloc(rows,cols);
+	row = gsl_vector_int_alloc(cols);
+	gsl_matrix_int_fread(logFile,data);
+	gsl_matrix_int_get_row(row,data,rows-1);
+
 	fclose(logFile);
+
+	nAngles = (cols-4)/2;
+	sum = gsl_vector_int_alloc(nAngles);
+	diff = gsl_vector_int_alloc(nAngles);
+	for (i=0; i<nAngles; i++) {
+		gsl_vector_int_set(sum,i,gsl_vector_int_get(row,4+i));
+		gsl_vector_int_set(diff,i,gsl_vector_int_get(row,4+nAngles+i));
+	}
+
+	location = locateFromData(sum,diff,nAngles);
 	gsl_vector_int_free(sum);
 	gsl_vector_int_free(diff);
-	gsl_vector_int_free(mpr);
 	gsl_matrix_int_free(data);
 	return location;
 }
@@ -176,4 +183,8 @@ int vector_subst(intVector * vector,int oldVal,int newVal) {
 		}
 	}
 	return substitutions;
+}
+
+void printLocation(coord xy) {
+	printf("\nLocation calculated: \n(x,y)=(%lf,%lf)\n",xy.x,xy.y);
 }

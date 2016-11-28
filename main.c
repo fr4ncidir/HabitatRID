@@ -4,27 +4,14 @@
  *
  *  Created on: 18 ott 2016
  *      Author: Francesco Antoniazzi
- *
- *  (1) $ cmd
- *  	checks the serial and performs 40 angle reads. Writes results on a binary file and then retrieves the location
- *
- *  (2) $ cmd -l
- *  	same as (1) but saves data also in txt file
- *
- *  (3) $ cmd -r
- *  	asks for a file name, and retrieves the location. The file must be binary
- *
- *  (4) $ cmd -s
- *  	same as (1), but does not retrieve location
- *
- *  (5) $ cmd -sl
- *  	same as (4) and (2)
  */
 
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <signal.h>
 #include "serial.h"
 #include "RIDLib.h"
 
@@ -39,66 +26,118 @@
 #define TRUE						1
 #define FALSE						0
 
+int continuousRead;
+intVector * rowOfSums;
+intVector * rowOfDiffs;
+uint8_t * sum_diff_array;
+intVector * idVector;
+intMatrix * sumVectors;
+intMatrix * diffVectors;
+int ridSerial_descriptor;
+
+void printUsage();
+int readInterval();
+void safeExit();
+
+void interruptHandler(int signalCode) {
+	signal(signalCode,SIG_IGN);
+	printf("Caught Ctrl-C: stopping reading RID\n");
+	continuousRead = FALSE;
+	signal(signalCode,SIG_DFL);
+}
+
 int main(int argc, char ** argv) {
-	int ridSerial_descriptor;
 	uint8_t request_packet[STD_PACKET_STRING_DIM] = {REQUEST_COMMAND,SCHWARZENEGGER,'\0'};
 	uint8_t reset_packet[STD_PACKET_STRING_DIM] = {RESET_COMMAND,SCHWARZENEGGER,'\0'};
 	uint8_t detect_packet[STD_PACKET_STRING_DIM] = {DETECT_COMMAND,SCHWARZENEGGER,'\0'};
 	uint8_t request_confirm[STD_PACKET_STRING_DIM] = {'x','x','\0'};
 	uint8_t nID;
 	uint8_t * id_array;
-	uint8_t * sum_diff_array;
+
 	size_t std_packet_size = STD_PACKET_DIM*sizeof(uint8_t);
 	size_t id_array_size;
 
 	char error_message[50],logFileName[50];
 	int result,i,j,textLogFlag=FALSE,slowMode=FALSE,bypassSerial=FALSE;
+	int continuousTiming,continuousSlowFlag = FALSE;
 	SerialOptions ridSerial;
 
-	intVector * idVector;
-	intMatrix * sumVectors;
-	intMatrix * diffVectors;
-	coord location;
+	continuousRead = FALSE;
 
 	switch (argc) {
-	case 1:
-		printf("Results will be saved only in binary log file\n");
+	case 1: // only the command
+		printf("One read, stored in bin file; one calculation of location\n");
 		break;
-	case 2:
-		// -l
-		if (!strcmp(argv[1],"-l")) {
-			printf("Results will be saved in txt and bin log file\n");
-			textLogFlag = TRUE;
-			break;
-		}
-		else {
-			// cmd -r
-			// only read from log file
-			if (!strcmp(argv[1],"-r")) {
-				printf("Read only mode\n");
-				bypassSerial = TRUE;
-				break;
-			}
-
-			slowMode = TRUE;
-			// cmd -s
-			// binary log file. Every read from RID is then calculated and printed in stdout
-			if (!strcmp(argv[1],"-s")) {
-				printf("Slow mode: the read is not immediately processed, only written on a binary log file\n");
-				break;
-			}
-			// cmd -ls or cmd -sl
-			// binary and text log files are written. Also, every read from RID is then calculated and printed in stdout
-			if ((!strcmp(argv[1],"-sl")) || (!strcmp(argv[1],"-ls"))) {
-				printf("Slow mode: every read is not immediately processed, written on bin and txt log file\n");
+	case 2: // command + one argument
+		switch (strlen(argv[1])) {
+		case 2:
+			if (!strcmp(argv[1],"-l")) {
+				printf("Results will be stored in txt and bin log file\n");
 				textLogFlag = TRUE;
 				break;
 			}
+			if (!strcmp(argv[1],"-r")) {
+				printf("Read only mode: read from bin log file\n");
+				bypassSerial = TRUE;
+				break;
+			}
+			if (!strcmp(argv[1],"-c")) {
+				printf("Continuous read and location decode\n");
+				continuousRead = TRUE;
+				continuousTiming = readInterval();
+				break;
+			}
+			if (!strcmp(argv[1],"-s")) {
+				printf("Slow mode: the read is not immediately processed, only written on a binary log file\n");
+				slowMode = TRUE;
+				break;
+			}
+			printUsage();
+			return EXIT_FAILURE;
+		case 3:
+			// only -lc,-ls,-cs are allowed
+			if ((strchr(argv[1],'l')!=NULL) && (strchr(argv[1],'c')!=NULL)) {
+				printf("Continuous read and location decode, storing data on bin and txt log file\n");
+				textLogFlag = TRUE;
+				continuousRead = TRUE;
+				continuousTiming = readInterval();
+				break;
+			}
+			if ((strchr(argv[1],'l')!=NULL) && (strchr(argv[1],'s')!=NULL)) {
+				printf("Slow mode: every read is not immediately processed, written on bin and txt log file\n");
+				textLogFlag = TRUE;
+				slowMode = TRUE;
+				break;
+			}
+			if ((strchr(argv[1],'s')!=NULL) && (strchr(argv[1],'c')!=NULL)) {
+				printf("Continuous read of data in slow mode: data is stored in bin file; location is not calculated");
+				slowMode = TRUE;
+				continuousRead = TRUE;
+				continuousTiming = readInterval();
+				break;
+			}
+			printUsage();
+			return EXIT_FAILURE;
+		case 4:
+			// only -lcs is allowed
+			if ((strchr(argv[1],'l')!=NULL) && (strchr(argv[1],'c')!=NULL) && (strchr(argv[1],'s')!=NULL)) {
+				printf("Continuous read of data in slow mode, storing data on bin and txt log file; location is not calculated\n");
+				slowMode = TRUE;
+				continuousRead = TRUE;
+				textLogFlag = TRUE;
+				continuousTiming = readInterval();
+				break;
+			}
+			printUsage();
+			return EXIT_FAILURE;
+		default:
+			printUsage();
+			return EXIT_FAILURE;
 		}
-		return EXIT_FAILURE;
+		break;
 	default:
-		printf("Usage: \n-s: reads from RID and calculates one by one\n-l: saves on txt logfile.\n-sl both\n-r read only\n");
-		return EXIT_SUCCESS;
+		printUsage();
+		return EXIT_FAILURE;
 	}
 
 	if (!bypassSerial) {
@@ -178,58 +217,96 @@ int main(int argc, char ** argv) {
 		sum_diff_array = (uint8_t*) malloc(id_array_size);
 		sumVectors = gsl_matrix_int_alloc(nID,ANGLE_ITERATIONS);
 		diffVectors = gsl_matrix_int_alloc(nID,ANGLE_ITERATIONS);
-		printf("Angle iterations");
-		for (i=1; i<=ANGLE_ITERATIONS; i++) {
-			printf(".");
-			sprintf(error_message,"\nSending request packet for the %d-th angle failure",i);
-			if (send_packet(ridSerial_descriptor,request_packet,std_packet_size,error_message) == EXIT_FAILURE) {
-				free(sum_diff_array);
-				gsl_matrix_int_free(sumVectors);
-				gsl_matrix_int_free(diffVectors);
-				gsl_vector_int_free(idVector);
-				close(ridSerial_descriptor);
-				return EXIT_FAILURE;
-			}
-			result = read_until_terminator(ridSerial_descriptor,id_array_size,sum_diff_array,SCHWARZENEGGER);
-			if (result == ERROR) {
-				printf("\nReading sum-diff vector for %d-th angle failure\n",i);
-				free(sum_diff_array);
-				gsl_matrix_int_free(sumVectors);
-				gsl_matrix_int_free(diffVectors);
-				gsl_vector_int_free(idVector);
-				close(ridSerial_descriptor);
-				return EXIT_FAILURE;
-			}
-			for (j=0; j<nID; j++) {
-				gsl_matrix_int_set(sumVectors,j,i-1,sum_diff_array[2*j]-CENTRE_RESCALE);
-				gsl_matrix_int_set(diffVectors,j,i-1,sum_diff_array[2*j+1]-CENTRE_RESCALE);
+
+		if (continuousRead) {
+			printf("Ctrl-c to stop reading\n");
+			signal(SIGINT,interruptHandler);
+			if (!slowMode) {
+				continuousSlowFlag = TRUE;
+				rowOfSums = gsl_vector_int_alloc(ANGLE_ITERATIONS);
+				rowOfDiffs = gsl_vector_int_alloc(ANGLE_ITERATIONS);
 			}
 		}
-		free(sum_diff_array);
-		printf("completed\n");
+		do {
+			printf("Angle iterations");
+			for (i=0; i<ANGLE_ITERATIONS; i++) {
+				printf(".");
+				// writes to serial "<\n"
+				sprintf(error_message,"\nSending request packet for the %d-th angle failure",i+1);
+				if (send_packet(ridSerial_descriptor,request_packet,std_packet_size,error_message) == EXIT_FAILURE) {
+					safeExit();
+					return EXIT_FAILURE;
+				}
 
-		// log files
-		if (textLogFlag) log_file_txt(idVector,sumVectors,diffVectors,nID,ANGLE_ITERATIONS,0);
-		log_file_bin(idVector,sumVectors,diffVectors,nID,ANGLE_ITERATIONS,logFileName);
-		printf("Log file(s) written\n");
+				// reads sum and diff values
+				result = read_until_terminator(ridSerial_descriptor,id_array_size,sum_diff_array,SCHWARZENEGGER);
+				if (result == ERROR) {
+					printf("\nReading sum-diff vector for %d-th angle failure\n",i+1);
+					safeExit();
+					return EXIT_FAILURE;
+				}
+				// puts data in vectors
+				for (j=0; j<nID; j++) {
+					gsl_matrix_int_set(sumVectors,j,i,sum_diff_array[2*j]-CENTRE_RESCALE);
+					gsl_matrix_int_set(diffVectors,j,i,sum_diff_array[2*j+1]-CENTRE_RESCALE);
+				}
+			}
+			printf("completed\n");
+			send_packet(ridSerial_descriptor,detect_packet,std_packet_size,"Detect packet send failure");
 
-		send_packet(ridSerial_descriptor,detect_packet,std_packet_size,"Detect packet send failure");
+			// log files
+			if (textLogFlag) log_file_txt(idVector,sumVectors,diffVectors,nID,ANGLE_ITERATIONS,0);
+			log_file_bin(idVector,sumVectors,diffVectors,nID,ANGLE_ITERATIONS,logFileName);
+
+			if ((!slowMode) && continuousRead) {
+				for (j=0; j<nID; j++) {
+					gsl_matrix_int_get_row(rowOfSums,sumVectors,j);
+					gsl_matrix_int_get_row(rowOfDiffs,diffVectors,j);
+					printLocation(locateFromData(rowOfSums,rowOfDiffs,ANGLE_ITERATIONS));
+				}
+			}
+			if (continuousRead) usleep(continuousTiming);
+			else {
+				if (!slowMode) printLocation(locateFromFile(logFileName));
+			}
+		} while (continuousRead);
+		if (!continuousSlowFlag) {
+			gsl_vector_int_free(rowOfSums);
+			gsl_vector_int_free(rowOfDiffs);
+		}
 	}
 	else {
 		// cmd -r passes here
 		printf("Please insert the name of the binary logfile: \n-> ");
 		scanf("%s",logFileName);
-	}
-	if (!slowMode) {
-		location = localization(logFileName);
-		printf("\nLocation calculated: \n(x,y)=(%lf,%lf)\n",location.x,location.y);
+		printLocation(locateFromFile(logFileName));
 	}
 
+	safeExit();
+	printf("Main has successfully terminated! Good game!\n");
+	return EXIT_SUCCESS;
+}
+
+void printUsage() {
+	printf("USAGE:\n");
+	printf("-l\tstores results into txt file\n");
+	printf("-c\trepeats execution until Ctrl-C\n");
+	printf("-r\treads from binary file data\n");
+	printf("-s\tonly stores results into binary file\n");
+	printf("\nYou can also combine l,s,c options\n");
+}
+
+int readInterval() {
+	uint32_t microseconds;
+	printf("Please insert ms between two reads: ");
+	scanf("%u",&microseconds);
+	return microseconds*1000;
+}
+
+void safeExit() {
+	free(sum_diff_array);
 	gsl_matrix_int_free(sumVectors);
 	gsl_matrix_int_free(diffVectors);
 	gsl_vector_int_free(idVector);
 	close(ridSerial_descriptor);
-
-	printf("Main has successfully terminated! Good game!\n");
-	return EXIT_SUCCESS;
 }

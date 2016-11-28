@@ -45,11 +45,13 @@ typedef struct coordinates {
 
 int log_file_txt(intVector * ids,intMatrix * sums,intMatrix * diffs,int rows,int cols,int matlab_mode);
 int log_file_bin(intVector * ids,intMatrix * sums,intMatrix * diffs,int rows,int cols,char * logFileName);
-coord localization(const char logFileName[]);
+coord locateFromData(intVector * sum,intVector * diff,int nAngles);
+coord locateFromFile(const char logFileName[]);
 double radiusFind(int i_ref2,intVector * sum);
 double radiusFormula(double A,double B,double C);
 double thetaFind(int i_ref);
 int vector_subst(intVector * vector,int oldVal,int newVal);
+void printLocation(coord xy);
 
 
 #endif /* RIDLIB_H_ */
