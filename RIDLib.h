@@ -16,24 +16,31 @@
 #include <math.h>
 #include <time.h>
 
-#define N1			2
-#define N2			2
-#define N3			2
-#define Pr01		-54.0
-#define	Pr02		-52.0
-#define Pr03		-52.0
-#define RANGE1		11
-#define RANGE2		31
-#define dDegrees	90
-#define dTheta0		-45
+#define RADIUS_TH		6
+#define N1_low			2
+#define N2_low			2
+#define N3_low			2
+#define Pr01_low		-63.0
+#define	Pr02_low		-61.0
+#define Pr03_low		-63.0
+#define N1_high			3
+#define N2_high			3
+#define N3_high			3
+#define Pr01_high		-74.0
+#define	Pr02_high		-72.0
+#define Pr03_high		-74.0
+#define RANGE1			11
+#define RANGE2			31
+#define dDegrees		90
+#define dTheta0			0
 
 #define ANGLE_ITERATIONS				40
 #define BOTTOM_LEFT_CORNER_DISTANCE		2.74
-#define SUM_CORRECTION					-200
-#define DIFF_CORRECTION					200
+#define SUM_CORRECTION					-100
+#define DIFF_CORRECTION					100
 
 #define MATLAB_COMPATIBLE_TXT			1
-//#define VERBOSE_CALCULATION
+#define VERBOSE_CALCULATION
 
 typedef struct tm 					TimeStruct;
 typedef gsl_vector_int 				intVector;

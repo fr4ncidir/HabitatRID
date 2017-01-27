@@ -94,6 +94,7 @@ coord locateFromData(intVector * sum,intVector * diff,int nAngles) {
 
 	mpr = gsl_vector_int_alloc(nAngles);
 	gsl_vector_int_memcpy(mpr,sum);
+	gsl_vector_int_sub(mpr,diff);
 
 #ifdef VERBOSE_CALCULATION
 	printf("sum vector:\n");
@@ -104,7 +105,6 @@ coord locateFromData(intVector * sum,intVector * diff,int nAngles) {
 	gsl_vector_int_fprintf(stdout,mpr,"%d");
 #endif
 
-	gsl_vector_int_sub(mpr,diff);
 	maxIndexMPR = gsl_vector_int_max_index(mpr);
 	theta = thetaFind(maxIndexMPR)*M_PI/180;
 	radius = radiusFind(maxIndexMPR,sum);
@@ -159,10 +159,29 @@ coord locateFromFile(const char logFileName[]) {
 
 double radiusFind(int i_ref2,intVector * sum) {
 	int power;
+	double radius;
 	power = gsl_vector_int_max(sum);
-	if (i_ref2<RANGE1) return radiusFormula(power,Pr01,N1);
-	if (i_ref2<RANGE2) return radiusFormula(power,Pr02,N2);
-	return radiusFormula(power,Pr03,N3);
+	if (i_ref2<RANGE1) {
+		radius = radiusFormula(power,Pr01_low,N1_low);
+		if (radius>RADIUS_TH) {
+			return radiusFormula(power,Pr01_high,N1_high);
+		}
+	}
+	else {
+		if (i_ref2<RANGE2) {
+			radius = radiusFormula(power,Pr02_low,N2_low);
+			if (radius>RADIUS_TH) {
+				return radiusFormula(power,Pr02_high,N2_high);
+			}
+		}
+		else {
+			radius = radiusFormula(power,Pr03_low,N3_low);
+			if (radius>RADIUS_TH) {
+				return radiusFormula(power,Pr03_high,N3_high);
+			}
+		}
+	}
+	return radius;
 }
 
 double radiusFormula(double A,double B,double C) {

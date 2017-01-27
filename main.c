@@ -26,18 +26,26 @@
 #define TRUE						1
 #define FALSE						0
 
-int continuousRead;
+int continuousRead,ridSerial_descriptor;
 intVector * rowOfSums;
 intVector * rowOfDiffs;
 uint8_t * sum_diff_array;
 intVector * idVector;
 intMatrix * sumVectors;
 intMatrix * diffVectors;
-int ridSerial_descriptor;
+uint8_t nID;
+
+uint8_t request_packet[STD_PACKET_STRING_DIM] = {REQUEST_COMMAND,SCHWARZENEGGER,'\0'};
+uint8_t reset_packet[STD_PACKET_STRING_DIM] = {RESET_COMMAND,SCHWARZENEGGER,'\0'};
+uint8_t detect_packet[STD_PACKET_STRING_DIM] = {DETECT_COMMAND,SCHWARZENEGGER,'\0'};
+uint8_t request_confirm[STD_PACKET_STRING_DIM] = {'x','x','\0'};
+size_t std_packet_size = STD_PACKET_DIM*sizeof(uint8_t);
+size_t id_array_size;
 
 void printUsage();
 int readInterval();
 void safeExit();
+int readAllAngles(int nAngles);
 
 void interruptHandler(int signalCode) {
 	signal(signalCode,SIG_IGN);
@@ -47,17 +55,8 @@ void interruptHandler(int signalCode) {
 }
 
 int main(int argc, char ** argv) {
-	uint8_t request_packet[STD_PACKET_STRING_DIM] = {REQUEST_COMMAND,SCHWARZENEGGER,'\0'};
-	uint8_t reset_packet[STD_PACKET_STRING_DIM] = {RESET_COMMAND,SCHWARZENEGGER,'\0'};
-	uint8_t detect_packet[STD_PACKET_STRING_DIM] = {DETECT_COMMAND,SCHWARZENEGGER,'\0'};
-	uint8_t request_confirm[STD_PACKET_STRING_DIM] = {'x','x','\0'};
-	uint8_t nID;
 	uint8_t * id_array;
-
-	size_t std_packet_size = STD_PACKET_DIM*sizeof(uint8_t);
-	size_t id_array_size;
-
-	char error_message[50],logFileName[50];
+	char logFileName[50];
 	int result,i,j,textLogFlag=FALSE,slowMode=FALSE,bypassSerial=FALSE;
 	int continuousTiming,continuousSlowFlag = FALSE;
 	SerialOptions ridSerial;
@@ -228,31 +227,8 @@ int main(int argc, char ** argv) {
 			}
 		}
 		do {
-			printf("Angle iterations");
-			for (i=0; i<ANGLE_ITERATIONS; i++) {
-				printf(".");
-				// writes to serial "<\n"
-				sprintf(error_message,"\nSending request packet for the %d-th angle failure",i+1);
-				if (send_packet(ridSerial_descriptor,request_packet,std_packet_size,error_message) == EXIT_FAILURE) {
-					safeExit();
-					return EXIT_FAILURE;
-				}
-
-				// reads sum and diff values
-				result = read_until_terminator(ridSerial_descriptor,id_array_size,sum_diff_array,SCHWARZENEGGER);
-				if (result == ERROR) {
-					printf("\nReading sum-diff vector for %d-th angle failure\n",i+1);
-					safeExit();
-					return EXIT_FAILURE;
-				}
-				// puts data in vectors
-				for (j=0; j<nID; j++) {
-					gsl_matrix_int_set(sumVectors,j,i,sum_diff_array[2*j]-CENTRE_RESCALE);
-					gsl_matrix_int_set(diffVectors,j,i,sum_diff_array[2*j+1]-CENTRE_RESCALE);
-				}
-			}
-			printf("completed\n");
-			send_packet(ridSerial_descriptor,detect_packet,std_packet_size,"Detect packet send failure");
+			result = readAllAngles(ANGLE_ITERATIONS);
+			if (result == EXIT_FAILURE) break;
 
 			// log files
 			if (textLogFlag) log_file_txt(idVector,sumVectors,diffVectors,nID,ANGLE_ITERATIONS,0);
@@ -270,10 +246,11 @@ int main(int argc, char ** argv) {
 				if (!slowMode) printLocation(locateFromFile(logFileName));
 			}
 		} while (continuousRead);
-		if (!continuousSlowFlag) {
+		if (continuousSlowFlag) {
 			gsl_vector_int_free(rowOfSums);
 			gsl_vector_int_free(rowOfDiffs);
 		}
+		safeExit();
 	}
 	else {
 		// cmd -r passes here
@@ -282,7 +259,6 @@ int main(int argc, char ** argv) {
 		printLocation(locateFromFile(logFileName));
 	}
 
-	safeExit();
 	printf("Main has successfully terminated! Good game!\n");
 	return EXIT_SUCCESS;
 }
@@ -309,4 +285,33 @@ void safeExit() {
 	gsl_matrix_int_free(diffVectors);
 	gsl_vector_int_free(idVector);
 	close(ridSerial_descriptor);
+}
+
+int readAllAngles(int nAngles) {
+	char error_message[50];
+	int i,j,result;
+	printf("Angle iterations");
+	for (i=0; i<nAngles; i++) {
+		printf(".");
+		// writes to serial "<\n"
+		sprintf(error_message,"\nSending request packet for the %d-th angle failure",i+1);
+		if (send_packet(ridSerial_descriptor,request_packet,std_packet_size,error_message) == EXIT_FAILURE) {
+			return EXIT_FAILURE;
+		}
+
+		// reads sum and diff values
+		result = read_until_terminator(ridSerial_descriptor,id_array_size,sum_diff_array,SCHWARZENEGGER);
+		if (result == ERROR) {
+			printf("\nReading sum-diff vector for %d-th angle failure\n",i+1);
+			return EXIT_FAILURE;
+		}
+		// puts data in vectors
+		for (j=0; j<nID; j++) {
+			gsl_matrix_int_set(sumVectors,j,i,sum_diff_array[2*j]-CENTRE_RESCALE);
+			gsl_matrix_int_set(diffVectors,j,i,sum_diff_array[2*j+1]-CENTRE_RESCALE);
+		}
+	}
+	printf("completed\n");
+	send_packet(ridSerial_descriptor,detect_packet,std_packet_size,"Detect packet send failure");
+	return EXIT_SUCCESS;
 }
