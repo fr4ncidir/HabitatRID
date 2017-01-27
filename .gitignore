@@ -5,3 +5,5 @@ html/
 .project
 .cproject
 SerialLib.doxyfile
+*.exe
+*.o
