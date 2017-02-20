@@ -4,6 +4,7 @@
  *
  *  Created on: 18 ott 2016
  *      Author: Francesco Antoniazzi
+ * 	francesco.antoniazzi@unibo.it
  */
 
 
@@ -42,14 +43,14 @@ uint8_t request_confirm[STD_PACKET_STRING_DIM] = {'x','x','\0'};
 size_t std_packet_size = STD_PACKET_DIM*sizeof(uint8_t);
 size_t id_array_size;
 
-void printUsage();
+void printUsage(FILE * outchannel);
 int readInterval();
 void safeExit();
 int readAllAngles(int nAngles);
 
 void interruptHandler(int signalCode) {
 	signal(signalCode,SIG_IGN);
-	printf("Caught Ctrl-C: stopping reading RID\n");
+	printf("Info: Caught Ctrl-C: stopping reading RID\n");
 	continuousRead = FALSE;
 	signal(signalCode,SIG_DFL);
 }
@@ -65,77 +66,77 @@ int main(int argc, char ** argv) {
 
 	switch (argc) {
 	case 1: // only the command
-		printf("One read, stored in bin file; one calculation of location\n");
+		printf("Info: One read, stored in bin file; one calculation of location\n");
 		break;
 	case 2: // command + one argument
 		switch (strlen(argv[1])) {
 		case 2:
 			if (!strcmp(argv[1],"-l")) {
-				printf("Results will be stored in txt and bin log file\n");
+				printf("Info: Results will be stored in txt and bin log file\n");
 				textLogFlag = TRUE;
 				break;
 			}
 			if (!strcmp(argv[1],"-r")) {
-				printf("Read only mode: read from bin log file\n");
+				printf("Info: Read only mode: read from bin log file\n");
 				bypassSerial = TRUE;
 				break;
 			}
 			if (!strcmp(argv[1],"-c")) {
-				printf("Continuous read and location decode\n");
+				printf("Info: Continuous read and location decode\n");
 				continuousRead = TRUE;
 				continuousTiming = readInterval();
 				break;
 			}
 			if (!strcmp(argv[1],"-s")) {
-				printf("Slow mode: the read is not immediately processed, only written on a binary log file\n");
+				printf("Info: Slow mode: the read is not immediately processed, only written on a binary log file\n");
 				slowMode = TRUE;
 				break;
 			}
-			printUsage();
+			printUsage(stderr);
 			return EXIT_FAILURE;
 		case 3:
 			// only -lc,-ls,-cs are allowed
 			if ((strchr(argv[1],'l')!=NULL) && (strchr(argv[1],'c')!=NULL)) {
-				printf("Continuous read and location decode, storing data on bin and txt log file\n");
+				printf("Info: Continuous read and location decode, storing data on bin and txt log file\n");
 				textLogFlag = TRUE;
 				continuousRead = TRUE;
 				continuousTiming = readInterval();
 				break;
 			}
 			if ((strchr(argv[1],'l')!=NULL) && (strchr(argv[1],'s')!=NULL)) {
-				printf("Slow mode: every read is not immediately processed, written on bin and txt log file\n");
+				printf("Info: Slow mode: every read is not immediately processed, written on bin and txt log file\n");
 				textLogFlag = TRUE;
 				slowMode = TRUE;
 				break;
 			}
 			if ((strchr(argv[1],'s')!=NULL) && (strchr(argv[1],'c')!=NULL)) {
-				printf("Continuous read of data in slow mode: data is stored in bin file; location is not calculated");
+				printf("Info: Continuous read of data in slow mode: data is stored in bin file; location is not calculated");
 				slowMode = TRUE;
 				continuousRead = TRUE;
 				continuousTiming = readInterval();
 				break;
 			}
-			printUsage();
+			printUsage(stderr);
 			return EXIT_FAILURE;
 		case 4:
 			// only -lcs is allowed
 			if ((strchr(argv[1],'l')!=NULL) && (strchr(argv[1],'c')!=NULL) && (strchr(argv[1],'s')!=NULL)) {
-				printf("Continuous read of data in slow mode, storing data on bin and txt log file; location is not calculated\n");
+				printf("Info: Continuous read of data in slow mode, storing data on bin and txt log file; location is not calculated\n");
 				slowMode = TRUE;
 				continuousRead = TRUE;
 				textLogFlag = TRUE;
 				continuousTiming = readInterval();
 				break;
 			}
-			printUsage();
+			printUsage(stderr);
 			return EXIT_FAILURE;
 		default:
-			printUsage();
+			printUsage(stderr);
 			return EXIT_FAILURE;
 		}
 		break;
 	default:
-		printUsage();
+		printUsage(stdout);
 		return EXIT_FAILURE;
 	}
 
@@ -153,7 +154,7 @@ int main(int argc, char ** argv) {
 			close(ridSerial_descriptor);
 			return EXIT_FAILURE;
 		}
-		printf("Reset packet sent\n");
+		printf("Info: Reset packet sent\n");
 		sleep(1);
 
 		// writes to serial "<\n"
@@ -161,44 +162,44 @@ int main(int argc, char ** argv) {
 			close(ridSerial_descriptor);
 			return EXIT_FAILURE;
 		}
-		printf("Request packet sent\n");
+		printf("Info: Request packet sent\n");
 
 		// reads from serial "<\n"
 		result = read_until_terminator(ridSerial_descriptor,std_packet_size,request_confirm,SCHWARZENEGGER);
 		if (result == ERROR) {
-			printf("request confirm command read_until_terminator failure\n");
+			fprintf(stderr,"request confirm command read_until_terminator failure\n");
 			send_packet(ridSerial_descriptor,reset_packet,std_packet_size,"Reset packet send failure");
 			close(ridSerial_descriptor);
 			return EXIT_FAILURE;
 		}
 		if (strcmp((char*) request_packet,(char*) request_confirm)) {
-			printf("Received unexpected %s instead of %s\n",(char*) request_confirm,(char*) request_packet);
+			fprintf(stderr,"Received unexpected %s instead of %s\n",(char*) request_confirm,(char*) request_packet);
 			send_packet(ridSerial_descriptor,reset_packet,std_packet_size,"Reset packet send failure");
 			close(ridSerial_descriptor);
 			return EXIT_FAILURE;
 		}
-		printf("Confirmation received\n");
+		printf("Info: Confirmation received\n");
 
 		// reads from serial the number of ids
 		result = read_nbyte(ridSerial_descriptor,sizeof(uint8_t),&nID);
 		if (result == EXIT_FAILURE) {
-			printf("nID number read_nbyte failure\n");
+			fprintf(stderr,"nID number read_nbyte failure\n");
 			close(ridSerial_descriptor);
 			return EXIT_FAILURE;
 		}
 		if (nID==WRONG_NID) {
-			printf("nId == 255 error\n");
+			fprintf(stderr,"nId == 255 error\n");
 			close(ridSerial_descriptor);
 			return EXIT_FAILURE;
 		}
-		printf("Number of id received: %d\n",nID);
+		printf("Info: Number of id received: %d\n",nID);
 
 		// reads from serial the ids
 		id_array_size = (2*nID+1)*sizeof(uint8_t);
 		id_array = (uint8_t*) malloc(id_array_size);
 		result = read_until_terminator(ridSerial_descriptor,id_array_size,id_array,SCHWARZENEGGER);
 		if (result == ERROR) {
-			printf("id list command read_until_terminator failure\n");
+			fprintf(stderr,"id list command read_until_terminator failure\n");
 			free(id_array);
 			close(ridSerial_descriptor);
 			return EXIT_FAILURE;
@@ -210,7 +211,7 @@ int main(int argc, char ** argv) {
 			j++;
 		}
 		free(id_array);
-		printf("Id list received\n");
+		printf("Info: Id list received\n");
 
 		// retrieves sum and diff vectors
 		sum_diff_array = (uint8_t*) malloc(id_array_size);
@@ -218,7 +219,7 @@ int main(int argc, char ** argv) {
 		diffVectors = gsl_matrix_int_alloc(nID,ANGLE_ITERATIONS);
 
 		if (continuousRead) {
-			printf("Ctrl-c to stop reading\n");
+			printf("Info: use Ctrl-c to stop reading\n");
 			signal(SIGINT,interruptHandler);
 			if (!slowMode) {
 				continuousSlowFlag = TRUE;
@@ -254,22 +255,22 @@ int main(int argc, char ** argv) {
 	}
 	else {
 		// cmd -r passes here
-		printf("Please insert the name of the binary logfile: \n-> ");
+		printf("Info: Please insert the name of the binary logfile: \n-> ");
 		scanf("%s",logFileName);
 		printLocation(locateFromFile(logFileName));
 	}
 
-	printf("Main has successfully terminated! Good game!\n");
+	printf("Info: Main has successfully terminated! Good game!\n");
 	return EXIT_SUCCESS;
 }
 
-void printUsage() {
-	printf("USAGE:\n");
-	printf("-l\tstores results into txt file\n");
-	printf("-c\trepeats execution until Ctrl-C\n");
-	printf("-r\treads from binary file data\n");
-	printf("-s\tonly stores results into binary file\n");
-	printf("\nYou can also combine l,s,c options\n");
+void printUsage(FILE * outchannel) {
+	fprintf(outchannel,"USAGE:\n");
+	fprintf(outchannel,"-l\tstores results into txt file\n");
+	fprintf(outchannel,"-c\trepeats execution until Ctrl-C\n");
+	fprintf(outchannel,"-r\treads from binary file data\n");
+	fprintf(outchannel,"-s\tonly stores results into binary file\n");
+	fprintf(outchannel,"\nYou can also combine l,s,c options\n");
 }
 
 int readInterval() {
@@ -290,7 +291,7 @@ void safeExit() {
 int readAllAngles(int nAngles) {
 	char error_message[50];
 	int i,j,result;
-	printf("Angle iterations");
+	printf("Info: Angle iterations");
 	for (i=0; i<nAngles; i++) {
 		printf(".");
 		// writes to serial "<\n"
@@ -302,7 +303,7 @@ int readAllAngles(int nAngles) {
 		// reads sum and diff values
 		result = read_until_terminator(ridSerial_descriptor,id_array_size,sum_diff_array,SCHWARZENEGGER);
 		if (result == ERROR) {
-			printf("\nReading sum-diff vector for %d-th angle failure\n",i+1);
+			fprintf(stderr,"\nReading sum-diff vector for %d-th angle failure\n",i+1);
 			return EXIT_FAILURE;
 		}
 		// puts data in vectors

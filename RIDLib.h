@@ -3,6 +3,7 @@
  *
  *  Created on: 16 nov 2016
  *      Author: Francesco Antoniazzi
+ * 	francesco.antoniazzi@unibo.it
  */
 
 #ifndef RIDLIB_H_
