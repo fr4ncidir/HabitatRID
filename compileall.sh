@@ -9,7 +9,7 @@ if [ $# -ge 2 ]; then
 	exit -1
 fi
 if [ "$1" == "setup" ]; then 
-# install of gsl libraries
+# installs gsl libraries
 	sudo apt-get install libgsl0ldbl gsl-doc-info gsl-bin libgsl0-dev
 	printf "\\nAnd now you can rerun without parameters\\n"
 else
@@ -22,6 +22,6 @@ else
 # compiles into RIDexecutable.exe
 		gcc -Wall -I/usr/local/include main.c RIDLib.c serial.c -o RIDexecutable.exe -lgsl -lgslcblas -lm
 	else
-		echo "$2 doesn't exist"
+		echo "$1 doesn't exist"
 	fi
 fi
