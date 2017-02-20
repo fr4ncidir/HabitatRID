@@ -59,7 +59,7 @@ int open_serial(const char name[],const SerialOptions options) {
 			break;
 		default: // misconfigured
 #ifdef VERBOSE
-			printf("open_serial: ERROR bad parity bit configuration");
+			fprintf(stderr,"open_serial: ERROR bad parity bit configuration");
 #endif
 			break;
 		}
@@ -177,7 +177,7 @@ int send_packet(const int serial_descriptor,const uint8_t packet[],const size_t 
 	result = write_serial(serial_descriptor,dim,(void *) packet);
 	if (result == EXIT_FAILURE) {
 #ifdef VERBOSE
-		printf("%s\n",error_msg);
+		fprintf(stderr,"%s\n",error_msg);
 #endif
 		return EXIT_FAILURE;
 	}

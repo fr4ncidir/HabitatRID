@@ -17,10 +17,10 @@ int log_file_txt(intVector * ids,intMatrix * sums,intMatrix * diffs,int rows,int
 
 	sprintf(logFileName,"M_%d-%d-%d-%d-%d-%d.txt",
 			date->tm_mday,1+date->tm_mon,1900+date->tm_year,date->tm_hour,date->tm_min,date->tm_sec);
-	printf("File name: %s\n",logFileName);
+	printf("Info: File name: %s\n",logFileName);
 	logFile = fopen(logFileName,"w");
 	if (logFile == NULL) {
-		printf("Error while opening log file in text append mode\n");
+		fprintf(stderr,"Error while opening log file in text append mode\n");
 		return EXIT_FAILURE;
 	}
 	if (matlab_mode != MATLAB_COMPATIBLE_TXT) fprintf(logFile,"rows=%d\ncols=%d\n",rows,4+2*cols);
@@ -50,7 +50,7 @@ int log_file_bin(intVector * ids,intMatrix * sums,intMatrix * diffs,int rows,int
 			date->tm_mday,1+date->tm_mon,1900+date->tm_year,date->tm_hour,date->tm_min,date->tm_sec);
 	logFile = fopen(logFileName,"wb");
 	if (logFile == NULL) {
-		printf("Error while opening log file in byte append mode\n");
+		fprintf(stderr,"Error while opening log file in byte append mode\n");
 		return EXIT_FAILURE;
 	}
 
@@ -98,11 +98,11 @@ coord locateFromData(intVector * sum,intVector * diff,int nAngles) {
 	gsl_vector_int_sub(mpr,diff);
 
 #ifdef VERBOSE_CALCULATION
-	printf("sum vector:\n");
+	printf("Debug: sum vector:\n");
 	gsl_vector_int_fprintf(stdout,sum,"%d");
-	printf("diff vector:\n");
+	printf("Debug: diff vector:\n");
 	gsl_vector_int_fprintf(stdout,diff,"%d");
-	printf("mpr vector:\n");
+	printf("Debug: mpr vector:\n");
 	gsl_vector_int_fprintf(stdout,mpr,"%d");
 #endif
 
@@ -110,7 +110,7 @@ coord locateFromData(intVector * sum,intVector * diff,int nAngles) {
 	theta = thetaFind(maxIndexMPR)*M_PI/180;
 	radius = radiusFind(maxIndexMPR,sum);
 
-	printf("radius=%lf\ntheta=%lf\n",radius,theta);
+	printf("Info: radius=%lf\ntheta=%lf\n",radius,theta);
 
 	location.x = radius*cos(theta)+BOTTOM_LEFT_CORNER_DISTANCE;
 	location.y = radius*sin(theta);
@@ -130,7 +130,7 @@ coord locateFromFile(const char logFileName[]) {
 
 	logFile = fopen(logFileName,"rb");
 	if (logFile == NULL) {
-		printf("Error while opening %s.\n",logFileName);
+		fprintf(stderr,"Error while opening %s.\n",logFileName);
 		return location;
 	}
 
@@ -206,5 +206,5 @@ int vector_subst(intVector * vector,int oldVal,int newVal) {
 }
 
 void printLocation(coord xy) {
-	printf("\nLocation calculated: \n(x,y)=(%lf,%lf)\n",xy.x,xy.y);
+	printf("Location: (x,y)=(%lf,%lf)\n",xy.x,xy.y);
 }

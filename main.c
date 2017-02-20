@@ -227,6 +227,7 @@ int main(int argc, char ** argv) {
 				rowOfDiffs = gsl_vector_int_alloc(ANGLE_ITERATIONS);
 			}
 		}
+		printf("\n");
 		do {
 			result = readAllAngles(ANGLE_ITERATIONS);
 			if (result == EXIT_FAILURE) break;
