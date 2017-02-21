@@ -3,9 +3,9 @@
 # Author Francesco Antoniazzi
 # francesco.antoniazzi@unibo.it
 
-if [ $# -ge 2 ]; then
+if [ $# -le 1 ] || [ $# -ge 2 ]; then
 # Usage description
-	printf "USAGE: $0 setup \\n$0 USB_RID_address\\n"
+	printf "USAGE:\\nbash $0 setup \\nbash $0 USB_RID_address\\n"
 	exit -1
 fi
 if [ "$1" == "setup" ]; then 
