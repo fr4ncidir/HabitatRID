@@ -44,6 +44,7 @@ def main(args):
 	try:
 		while True:
 			# reads from keyboard and sends setup message
+			print "Setup message format: [TIME_INTERVAL] [X_MIN] [X_MAX] [Y_MIN] [Y_MAX] [NUMBER_OF_ITERATIONS]"
 			message = raw_input("Please insert setup message (or exit): ")
 			sock.sendall(message)
 			if message=="exit":
