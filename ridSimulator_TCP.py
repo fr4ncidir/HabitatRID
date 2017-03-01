@@ -32,12 +32,14 @@ from random import uniform
 from time import sleep
 
 def printUsage():
-	print "USAGE:\n python ridSimulator_TCP.py ip_address ip_port"
+	print "USAGE:\n python ridSimulator_TCP.py ip_address ip_port [external_button]"
 
 def main(args):
-	if len(args)!=3:
+	if len(args)>3:
 		printUsage()
 		return -1
+	elif len(args)==3:
+		
 	print "Welcome to the RIDSimulator!"
 	
 	# Create a TCP/IP socket

@@ -1,0 +1,14 @@
+ridSetup.sh setta il sistema per il funzionamento di RIDexecutable.
+
+ridScript.sh, ridScript.sh help
+		mostra questo file
+		
+ridScript.sh setup
+		installa i pacchetti essenziali (la libreria gsl)
+		
+ridScript.sh compile <indirizzo della porta usb>
+		compila i .c in RIDexecutable.exe
+		
+ridScript.sh run
+		esegue RIDexecutable.exe; eventualmente facendo ridirezione degli output
+		ridScript.sh run 1>stdout_redirection 2>stderr_redirection
