@@ -146,7 +146,7 @@ int main(int argc, char ** argv) {
 		ridSerial.dataBits = CS8;
 		ridSerial.parityBit = NO_PARITY;
 		ridSerial.stopbits = ONE_STOP;
-		// ridSerial_descriptor = open_serial("/dev/ttyUSB0",ridSerial);
+		// ridSerial_descriptor = open_serial("/dev/tty_USB0",ridSerial);
 		ridSerial_descriptor = open_serial("/dev/ttyUSB0",ridSerial);
 		if (ridSerial_descriptor == ERROR) return EXIT_FAILURE;
 
