@@ -1,3 +1,5 @@
+USAGE:
+
 ridSetup.sh setta il sistema per il funzionamento di RIDexecutable.
 
 ridScript.sh, ridScript.sh help
@@ -6,9 +8,33 @@ ridScript.sh, ridScript.sh help
 ridScript.sh setup
 		installa i pacchetti essenziali (la libreria gsl)
 		
+ridScript.sh simulate <file di setup>
+		simula il RID con le imposizioni definite nel file
+		
 ridScript.sh compile <indirizzo della porta usb>
 		compila i .c in RIDexecutable.exe
 		
 ridScript.sh run
 		esegue RIDexecutable.exe; eventualmente facendo ridirezione degli output
 		ridScript.sh run 1>stdout_redirection 2>stderr_redirection
+
+
+SIMULATION FILE INPUT FORMAT (JSON):
+{
+	"sib_ip":"192.168.1.52",
+	"sib_port":10010,
+	"simulation":"file", 		{"random"}
+	"type":"button", 			{"timer","explicit"}
+	"timing":10,	 			{ignored if type is "button" or "explicit"}
+	"iterations":7,
+	"locations": [				{ignored if simulation if "random"}
+		{
+			"x":3.5,
+			"y":1.9
+		},
+		{
+			"x":6.2,
+			"y":7.1
+		}
+	]
+}
