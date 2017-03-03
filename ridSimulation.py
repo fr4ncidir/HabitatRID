@@ -44,12 +44,13 @@ def wait_next_iteration(iteration_type,timing):
 	if iteration_type=="timer":
 		sleep(sleep_time)
 	else:
+                import RPi.GPIO as gpio
 		logging.warning("Button interrupts for simulation... Check configurations on <github>")
 		prev_input = 0
 		try:
 			while True:
 				current_input = gpio.input(17)
-				if ((not prev_input) and current_input:
+				if ((not prev_input) and current_input):
 					print("Button Pressed")
 				prev_input = current_input
 				sleep(0.05)
@@ -100,8 +101,8 @@ def main(args):
 		else:
 			print "ridSimulation.py\tRaspbian\n\nWelcome to the RIDsimulator on Raspbian!\n"
 			import RPi.GPIO as gpio
-			gpio.setmode(GPIO.BCM)
-			gpio.setup(17,GPIO.IN)
+			gpio.setmode(gpio.BCM)
+			gpio.setup(17,gpio.IN)
 		config_data,error_code = json_config_open(args[1])
 		if error_code:
 			return error_code

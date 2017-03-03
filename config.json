@@ -1,0 +1,20 @@
+{
+	"sib_ip":"192.168.1.52",
+	"sib_port":10010,
+	"simulation":"file", 		
+	"type":"button", 			
+	"timing":10,	 			
+	"iterations":7,
+	"x_topleft":15,				
+	"y_topleft":10,				
+	"locations": [				
+		{
+			"x":3.5,
+			"y":1.9
+		},
+		{
+			"x":6.2,
+			"y":7.1
+		}
+	]
+}
