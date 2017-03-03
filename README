@@ -24,9 +24,11 @@ SIMULATION FILE INPUT FORMAT (JSON):
 	"sib_ip":"192.168.1.52",
 	"sib_port":10010,
 	"simulation":"file", 		{"random"}
-	"type":"button", 			{"timer","explicit"}
-	"timing":10,	 			{ignored if type is "button" or "explicit"}
+	"type":"button", 			{"timer"}
+	"timing":10,	 			{(ms) ignored if type is "button"}
 	"iterations":7,
+	"x_topleft":15,				{we assume x_btmright=0}
+	"y_topleft":10,				{we assume y_btmright=0}
 	"locations": [				{ignored if simulation if "random"}
 		{
 			"x":3.5,

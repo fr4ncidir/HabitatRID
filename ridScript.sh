@@ -3,6 +3,8 @@
 # Author Francesco Antoniazzi
 # francesco.antoniazzi@unibo.it
 
+os_version=`cat /etc/issue | grep -c Raspbian`
+
 case $# in
 	0)
 		# shows help
@@ -15,9 +17,14 @@ case $# in
 		elif [ $1 == "setup" ]; then
 			# install requirements
 			echo System setup...
-			sudo apt-get install libgsl0ldbl gsl-doc-info gsl-bin libgsl0-dev
+			sudo apt-get install libgsl0ldbl gsl-doc-info gsl-bin libgsl0-dev python-pip
+			if [ $os_version -ne 0 ]; then
+				echo Raspbian os...
+				sudo pip install RPi.GPIO
+			fi
 		elif [ $1 == "run" ]; then
 			# runs executable generated: check if executable exists and has permissions
+			# no parameter is given to RIDexecutable.exe
 			if [ -x "./RIDexecutable.exe" ]; then
 				./RIDexecutable.exe
 			else
@@ -52,11 +59,23 @@ case $# in
 			if [ -a $2 ]; then
 				# check if simulation input file exists
 				echo RID simulation...
-				cat /etc/issue | python ridSimulation.py $2 
+				if [ $os_version -ne 0 ]; then
+					python ridSimulation.py $2 Raspberry
+				else
+					python ridSimulation.py $2
 			else
 				# input format file does not exist
 				echo Error: $2 doesn\'t exists
 				exit 6
+			fi
+		elif [ $1 == "run" ]; then
+			# runs executable generated: check if executable exists and has permissions
+			# gives the second parameter to RIDexecutable
+			if [ -x "./RIDexecutable.exe" ]; then
+				./RIDexecutable.exe $2
+			else
+				echo Error: RIDexecutable.exe not found or has not exe permissions
+				exit 7
 			fi
 		else
 			# error case
