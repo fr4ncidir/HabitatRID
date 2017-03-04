@@ -25,11 +25,19 @@
 from platform import linux_distribution
 from random import uniform
 from time import sleep
+from Producer import *
 import sys
 import logging
 import json
 
-logging.basicConfig(format="ridSimulation.py\t%(levelname)s:\t%(message)s")
+logging.basicConfig(format="%(filename)s\t%(levelname)s:\t%(message)s",level=logging.INFO)
+
+RASPBERRY_INPUT_PIN = 17
+
+SIMULATION_UPDATE =  \
+"""DELETE { ?pos <hbt:hasCoordinateX> ?oldX .  ?pos <hbt:hasCoordinateY> ?oldY }
+INSERT { ?pos <hbt:hasCoordinateX> ?x . ?pos <hbt:hasCoordinateY> ?y } 
+WHERE { OPTIONAL{ ?id <hbt:hasPosition> ?pos } . ?pos <hbt:hasCoordinateX> ?oldX . ?pos <hbt:hasCoordinateY> ?oldY }"""
 
 def printUsage():
 	print "USAGE:\n" + \
@@ -42,16 +50,20 @@ def printUsage():
 		
 def wait_next_iteration(iteration_type,timing):
 	if iteration_type=="timer":
-		sleep(sleep_time)
+		sleep(timing)
 	else:
-                import RPi.GPIO as gpio
+		import RPi.GPIO as gpio
 		logging.warning("Button interrupts for simulation... Check configurations on <github>")
+		first_run = True
 		prev_input = 0
 		try:
 			while True:
-				current_input = gpio.input(17)
-				if ((not prev_input) and current_input):
-					print("Button Pressed")
+				current_input = gpio.input(RASPBERRY_INPUT_PIN)
+				if ((not prev_input) and current_input and (not first_run)):
+					print "Button Pressed"
+					break
+				else:
+					first_run = False
 				prev_input = current_input
 				sleep(0.05)
 		except KeyboardInterrupt:
@@ -67,7 +79,7 @@ def os_noRaspbian_message():
 	return True
 
 def json_config_open(json_config_file):
-	json_format_array = ["sib_ip","sib_port","simulation","type","timing","iterations","x_topleft","y_topleft","locations"]
+	json_format_array = ["sib_ip","sib_port","simulation","type","timing","iterations","x_topleft","y_topleft","uid","locations"]
 	try:
 		with open(json_config_file) as config_file:    
 			config_data = json.load(config_file)
@@ -78,6 +90,15 @@ def json_config_open(json_config_file):
 		logging.error("Caught exception in config file. Aborting.")
 		return None,3
 	return config_data,0
+	
+def simulate_new_position(kp,uid,x,y):
+	bounded_update = SIMULATION_UPDATE \
+	.replace("?id","<hbt:{}>".format(uid)) \
+	.replace("?x","\"{}\"".format(x)) \
+	.replace("?y","\"{}\"".format(y)) \
+	.replace("hbt:","http://www.unibo.it/Habitat#") \
+	.replace("\n"," ") 
+	kp.produce(bounded_update)
 	
 def main(args):
 	print "\nridSimulation.py - Francesco Antoniazzi <francesco.antoniazzi@unibo.it>"
@@ -102,7 +123,7 @@ def main(args):
 			print "ridSimulation.py\tRaspbian\n\nWelcome to the RIDsimulator on Raspbian!\n"
 			import RPi.GPIO as gpio
 			gpio.setmode(gpio.BCM)
-			gpio.setup(17,gpio.IN)
+			gpio.setup(RASPBERRY_INPUT_PIN,gpio.IN)
 		config_data,error_code = json_config_open(args[1])
 		if error_code:
 			return error_code
@@ -113,9 +134,15 @@ def main(args):
 	
 	logging.info("SIB ip: {}".format(config_data["sib_ip"]))
 	logging.info("SIB port: {}".format(config_data["sib_port"]))
+	
+	sibHost = "http://{}:{}/sparql".format(config_data["sib_ip"],config_data["sib_port"])
+	kp = Producer(sibHost)
+	identifier = config_data["uid"]
+	logging.info("Identifier: {}".format(identifier))
+	
 	logging.info("Simulation max iterations: {}".format(config_data["iterations"]))
 	
-	if ignore_button_type:
+	if (ignore_button_type and (config_data["type"]=="button")):
 		ignored = "IGNORED"
 	else:
 		ignored = ""
@@ -134,7 +161,7 @@ def main(args):
 			new_y = config_data["locations"][i]["y"]
 			logging.info("{}. ({},{})".format(i,new_x,new_y))
 			# update sib
-			
+			simulate_new_position(kp,identifier,new_x,new_y)
 			# waits next iteration
 			if wait_next_iteration(simulation_type,sleep_time):
 				break
@@ -146,7 +173,7 @@ def main(args):
 			new_y = uniform(0,float(config_data["y_topleft"]))
 			logging.info("{}. ({},{})".format(i,new_x,new_y))
 			# update sib
-			
+			simulate_new_position(kp,identifier,new_x,new_y)
 			# waits next iteration
 			if wait_next_iteration(simulation_type,sleep_time):
 				break

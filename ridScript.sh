@@ -8,7 +8,7 @@ os_version=`cat /etc/issue | grep -c Raspbian`
 case $# in
 	0)
 		# shows help
-		more README
+		cat README | grep '\$'
 		;;
 	1)
 		if [ $1 == "help" ]; then
@@ -63,6 +63,7 @@ case $# in
 					python ridSimulation.py $2 Raspberry
 				else
 					python ridSimulation.py $2
+				fi
 			else
 				# input format file does not exist
 				echo Error: $2 doesn\'t exists
