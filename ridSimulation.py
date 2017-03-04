@@ -40,13 +40,13 @@ INSERT { ?pos <hbt:hasCoordinateX> ?x . ?pos <hbt:hasCoordinateY> ?y }
 WHERE { OPTIONAL{ ?id <hbt:hasPosition> ?pos } . ?pos <hbt:hasCoordinateX> ?oldX . ?pos <hbt:hasCoordinateY> ?oldY }"""
 
 def printUsage():
-	print "USAGE:\n" + \
-		"python ridSimulation.py help\n" + \
-		"\tprints this guide\n" + \
-		"python ridSimulation.py <configuration file>\n" + \
-		"\tstarts simulation using the configuration file (non Raspberry)\n" + \
-		"python ridSimulation.py <configuration file> Raspberry\n" + \
-		"\tstarts simulation using the configuration file (Raspberry)\n"
+	print """USAGE:
+		python ridSimulation.py help
+		\tprints this guide
+		python ridSimulation.py <configuration file>
+		\tstarts simulation using the configuration file (non Raspberry)
+		python ridSimulation.py <configuration file> Raspberry
+		\tstarts simulation using the configuration file (Raspberry)"""
 		
 def wait_next_iteration(iteration_type,timing):
 	if iteration_type=="timer":
@@ -180,7 +180,8 @@ def main(args):
 	else:
 		logging.error("Config file error (unknown value simulation field)")
 		return 5
-	logging.info("Simulation ended")
+	
+	print "Simulation ended"
 	return 0
 
 if __name__ == '__main__':
