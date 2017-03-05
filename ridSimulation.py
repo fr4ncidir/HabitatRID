@@ -97,7 +97,10 @@ def simulate_new_position(kp,uid,x,y):
 	.replace("?y","\"{}\"".format(y)) \
 	.replace("hbt:","http://www.unibo.it/Habitat#") \
 	.replace("\n"," ") 
-	kp.produce(bounded_update)
+	try:
+		kp.produce(bounded_update)
+	except Exception as e:
+		print e
 	
 def main(args):
 	print "\nridSimulation.py - Francesco Antoniazzi <francesco.antoniazzi@unibo.it>"
