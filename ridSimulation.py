@@ -53,7 +53,6 @@ def wait_next_iteration(iteration_type,timing):
 		sleep(timing)
 	else:
 		import RPi.GPIO as gpio
-		logging.warning("Button interrupts for simulation... Check configurations on <github>")
 		first_run = True
 		prev_input = 0
 		try:
@@ -154,29 +153,32 @@ def main(args):
 		sleep_time = int(config_data["timing"])/1000
 		logging.info("Timing: {} s".format(sleep_time))
 		simulation_type = "timer"
+	else:
+		logging.warning("Button interrupts for simulation... Check configurations on <github>")
+
 	
 	if config_data["simulation"]=="file":
 		for i in range(min(int(config_data["iterations"]),len(config_data["locations"]))):
+			# waits next iteration
+			if wait_next_iteration(simulation_type,sleep_time):
+				break
 			new_x = config_data["locations"][i]["x"]
 			new_y = config_data["locations"][i]["y"]
 			logging.info("{}. ({},{})".format(i,new_x,new_y))
 			# update sib
 			simulate_new_position(kp,identifier,new_x,new_y)
-			# waits next iteration
-			if wait_next_iteration(simulation_type,sleep_time):
-				break
 	elif config_data["simulation"]=="random":
 		logging.info("x_max={}".format(config_data["x_topleft"]))
 		logging.info("y_max={}".format(config_data["y_topleft"]))
 		for i in range(int(config_data["iterations"])):
+			# waits next iteration
+			if wait_next_iteration(simulation_type,sleep_time):
+				break
 			new_x = uniform(0,float(config_data["x_topleft"]))
 			new_y = uniform(0,float(config_data["y_topleft"]))
 			logging.info("{}. ({},{})".format(i,new_x,new_y))
 			# update sib
 			simulate_new_position(kp,identifier,new_x,new_y)
-			# waits next iteration
-			if wait_next_iteration(simulation_type,sleep_time):
-				break
 	else:
 		logging.error("Config file error (unknown value simulation field)")
 		return 5
