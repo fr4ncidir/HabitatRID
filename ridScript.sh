@@ -3,7 +3,14 @@
 # Author Francesco Antoniazzi
 # francesco.antoniazzi@unibo.it
 
-os_version=`cat /etc/issue | grep -c Raspbian`
+os_version=test `cat /etc/issue | grep -c Raspbian` -eq 0
+if [ $os_version ]; then
+	if [ `git pull | grep -c Already` -ne 0 ]; then
+		exit 0
+	fi
+else
+	echo "Maybe you need to git pull?"
+fi
 
 case $# in
 	0)
@@ -18,7 +25,7 @@ case $# in
 			# install requirements
 			echo System setup...
 			sudo apt-get install libgsl0ldbl gsl-doc-info gsl-bin libgsl0-dev python-pip
-			if [ $os_version -ne 0 ]; then
+			if [ $os_version ]; then
 				echo Raspbian os...
 				sudo pip install RPi.GPIO
 			fi
@@ -59,7 +66,7 @@ case $# in
 			if [ -a $2 ]; then
 				# check if simulation input file exists
 				echo RID simulation...
-				if [ $os_version -ne 0 ]; then
+				if [ $os_version ]; then
 					python ridSimulation.py $2 Raspberry
 				else
 					python ridSimulation.py $2
