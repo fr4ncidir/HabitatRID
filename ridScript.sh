@@ -44,7 +44,6 @@ case $# in
 			fi
 		else
 			# error case
-			echo Unexpected param $1...
 			more README
 			exit 3
 		fi
