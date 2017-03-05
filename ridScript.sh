@@ -7,7 +7,7 @@
 os_version=`cat /etc/issue | grep -c Raspbian`
 if [ $os_version -ne 0 ]; then
 	echo Auto git pull...
-	if [ `git pull | grep -c Already` -ne 0 ]; then
+	if [ `git pull | grep -c Already` -eq 0 ]; then
 		exit 0
 	fi
 else
