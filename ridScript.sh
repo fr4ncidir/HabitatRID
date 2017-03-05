@@ -9,6 +9,8 @@ if [ $os_version -ne 0 ]; then
 	echo Auto git pull...
 	if [ `git pull | grep -c Already` -eq 0 ]; then
 		exit 0
+	else
+		echo Up-to-date
 	fi
 else
 	echo "Maybe you need to git pull?"
