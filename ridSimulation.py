@@ -97,6 +97,7 @@ def simulate_new_position(kp,uid,x,y):
 	.replace("?y","\"{}\"".format(y)) \
 	.replace("hbt:","http://www.unibo.it/Habitat#") \
 	.replace("\n"," ") 
+	# TODO automatize namespaces from config.json?
 	try:
 		kp.produce(bounded_update)
 	except Exception as e:
