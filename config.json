@@ -4,7 +4,7 @@
 	"simulation":"random", 		
 	"type":"timer", 			
 	"timing":1000,	 			
-	"iterations":1,
+	"iterations":10,
 	"x_topleft":15,				
 	"y_topleft":10,
 	"uid":"myid",			
