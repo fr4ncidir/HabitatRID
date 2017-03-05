@@ -7,3 +7,4 @@ html/
 SerialLib.doxyfile
 *.exe
 *.o
+*.pyc
