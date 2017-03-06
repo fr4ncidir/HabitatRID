@@ -46,7 +46,7 @@ case $# in
 		elif [ $1 == "setup" ]; then
 			# install requirements
 			echo System setup...
-			sudo apt-get install libgsl0ldbl gsl-doc-info gsl-bin libgsl0-dev python-pip
+			sudo apt-get install libgsl0ldbl gsl-doc-info gsl-bin libgsl0-dev curl libcurl4-gnutls-dev python-pip
 			if [ $os_version -ne 0 ]; then
 				echo Raspbian os...
 				sudo pip install RPi.GPIO
@@ -74,7 +74,7 @@ case $# in
 				echo Setting USB port name $2...
 				sed -i "s|/dev/ttyUSB0|$2|g" main.c
 				echo Compiling files...
-				gcc -Wall -I/usr/local/include main.c RIDLib.c serial.c -o RIDexecutable.exe -lgsl -lgslcblas -lm
+				gcc -Wall -I/usr/local/include main.c RIDLib.c serial.c -o RIDexecutable.exe -lgsl -lgslcblas -lm -lcurl
 				chmod 777 RIDexecutable.exe
 				sed -i "s|$2|/dev/ttyUSB0|g" main.c
 			else
