@@ -15,11 +15,18 @@ $ ridScript.sh compile <indirizzo della porta usb>
 		compila i .c in RIDexecutable.exe
 		
 $ ridScript.sh run
-		esegue RIDexecutable.exe; eventualmente facendo ridirezione degli output
+		esegue RIDexecutable.exe -s
+		il che significa che fa una lettura singola dalla porta usb definita a compile time, 
+		non salva i dati e stampa in output la posizione corrente; 
+		eventualmente facendo ridirezione degli output
 		ridScript.sh run 1>stdout_redirection 2>stderr_redirection
 
 $ ridScript.sh run <params>
-		esegue RIDexecutable.exe <params>; eventualmente facendo ridirezione degli output
+		esegue RIDexecutable.exe <params> sulla porta usb definita a compile time; 
+		eventualmente facendo ridirezione degli output come sopra.
+
+$ ridScript.sh run <params> <usb_port>
+		esegue RIDexecutable.exe <params> <usb_port>; eventualmente facendo ridirezione degli output
 		come sopra.
 
 Per informazioni su RIDexecutable.exe, fai

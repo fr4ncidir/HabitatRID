@@ -36,7 +36,7 @@ RASPBERRY_INPUT_PIN = 17
 
 SIMULATION_UPDATE =  \
 """DELETE { ?pos <hbt:hasCoordinateX> ?oldX .  ?pos <hbt:hasCoordinateY> ?oldY }
-INSERT { ?pos <hbt:hasCoordinateX> ?x . ?pos <hbt:hasCoordinateY> ?y } 
+INSERT { ?id <rdf:type> <hbt:R> ?pos <hbt:hasCoordinateX> ?x . ?pos <hbt:hasCoordinateY> ?y } 
 WHERE { ?id <hbt:hasPosition> ?pos . OPTIONAL {?pos <hbt:hasCoordinateX> ?oldX . ?pos <hbt:hasCoordinateY> ?oldY } }"""
 
 def printUsage():

@@ -1,0 +1,35 @@
+NAME:
+	ridReader - reads from Habitat rfid reader
+SYNOPSIS:
+	ridReader [OPTIONS] [-nREPEAT] [USB_PORT] [-uSEPA_ADDRESS]
+OPTIONS DESCRIPTION:
+	-l
+		log on txt file
+		when associated with -r, reads the binary file and outputs a file with a list of locations;
+	-b
+		log on binary file
+	-r
+		read and interprete binary file.
+		is not compatible with -b.
+		outputs only a location list (you may use it with output redirection or with -l)
+-nREPEAT DESCRIPTION
+	-nXXX
+		written in the form -n45, for example, identifies the number of iterations to be done.
+		If absent, we consider it equivalent to -n0, which means "infinite iterations".
+USB_PORT
+	Must be the address in /dev/ folder to the USB device.
+-uSEPA_ADDRESS
+	-uhttp://sepa_address.it:8000/sparql
+		If the address is not given, -u will be ignored.
+		If present, it updates locations on the SEPA.
+	This parameter MUST be the last one, and can be used only in full-custom configuration, i.e. when
+	you call the command like
+	ridReader -l -n12 /dev/ttyUSB0 -uhttp://mysepa_address.it:8000/sparql
+	
+Exit status:
+	0 if exit success
+	1 otherwise - check stderr
+	
+AUTHOR
+	Written by Francesco Antoniazzi
+	<francesco.antoniazzi@unibo.it>

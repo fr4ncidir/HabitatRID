@@ -55,7 +55,7 @@ case $# in
 			# runs executable generated: check if executable exists and has permissions
 			# no parameter is given to RIDexecutable.exe
 			if [ -x "./RIDexecutable.exe" ]; then
-				./RIDexecutable.exe
+				./RIDexecutable.exe -c 1
 			else
 				echo Error: RIDexecutable.exe not found or has not exe permissions
 				exit 7
@@ -113,6 +113,12 @@ case $# in
 			exit 4
 		fi
 		;;
+	3)
+		if [ $1 == "run" ]; then
+			# runs executable generated: check if executable exists and has permissions
+			# gives the second parameter to RIDexecutable, as well as USB port name
+			./RIDexecutable.exe $2 $3
+		fi
 	*)
 		# default error case
 		echo Too much parameters

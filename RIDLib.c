@@ -8,6 +8,18 @@
 
 #include "RIDLib.h"
 
+const uint8_t request_packet[STD_PACKET_STRING_DIM] = {REQUEST_COMMAND,SCHWARZENEGGER,'\0'};
+const uint8_t reset_packet[STD_PACKET_STRING_DIM] = {RESET_COMMAND,SCHWARZENEGGER,'\0'};
+const uint8_t detect_packet[STD_PACKET_STRING_DIM] = {DETECT_COMMAND,SCHWARZENEGGER,'\0'};
+const size_t std_packet_size = STD_PACKET_DIM*sizeof(uint8_t);
+
+void printUsage(const char * error_message) {
+	if (error_message!=NULL) fprintf(stderr,"%s\n",error_message);
+	execlp("more","more","./manpage.txt",NULL);
+	perror("Couldn't print manpage - ");
+	exit(EXIT_FAILURE);
+}
+
 int log_file_txt(intVector * ids,intMatrix * sums,intMatrix * diffs,int rows,int cols,int matlab_mode) {
 	time_t sysclock = time(NULL);
 	TimeStruct * date = localtime(&sysclock);
@@ -119,19 +131,19 @@ coord locateFromData(intVector * sum,intVector * diff,int nAngles) {
 	return location;
 }
 
-coord locateFromFile(const char logFileName[]) {
-	FILE * logFile;
-	coord location;
-	intMatrix * data;
-	intVector * row;
-	intVector * sum;
-	intVector * diff;
-	int i,nAngles,rows,cols;
+coord* locateFromFile(const char logFileName[],int * output_dim) {
+	FILE *logFile;
+	coord *locations;
+	intMatrix *data;
+	intVector *row;
+	intVector *sum;
+	intVector *diff;
+	int i,j,nAngles,rows,cols;
 
 	logFile = fopen(logFileName,"rb");
 	if (logFile == NULL) {
 		fprintf(stderr,"Error while opening %s.\n",logFileName);
-		return location;
+		return NULL;
 	}
 
 	fread(&rows,sizeof(int),1,logFile);
@@ -139,23 +151,29 @@ coord locateFromFile(const char logFileName[]) {
 	data = gsl_matrix_int_alloc(rows,cols);
 	row = gsl_vector_int_alloc(cols);
 	gsl_matrix_int_fread(logFile,data);
-	gsl_matrix_int_get_row(row,data,rows-1);
-
+	
 	fclose(logFile);
+	*output_dim = rows;
+	locations = (coord *) malloc(rows*sizeof(coord));
+	
+	for (j=0; j<rows; j++) {
+		gsl_matrix_int_get_row(row,data,j);
+		nAngles = (cols-4)/2;
+		sum = gsl_vector_int_alloc(nAngles);
+		diff = gsl_vector_int_alloc(nAngles);
+		for (i=0; i<nAngles; i++) {
+			gsl_vector_int_set(sum,i,gsl_vector_int_get(row,4+i));
+			gsl_vector_int_set(diff,i,gsl_vector_int_get(row,4+nAngles+i));
+		}
 
-	nAngles = (cols-4)/2;
-	sum = gsl_vector_int_alloc(nAngles);
-	diff = gsl_vector_int_alloc(nAngles);
-	for (i=0; i<nAngles; i++) {
-		gsl_vector_int_set(sum,i,gsl_vector_int_get(row,4+i));
-		gsl_vector_int_set(diff,i,gsl_vector_int_get(row,4+nAngles+i));
+		locations[j] = locateFromData(sum,diff,nAngles);
+		locations[j].id = gsl_vector_int_get(row,3);
 	}
-
-	location = locateFromData(sum,diff,nAngles);
+	
 	gsl_vector_int_free(sum);
 	gsl_vector_int_free(diff);
 	gsl_matrix_int_free(data);
-	return location;
+	return locations;
 }
 
 double radiusFind(int i_ref2,intVector * sum) {
@@ -205,6 +223,6 @@ int vector_subst(intVector * vector,int oldVal,int newVal) {
 	return substitutions;
 }
 
-void printLocation(coord xy) {
-	printf("Location: (x,y)=(%lf,%lf)\n",xy.x,xy.y);
+void printLocation(FILE * output_stream,coord xy) {
+	fprintf(output_stream,"Location of id %d: (x,y)=(%lf,%lf)\n",xy.id,xy.x,xy.y);
 }

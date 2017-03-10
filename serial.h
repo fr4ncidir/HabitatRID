@@ -16,8 +16,6 @@
 #include <errno.h>
 #include <inttypes.h>
 
-#define VERBOSE
-
 #define ERROR				-1
 #define NO_PACKET			-2
 #define NO_PARITY			0
@@ -70,18 +68,20 @@ typedef struct serial_options {
 		ONE_STOP <BR>
 		TWO_STOP <BR>
 	*/
+	int serial_fd; /**<
+	will be set by open_serial to the current file descriptor*/
 } SerialOptions;
 
 /**
  * open_serial opens the serial port
  * @param name[] might be something like "/dev/ttyACM0"
- * @param options is a setup for the serial port
- * @return ERROR or the serial file descriptor
+ * @param options is a setup for the serial port; the file descriptor will be set in the same struct;
+ * @return ERROR or EXIT_SUCCESS
  */
-int open_serial(const char name[],const SerialOptions options);
+int open_serial(const char name[],SerialOptions * options);
 
 /**
- * fixed_read reads a certain number of bytes from the serial port
+ * fixed_read reads exactly a certain number of bytes from the serial port
  * @param file_descriptor is the identifier for the serial port
  * @param fixed_lenght is the exact number of bytes to be read
  * @param buffer is the place to store the bytes read

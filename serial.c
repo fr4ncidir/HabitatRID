@@ -11,7 +11,7 @@
  */
 #include "serial.h"
 
-int open_serial(const char name[],const SerialOptions options) {
+int open_serial(const char name[],SerialOptions * options) {
 	int file_descriptor;
 	char message[50];
 	struct termios opt;
@@ -22,11 +22,10 @@ int open_serial(const char name[],const SerialOptions options) {
 	 * O_NDLEAY the open function is not blocking
 	 */
 	file_descriptor = open(name, O_RDWR | O_NOCTTY | O_NDELAY);
+	options->serial_fd = file_descriptor;
 	if (file_descriptor == ERROR) {
-#ifdef VERBOSE
 		sprintf(message,"open_serial: Unable to open %s -",name);
 		perror(message);
-#endif
 		return ERROR;
 	}
 	else {
@@ -41,11 +40,11 @@ int open_serial(const char name[],const SerialOptions options) {
 		 * Set the correct flags
 		 */
 		tcgetattr(file_descriptor, &opt);
-		cfsetispeed(&opt,options.baudRate);
-		cfsetospeed(&opt,options.baudRate);
+		cfsetispeed(&opt,options->baudRate);
+		cfsetospeed(&opt,options->baudRate);
 		opt.c_cflag &= ~CSIZE;
 
-		switch (options.parityBit) {
+		switch (options->parityBit) {
 		case NO_PARITY:
 			opt.c_cflag &= ~PARENB;
 			break;
@@ -58,28 +57,25 @@ int open_serial(const char name[],const SerialOptions options) {
 			opt.c_cflag |= PARODD;
 			break;
 		default: // misconfigured
-#ifdef VERBOSE
 			fprintf(stderr,"open_serial: ERROR bad parity bit configuration");
-#endif
-			break;
+			return ERROR;
 		}
 
 		/*
 		 * This is the stop bit option. If ~CSTOPB, 1 stop bit. Else, 2 bits
 		 */
-		if (options.stopbits==ONE_STOP) opt.c_cflag &= ~CSTOPB;
+		if (options->stopbits==ONE_STOP) opt.c_cflag &= ~CSTOPB;
 		else opt.c_cflag |= CSTOPB;
 
-		opt.c_cflag |= (CLOCAL | CREAD | options.dataBits);
+		opt.c_cflag |= (CLOCAL | CREAD | options->dataBits);
 
 		/*
 		 * Update options
 		 * TCSANOW means that changes are immediates
 		 */
 		tcsetattr(file_descriptor, TCSANOW | TCSAFLUSH, &opt);
+		return EXIT_SUCCESS;
 	}
-
-	return file_descriptor;
 }
 
 int read_nbyte(int file_descriptor,size_t fixed_lenght,void * buffer) {
@@ -90,9 +86,7 @@ int read_nbyte(int file_descriptor,size_t fixed_lenght,void * buffer) {
 	while (toBeRead>0) {
 		bytes_read = read(file_descriptor,rebuffer+fixed_lenght-toBeRead,toBeRead);
 		if ((bytes_read == ERROR) || (!bytes_read)) {
-#ifdef VERBOSE
 			perror("read_nbyte: Unable to read from the serial port - ");
-#endif
 			return EXIT_FAILURE;
 		}
 		toBeRead = toBeRead - bytes_read;
@@ -143,9 +137,7 @@ int read_until_terminator(int file_descriptor,size_t max_dim,void * buffer,uint8
 	do {
 		bytes_read = read(file_descriptor,&bytebuffer,1);
 		if ((bytes_read == ERROR) || (!bytes_read)) {
-#ifdef VERBOSE
 			perror("read_until_terminator: Unable to read from the serial port - ");
-#endif
 			return ERROR;
 		}
 		if (bytes_read == 1) {
@@ -162,9 +154,7 @@ int write_serial(int file_descriptor,size_t lenght,void * buffer) {
 	while (bytes_sent<lenght) {
 		result = write(file_descriptor,buffer,lenght);
 		if ((result == ERROR) || (!result)) {
-#ifdef VERBOSE
 			perror("write_serial: Unable to write from the serial port - ");
-#endif
 			return EXIT_FAILURE;
 		}
 		bytes_sent = bytes_sent + result;
@@ -176,9 +166,7 @@ int send_packet(const int serial_descriptor,const uint8_t packet[],const size_t 
 	int result;
 	result = write_serial(serial_descriptor,dim,(void *) packet);
 	if (result == EXIT_FAILURE) {
-#ifdef VERBOSE
 		fprintf(stderr,"%s\n",error_msg);
-#endif
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;

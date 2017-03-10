@@ -12,6 +12,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <signal.h>
+#include <inttypes.h>
+#include <gsl/gsl_math.h>
 #include <gsl/gsl_vector_int.h>
 #include <gsl/gsl_matrix_int.h>
 #include <math.h>
@@ -43,23 +47,35 @@
 #define MATLAB_COMPATIBLE_TXT			1
 #define VERBOSE_CALCULATION
 
+
+#define RESET_COMMAND				'+'
+#define REQUEST_COMMAND				'<'
+#define DETECT_COMMAND				'>'
+#define SCHWARZENEGGER				'\n' // line feed packet terminator
+#define STD_PACKET_DIM				2
+#define STD_PACKET_STRING_DIM		3
+#define WRONG_NID					255
+#define CENTRE_RESCALE				256
+
 typedef struct tm 					TimeStruct;
 typedef gsl_vector_int 				intVector;
 typedef gsl_matrix_int 				intMatrix;
 typedef struct coordinates {
+	int id;
 	double x;
 	double y;
 } 									coord;
 
+void printUsage(const char * error_message);
 int log_file_txt(intVector * ids,intMatrix * sums,intMatrix * diffs,int rows,int cols,int matlab_mode);
 int log_file_bin(intVector * ids,intMatrix * sums,intMatrix * diffs,int rows,int cols,char * logFileName);
 coord locateFromData(intVector * sum,intVector * diff,int nAngles);
-coord locateFromFile(const char logFileName[]);
+coord*  locateFromFile(const char logFileName[],int * output_dim);
 double radiusFind(int i_ref2,intVector * sum);
 double radiusFormula(double A,double B,double C);
 double thetaFind(int i_ref);
 int vector_subst(intVector * vector,int oldVal,int newVal);
-void printLocation(coord xy);
+void printLocation(FILE * output_stream,coord xy);
 
 
 #endif /* RIDLIB_H_ */
