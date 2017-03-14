@@ -35,9 +35,11 @@ logging.basicConfig(format="%(filename)s\t%(levelname)s:\t%(message)s",level=log
 RASPBERRY_INPUT_PIN = 17
 
 SIMULATION_UPDATE =  \
-"""DELETE { ?pos <hbt:hasCoordinateX> ?oldX .  ?pos <hbt:hasCoordinateY> ?oldY }
-INSERT { ?id <rdf:type> <hbt:R> ?pos <hbt:hasCoordinateX> ?x . ?pos <hbt:hasCoordinateY> ?y } 
-WHERE { ?id <hbt:hasPosition> ?pos . OPTIONAL {?pos <hbt:hasCoordinateX> ?oldX . ?pos <hbt:hasCoordinateY> ?oldY } }"""
+"""PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+PREFIX hbt:<http://www.unibo.it/Habitat#>
+DELETE {?pos hbt:hasCoordinateX ?oldX. ?pos hbt:hasCoordinateY ?oldY} 
+INSERT {?id rdf:type hbt:ID. ?id hbt:hasPosition ?pos. ?pos hbt:hasCoordinateX ?x. ?pos hbt:hasCoordinateY ?y} 
+WHERE {{} UNION {OPTIONAL{?pos hbt:hasCoordinateX ?oldX. ?pos hbt:hasCoordinateY ?oldY}}}"""
 
 def printUsage():
 	print """USAGE:
@@ -73,7 +75,7 @@ def wait_next_iteration(iteration_type,timing):
 		
 def os_noRaspbian_message():
 	os_name,vers,iden = linux_distribution()
-	notes = "ridSimulation.py\tTrigger simulation by button is not possible here."
+	notes = "ridSimulation.py\tTrigger simulation by button disabled."
 	print "ridSimulation.py\t{}\n\nWelcome to the RIDsimulator on {}!\n{}".format(os_name,os_name,notes)
 	return True
 
@@ -92,12 +94,10 @@ def json_config_open(json_config_file):
 	
 def simulate_new_position(kp,uid,x,y):
 	bounded_update = SIMULATION_UPDATE \
-	.replace("?id","<hbt:{}>".format(uid)) \
+	.replace("?id","hbt:rid{}".format(uid)) \
+	.replace("?pos","hbt:pos{}".format(uid))
 	.replace("?x","\"{}\"".format(x)) \
-	.replace("?y","\"{}\"".format(y)) \
-	.replace("hbt:","http://www.unibo.it/Habitat#") \
-	.replace("\n"," ") 
-	# TODO automatize namespaces from config.json?
+	.replace("?y","\"{}\"".format(y)) 
 	try:
 		kp.produce(bounded_update)
 	except Exception as e:
@@ -135,12 +135,12 @@ def main(args):
 		printUsage()
 		return 4
 	
-	logging.info("SIB ip: {}".format(config_data["sib_ip"]))
-	logging.info("SIB port: {}".format(config_data["sib_port"]))
+	logging.info("SEPA ip: {}".format(config_data["sepa_ip"]))
+	logging.info("SEPA update port: {}".format(config_data["sepa_update_port"]))
 	
-	sibHost = "http://{}:{}/sparql".format(config_data["sib_ip"],config_data["sib_port"])
+	sibHost = "http://{}:{}/sparql".format(config_data["sepa_ip"],config_data["sepa_update_port"])
 	kp = Producer(sibHost)
-	identifier = config_data["uid"]
+	identifier = config_data["ridUid"]
 	logging.info("Identifier: {}".format(identifier))
 	
 	logging.info("Simulation max iterations: {}".format(config_data["iterations"]))

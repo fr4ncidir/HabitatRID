@@ -152,7 +152,7 @@ int ridExecution(uint8_t code,const char * usb_address,int iterations) {
 			fprintf(stderr,"SPARQL malloc problem\n");
 			return EXIT_FAILURE;
 		}
-		strcpy(sparqlUpdate_unbounded,"PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX hbt:<http://www.unibo.it/Habitat#> DELETE {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateY ?oldY} INSERT {%s rdf:type hbt:ID. %d hbt:hasPosition %s. %s rdf:type hbt:Position. %s hbt:hasCoordinateX \"%lf\". %s hbt:hasCoordinateY \"%lf\"} WHERE {{} UNION {OPTIONAL {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateX ?oldY}}}");
+		strcpy(sparqlUpdate_unbounded,"PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX hbt:<http://www.unibo.it/Habitat#> DELETE {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateY ?oldY} INSERT {%s rdf:type hbt:ID. %s hbt:hasPosition %s. %s rdf:type hbt:Position. %s hbt:hasCoordinateX \"%lf\". %s hbt:hasCoordinateY \"%lf\"} WHERE {{} UNION {OPTIONAL {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateX ?oldY}}}");
 	}
 	
 	if ((code & 0x01)==0x01) { // r
@@ -324,12 +324,12 @@ void sepafree(int code,char * sparql_unbounded,char * sparql_bounded) {
 }
 
 void sepaLocationUpdate(int code,coord location,const char * unbounded_sparql) {
-	char posUid[10];
-	char ridUid[10];
+	char posUid[20];
+	char ridUid[20];
 	char bounded_sparql[SEPA_UPDATE_BOUNDED];
 	if ((code & 0x08)==0x08) {
-		sprintf(ridUid,"rid%d",location.id);
-		sprintf(posUid,"pos%d",location.id);
+		sprintf(ridUid,"hbt:rid%d",location.id);
+		sprintf(posUid,"hbt:pos%d",location.id);
 		sprintf(bounded_sparql,unbounded_sparql, 
 			posUid,posUid,				//DELETE {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateY ?oldY} 
 			ridUid,ridUid,posUid, 		//INSERT {%s rdf:type hbt:ID. %s hbt:hasPosition %s.

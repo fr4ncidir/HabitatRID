@@ -1,51 +1,39 @@
 USAGE:
 
-ridScript.sh setta il sistema per il funzionamento di RIDexecutable.
+ridScript.sh setta il sistema per il funzionamento di ridReader e/o avvia la simulazione del reader.
 
 $ ridScript.sh help 
 		mostra il file di aiuto
 		
 $ ridScript.sh setup
-		installa i pacchetti essenziali (la libreria gsl)
+		installa i pacchetti essenziali (lgsl e lcurl, RPi.GPIO)
 		
 $ ridScript.sh simulate <file di setup>
-		simula il RID con le imposizioni definite nel file
+		simula il RID con le imposizioni definite nel file di configurazione
 		
 $ ridScript.sh compile <indirizzo della porta usb>
-		compila i .c in RIDexecutable.exe
+		compila i file .c in ridReader
 		
 $ ridScript.sh run
-		esegue RIDexecutable.exe -s
-		il che significa che fa una lettura singola dalla porta usb definita a compile time, 
-		non salva i dati e stampa in output la posizione corrente; 
-		eventualmente facendo ridirezione degli output
-		ridScript.sh run 1>stdout_redirection 2>stderr_redirection
+		mostra le istruzioni per eseguire il run di ridReader
 
-$ ridScript.sh run <params>
-		esegue RIDexecutable.exe <params> sulla porta usb definita a compile time; 
-		eventualmente facendo ridirezione degli output come sopra.
-
-$ ridScript.sh run <params> <usb_port>
-		esegue RIDexecutable.exe <params> <usb_port>; eventualmente facendo ridirezione degli output
-		come sopra.
-
-Per informazioni su RIDexecutable.exe, fai
-$ RIDexecutable.exe help
+Per informazioni su ridReader, fai
+$ ./ridReader help
 
 Per informazioni su ridSimulation.py, fai
 $ python ridSimulation.py help
 
 SIMULATION FILE INPUT FORMAT (JSON):
 {
-	"sib_ip":"192.168.1.52",
-	"sib_port":10010,
+	"sepa_ip":"192.168.1.52",
+	"sepa_update_port":8000,
 	"simulation":"file", 		{"random"}
 	"type":"button", 			{"timer"}
 	"timing":10,	 			{(ms) ignored if type is "button"}
 	"iterations":7,
 	"x_topleft":15,				{we assume x_btmright=0}
 	"y_topleft":10,				{we assume y_btmright=0}
-	"uid":"0987654321",
+	"ridUid":"137",				{it's a string!}
 	"locations": [				{ignored if simulation if "random"}
 		{
 			"x":3.5,
@@ -57,3 +45,5 @@ SIMULATION FILE INPUT FORMAT (JSON):
 		}
 	]
 }
+
+Autore: Francesco Antoniazzi <francesco.antoniazzi@unibo.it>

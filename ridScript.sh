@@ -46,20 +46,13 @@ case $# in
 		elif [ $1 == "setup" ]; then
 			# install requirements
 			echo System setup...
-			sudo apt-get install libgsl0ldbl gsl-doc-info gsl-bin libgsl0-dev curl libcurl4-gnutls-dev python-pip
+			sudo apt-get install libgsl0ldbl gsl-doc-info gsl-bin libgsl0-dev libcurl4-gnutls-dev python-pip
 			if [ $os_version -ne 0 ]; then
 				echo Raspbian os...
 				sudo pip install RPi.GPIO
 			fi
 		elif [ $1 == "run" ]; then
-			# runs executable generated: check if executable exists and has permissions
-			# no parameter is given to RIDexecutable.exe
-			if [ -x "./RIDexecutable.exe" ]; then
-				./RIDexecutable.exe -c 1
-			else
-				echo Error: RIDexecutable.exe not found or has not exe permissions
-				exit 7
-			fi
+			more manpage.txt
 		else
 			# error case
 			more README
@@ -74,8 +67,8 @@ case $# in
 				echo Setting USB port name $2...
 				sed -i "s|/dev/ttyUSB0|$2|g" main.c
 				echo Compiling files...
-				gcc -Wall -I/usr/local/include main.c RIDLib.c serial.c -o RIDexecutable.exe -lgsl -lgslcblas -lm -lcurl
-				chmod 777 RIDexecutable.exe
+				gcc -Wall -I/usr/local/include main.c RIDLib.c serial.c -o ridReader -lgsl -lgslcblas -lm -lcurl
+				chmod 777 ridReader
 				sed -i "s|$2|/dev/ttyUSB0|g" main.c
 			else
 				# USB port does not exist
@@ -97,15 +90,6 @@ case $# in
 				echo Error: $2 doesn\'t exists
 				exit 6
 			fi
-		elif [ $1 == "run" ]; then
-			# runs executable generated: check if executable exists and has permissions
-			# gives the second parameter to RIDexecutable
-			if [ -x "./RIDexecutable.exe" ]; then
-				./RIDexecutable.exe $2
-			else
-				echo Error: RIDexecutable.exe not found or has not exe permissions
-				exit 7
-			fi
 		else
 			# error case
 			echo Unexpected param $1...
@@ -113,12 +97,6 @@ case $# in
 			exit 4
 		fi
 		;;
-	3)
-		if [ $1 == "run" ]; then
-			# runs executable generated: check if executable exists and has permissions
-			# gives the second parameter to RIDexecutable, as well as USB port name
-			./RIDexecutable.exe $2 $3
-		fi
 	*)
 		# default error case
 		echo Too much parameters
