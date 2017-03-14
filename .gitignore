@@ -8,3 +8,4 @@ SerialLib.doxyfile
 *.exe
 *.o
 *.pyc
+ridReader
