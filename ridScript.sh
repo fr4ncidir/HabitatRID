@@ -53,6 +53,11 @@ case $# in
 			fi
 		elif [ $1 == "run" ]; then
 			more manpage.txt
+		elif [ $1 == "compile" ]; then
+			# compile case
+			echo Compiling files...
+			gcc -Wall -I/usr/local/include ridMain.c RIDLib.c serial.c producer.c -o ridReader -lgsl -lgslcblas -lm -lcurl
+			chmod 777 ridReader
 		else
 			# error case
 			more README

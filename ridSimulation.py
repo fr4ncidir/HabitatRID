@@ -80,7 +80,7 @@ def os_noRaspbian_message():
 	return True
 
 def json_config_open(json_config_file):
-	json_format_array = ["sib_ip","sib_port","simulation","type","timing","iterations","x_topleft","y_topleft","uid","locations"]
+	json_format_array = ["sepa_ip","sepa_update_port","simulation","type","timing","iterations","x_topleft","y_topleft","ridUid","locations"]
 	try:
 		with open(json_config_file) as config_file:    
 			config_data = json.load(config_file)
@@ -95,7 +95,7 @@ def json_config_open(json_config_file):
 def simulate_new_position(kp,uid,x,y):
 	bounded_update = SIMULATION_UPDATE \
 	.replace("?id","hbt:rid{}".format(uid)) \
-	.replace("?pos","hbt:pos{}".format(uid))
+	.replace("?pos","hbt:pos{}".format(uid)) \
 	.replace("?x","\"{}\"".format(x)) \
 	.replace("?y","\"{}\"".format(y)) 
 	try:
