@@ -91,11 +91,11 @@ def json_config_open(json_config_file):
 		logging.error("Caught exception in config file. Aborting.")
 		return None,3
 	return config_data,0
-	
-def simulate_new_position(kp,uid,x,y):
+
+def simulate_new_position(kp,uid,pos,x,y):
 	bounded_update = SIMULATION_UPDATE \
-	.replace("?id","hbt:rid{}".format(uid)) \
-	.replace("?pos","hbt:pos{}".format(uid)) \
+	.replace("?id","hbt:{}".format(uid)) \
+	.replace("?pos","hbt:{}".format(pos)) \
 	.replace("?x","\"{}\"".format(x)) \
 	.replace("?y","\"{}\"".format(y)) 
 	try:
@@ -141,7 +141,9 @@ def main(args):
 	sibHost = "http://{}:{}/sparql".format(config_data["sepa_ip"],config_data["sepa_update_port"])
 	kp = Producer(sibHost)
 	identifier = config_data["ridUid"]
+	position = config_data["positionId"]
 	logging.info("Identifier: {}".format(identifier))
+	logging.info("Position: {}".format(position))
 	
 	logging.info("Simulation max iterations: {}".format(config_data["iterations"]))
 	
@@ -170,7 +172,7 @@ def main(args):
 			new_y = config_data["locations"][i]["y"]
 			logging.info("{}. ({},{})".format(i,new_x,new_y))
 			# update sib
-			simulate_new_position(kp,identifier,new_x,new_y)
+			simulate_new_position(kp,identifier,position,new_x,new_y)
 	elif config_data["simulation"]=="random":
 		logging.info("x_max={}".format(config_data["x_topleft"]))
 		logging.info("y_max={}".format(config_data["y_topleft"]))
@@ -182,7 +184,7 @@ def main(args):
 			new_y = uniform(0,float(config_data["y_topleft"]))
 			logging.info("{}. ({},{})".format(i,new_x,new_y))
 			# update sib
-			simulate_new_position(kp,identifier,new_x,new_y)
+			simulate_new_position(kp,identifier,position,new_x,new_y)
 	else:
 		logging.error("Config file error (unknown value simulation field)")
 		return 5
