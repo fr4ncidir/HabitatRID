@@ -34,6 +34,7 @@ SIMULATION FILE INPUT FORMAT (JSON):
 	"x_topleft":15,				{we assume x_btmright=0}
 	"y_topleft":10,				{we assume y_btmright=0}
 	"ridUid":"137",				{it's a string!}
+	"positionId":"",			{another string!}
 	"locations": [				{ignored if simulation if "random"}
 		{
 			"x":3.5,
@@ -47,3 +48,4 @@ SIMULATION FILE INPUT FORMAT (JSON):
 }
 
 Autore: Francesco Antoniazzi <francesco.antoniazzi@unibo.it>
+Ultima modifica il 21.03.2017
