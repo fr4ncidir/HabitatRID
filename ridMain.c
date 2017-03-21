@@ -40,6 +40,7 @@
 #define CONTINUOUS_ITERATION		0
 #define SEPA_UPDATE_UNBOUNDED		390
 #define SEPA_UPDATE_BOUNDED			500
+#define WRONG_PARAMETER				-1
 
 int continuousRead;
 uint8_t *sum_diff_array;
@@ -73,66 +74,88 @@ void interruptHandler(int signalCode) {
 
 int main(int argc, char **argv) {
 	uint8_t execution_code;
-	char default_usbPort[15] = "/dev/ttyUSB0";
-	int iterationNumber;
+	int iterationNumber,codeCheck;
 	
+	// default behaviour is limited number of reads
 	continuousRead = FALSE;
 	
+	// argc and argv handling
 	switch (argc) {
 	case 1:
+		// only prints help
 		printUsage(NULL);
 		break;
 	case 2:
+		// prints help
 		if (!strcmp(EXECUTION_PARAMS,"help")) printUsage(NULL);
+		// checking [OPTIONS]
 		execution_code = param_check(EXECUTION_PARAMS);
 		if (!execution_code) printUsage("Wrong parameters!\n");
+		// setting continuous read
 		continuousRead = TRUE;
-		return ridExecution(execution_code,default_usbPort,CONTINUOUS_ITERATION);
+		return ridExecution(execution_code,"/dev/ttyUSB0",CONTINUOUS_ITERATION);
 	case 3:
+		// checking [OPTIONS] and if second param is [-nREPEAT] or [USB_PORT]
 		execution_code = param_check(EXECUTION_PARAMS);
-		if (!execution_code) printUsage("Wrong parameters!\n");
-		if (third_param_check(N_ITERATIONS_OR_USB)==CUSTOM_ITERATIONS) {
+		codeCheck = third_param_check(N_ITERATIONS_OR_USB);
+		if ((!execution_code) || (codeCheck==WRONG_PARAMETER)) printUsage("Wrong parameters!\n");
+		if (codeCheck==CUSTOM_ITERATIONS) {
+			// [-nREPEAT] case
 			sscanf(N_ITERATIONS_OR_USB,"-n%d",&iterationNumber);
-			return ridExecution(execution_code,default_usbPort,iterationNumber);
+			return ridExecution(execution_code,"/dev/ttyUSB0",iterationNumber);
 		}
+		// [USB_PORT] case
 		continuousRead = TRUE;
 		return ridExecution(execution_code,N_ITERATIONS_OR_USB,CONTINUOUS_ITERATION);
 	case 4:
+		// checking [OPTIONS]
 		execution_code = param_check(EXECUTION_PARAMS);
 		if (!execution_code) printUsage("Wrong parameters!\n");
-		if (third_param_check(N_ITERATIONS_OR_USB)!=CUSTOM_ITERATIONS) printUsage("Wrong spelling of third param!\n");
+		// second param must be [-nREPEAT], third must be [USB_PORT]
+		if (third_param_check(N_ITERATIONS_OR_USB)!=CUSTOM_ITERATIONS) printUsage("right order: [-nREPEAT] [USB_PORT]\n");
 		sscanf(N_ITERATIONS_OR_USB,"-n%d",&iterationNumber);
 		return ridExecution(execution_code,FOUR_PARAMS_USB,iterationNumber);
 	case 5:
+		// checking [OPTIONS], adding -u flag manually
 		execution_code = param_check(EXECUTION_PARAMS);
 		if (!execution_code) printUsage("Wrong parameters!\n");
 		execution_code = execution_code | 0x08;
+		// second param must be [-nREPEAT], third must be [USB_PORT]
 		if (third_param_check(N_ITERATIONS_OR_USB)!=CUSTOM_ITERATIONS) printUsage("Wrong spelling of third param!\n");
 		sscanf(N_ITERATIONS_OR_USB,"-n%d",&iterationNumber);
+		// fourth parameter must be [-uSEPA_ADDRESS]
 		if (strstr(SEPA_ADDRESS,"-u")!=SEPA_ADDRESS) printUsage("Wrong SEPA address format!\n");
 		http_sepa_address = (char *) malloc(strlen(SEPA_ADDRESS)*sizeof(char));
+		if (http_sepa_address==NULL) {
+			fprintf(stderr,"SEPA address malloc problem\n");
+			return EXIT_FAILURE;
+		}
 		sscanf(SEPA_ADDRESS,"-u%s",http_sepa_address);
 		return ridExecution(execution_code,FOUR_PARAMS_USB,iterationNumber);
 	default:
+		// all other cases are wrong
 		printUsage("Wrong parameter number!\n");
 		return EXIT_FAILURE;
 	}
+	// argc and argv handling end
 	return EXIT_SUCCESS;
 }
 
 uint8_t param_check(const char * params) {
+	// checks [OPTIONS] parameter and returns corresponding flags
 	uint8_t execution_code = 0;
 	if (params[0]!='-') return 0;
 	if (strchr(params,'r')!=NULL) execution_code = execution_code | 0x01;
 	if (strchr(params,'l')!=NULL) execution_code = execution_code | 0x02;
 	if (strchr(params,'b')!=NULL) execution_code = execution_code | 0x04;
 	
-	if ((execution_code & 0x05)==0x05) return 0; //r e b non possono essere contemporanei
-	// printf("execution_code=%u\n",execution_code);
+	// r e b cannot be together
+	if ((execution_code & 0x05)==0x05) return 0; 
 	return execution_code;
 }
 
 int ridExecution(uint8_t code,const char * usb_address,int iterations) {
+	// functioning core
 	coord *locations;
 	coord last_location;
 	int locationDim;
@@ -311,12 +334,23 @@ int ridExecution(uint8_t code,const char * usb_address,int iterations) {
 }
 
 int third_param_check(const char * third_param) {
-	if (strstr(third_param,"-n")==third_param) return CUSTOM_ITERATIONS;
+	// third param examination and validation
+	int i;
+	if (strstr(third_param,"-n")==third_param) {
+		// [-nREPEAT] case
+		for (i=2; i<strlen(third_param); i++) {
+			// must be an integer number
+			if ((third_param[i]<'0') || (third_param[i]>'9')) return WRONG_PARAMETER;
+		}
+		return CUSTOM_ITERATIONS;
+	}
+	// [USB_PORT] case
 	return CUSTOM_USB;
 }
 
 void sepafree(int code,char * sparql_unbounded,char * sparql_bounded) {
 	if ((code & 0x08)==0x08) {
+		// active only if [-uSEPA_ADDRESS] is present
 		free(http_sepa_address);
 		free(sparql_unbounded);
 		free(sparql_bounded);
@@ -328,8 +362,9 @@ void sepaLocationUpdate(int code,coord location,const char * unbounded_sparql) {
 	char ridUid[20];
 	char bounded_sparql[SEPA_UPDATE_BOUNDED];
 	if ((code & 0x08)==0x08) {
-		sprintf(ridUid,"hbt:rid%d",location.id);
-		sprintf(posUid,"hbt:pos%d",location.id);
+		// active only if [-uSEPA_ADDRESS] is present
+		sprintf(ridUid,"hbt:rid%d",location.id); //TODO must be checked
+		sprintf(posUid,"hbt:pos%d",location.id); //TODO must be checked
 		sprintf(bounded_sparql,unbounded_sparql, 
 			posUid,posUid,				//DELETE {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateY ?oldY} 
 			ridUid,ridUid,posUid, 		//INSERT {%s rdf:type hbt:ID. %s hbt:hasPosition %s.
@@ -341,6 +376,7 @@ void sepaLocationUpdate(int code,coord location,const char * unbounded_sparql) {
 }
 
 int readAllAngles(int nAngles,size_t id_array_size) {
+	// one-complete-read core function
 	char error_message[50];
 	int i,j,result;
 	printf("Info: Angle iterations");

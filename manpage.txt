@@ -1,5 +1,5 @@
 NAME:
-	ridReader - reads from Habitat rfid reader
+	ridReader - reads from Unibo's Habitat rfid reader
 SYNOPSIS:
 	ridReader [OPTIONS] [-nREPEAT] [USB_PORT] [-uSEPA_ADDRESS]
 OPTIONS DESCRIPTION:

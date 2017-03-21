@@ -55,7 +55,7 @@ case $# in
 			more manpage.txt
 		elif [ $1 == "compile" ]; then
 			# compile case
-			echo Compiling files...
+			echo Compiling files to ridReader...
 			gcc -Wall -I/usr/local/include ridMain.c RIDLib.c serial.c producer.c -o ridReader -lgsl -lgslcblas -lm -lcurl
 			chmod 777 ridReader
 		else
@@ -71,7 +71,7 @@ case $# in
 				# check if USB port exists and compile, give permissions
 				echo Setting USB port name $2...
 				sed -i "s|/dev/ttyUSB0|$2|g" main.c
-				echo Compiling files...
+				echo Compiling files to ridReader...
 				gcc -Wall -I/usr/local/include main.c RIDLib.c serial.c -o ridReader -lgsl -lgslcblas -lm -lcurl
 				chmod 777 ridReader
 				sed -i "s|$2|/dev/ttyUSB0|g" main.c
