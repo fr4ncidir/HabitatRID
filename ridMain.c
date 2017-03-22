@@ -43,7 +43,6 @@
 #define WRONG_PARAMETER				-1
 
 int continuousRead;
-uint8_t *sum_diff_array;
 intVector *idVector;
 intMatrix *sumVectors;
 intMatrix *diffVectors;
@@ -55,8 +54,6 @@ extern uint8_t request_packet[STD_PACKET_STRING_DIM];
 extern uint8_t reset_packet[STD_PACKET_STRING_DIM];
 extern uint8_t detect_packet[STD_PACKET_STRING_DIM];
 extern size_t std_packet_size;
-
-uint8_t request_confirm[STD_PACKET_STRING_DIM] = {'x','x','\0'};
 
 uint8_t param_check(const char * params);
 int ridExecution(uint8_t execution_code,const char * usb_address,int iterations);
@@ -167,6 +164,7 @@ int ridExecution(uint8_t code,const char * usb_address,int iterations) {
 	intVector *rowOfDiffs;
 	size_t id_array_size;
 	char *sparqlUpdate_unbounded,*sparqlUpdate_bounded;
+	uint8_t request_confirm[STD_PACKET_STRING_DIM] = {'x','x','\0'};
 	
 	if ((code & 0x08)==0x08) { // u
 		sparqlUpdate_unbounded = (char *) malloc(SEPA_UPDATE_UNBOUNDED*sizeof(char));
@@ -183,6 +181,7 @@ int ridExecution(uint8_t code,const char * usb_address,int iterations) {
 		scanf("%s",logFileName);
 		locations = locateFromFile(logFileName,&locationDim);
 		if (locations==NULL) {
+			fprintf(stderr,"Failed in retrieving locations from %s\n",logFileName);
 			sepafree(code,sparqlUpdate_unbounded,sparqlUpdate_bounded);
 			return EXIT_FAILURE;
 		}
@@ -274,6 +273,7 @@ int ridExecution(uint8_t code,const char * usb_address,int iterations) {
 		// reads from serial the ids
 		id_array_size = (2*nID+1)*sizeof(uint8_t);
 		id_array = (uint8_t*) malloc(id_array_size);
+		// id_array is checked !=NULL in read_until_terminator
 		result = read_until_terminator(ridSerial.serial_fd,id_array_size,id_array,SCHWARZENEGGER);
 		if (result == ERROR) {
 			fprintf(stderr,"id list command read_until_terminator failure\n");
@@ -293,7 +293,6 @@ int ridExecution(uint8_t code,const char * usb_address,int iterations) {
 		// read ids end
 		
 		// retrieves sum and diff vectors
-		sum_diff_array = (uint8_t*) malloc(id_array_size);
 		sumVectors = gsl_matrix_int_alloc(nID,ANGLE_ITERATIONS);
 		diffVectors = gsl_matrix_int_alloc(nID,ANGLE_ITERATIONS);
 
@@ -326,7 +325,6 @@ int ridExecution(uint8_t code,const char * usb_address,int iterations) {
 		gsl_matrix_int_free(sumVectors);
 		gsl_matrix_int_free(diffVectors);
 		gsl_vector_int_free(idVector);
-		free(sum_diff_array);
 	}
 	sepafree(code,sparqlUpdate_unbounded,sparqlUpdate_bounded);
 	close(ridSerial.serial_fd);
@@ -377,14 +375,23 @@ void sepaLocationUpdate(int code,coord location,const char * unbounded_sparql) {
 
 int readAllAngles(int nAngles,size_t id_array_size) {
 	// one-complete-read core function
+	uint8_t *sum_diff_array;
 	char error_message[50];
 	int i,j,result;
+	
+	sum_diff_array = (uint8_t*) malloc(id_array_size);
+	if (sum_diff_array==NULL) {
+		fprintf(stderr,"malloc error in readAllAngles\n");
+		return EXIT_FAILURE;
+	}
+	
 	printf("Info: Angle iterations");
 	for (i=0; i<nAngles; i++) {
 		printf(".");
 		// writes to serial "<\n"
 		sprintf(error_message,"\nSending request packet for the %d-th angle failure",i+1);
 		if (send_packet(ridSerial.serial_fd,request_packet,std_packet_size,error_message) == EXIT_FAILURE) {
+			free(sum_diff_array);
 			return EXIT_FAILURE;
 		}
 
@@ -392,6 +399,7 @@ int readAllAngles(int nAngles,size_t id_array_size) {
 		result = read_until_terminator(ridSerial.serial_fd,id_array_size,sum_diff_array,SCHWARZENEGGER);
 		if (result == ERROR) {
 			fprintf(stderr,"\nReading sum-diff vector for %d-th angle failure\n",i+1);
+			free(sum_diff_array);
 			return EXIT_FAILURE;
 		}
 		// puts data in vectors
@@ -402,5 +410,6 @@ int readAllAngles(int nAngles,size_t id_array_size) {
 	}
 	printf("completed\n");
 	send_packet(ridSerial.serial_fd,detect_packet,std_packet_size,"Detect packet send failure");
+	free(sum_diff_array);
 	return EXIT_SUCCESS;
 }

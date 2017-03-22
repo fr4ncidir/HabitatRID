@@ -18,7 +18,6 @@
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_vector_int.h>
 #include <gsl/gsl_matrix_int.h>
-#include <math.h>
 #include <time.h>
 
 #define RADIUS_TH		6
@@ -70,7 +69,7 @@ void printUsage(const char * error_message);
 int log_file_txt(intVector * ids,intMatrix * sums,intMatrix * diffs,int rows,int cols,int matlab_mode);
 int log_file_bin(intVector * ids,intMatrix * sums,intMatrix * diffs,int rows,int cols,char * logFileName);
 coord locateFromData(intVector * sum,intVector * diff,int nAngles);
-coord*  locateFromFile(const char logFileName[],int * output_dim);
+coord* locateFromFile(const char logFileName[],int * output_dim);
 double radiusFind(int i_ref2,intVector * sum);
 double radiusFormula(double A,double B,double C);
 double thetaFind(int i_ref);

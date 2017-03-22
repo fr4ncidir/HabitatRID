@@ -151,27 +151,32 @@ coord* locateFromFile(const char logFileName[],int * output_dim) {
 	data = gsl_matrix_int_alloc(rows,cols);
 	row = gsl_vector_int_alloc(cols);
 	gsl_matrix_int_fread(logFile,data);
+	nAngles = (cols-4)/2;
+	sum = gsl_vector_int_alloc(nAngles);
+	diff = gsl_vector_int_alloc(nAngles);
 	
 	fclose(logFile);
 	*output_dim = rows;
+	
 	locations = (coord *) malloc(rows*sizeof(coord));
-	
-	for (j=0; j<rows; j++) {
-		gsl_matrix_int_get_row(row,data,j);
-		nAngles = (cols-4)/2;
-		sum = gsl_vector_int_alloc(nAngles);
-		diff = gsl_vector_int_alloc(nAngles);
-		for (i=0; i<nAngles; i++) {
-			gsl_vector_int_set(sum,i,gsl_vector_int_get(row,4+i));
-			gsl_vector_int_set(diff,i,gsl_vector_int_get(row,4+nAngles+i));
-		}
-
-		locations[j] = locateFromData(sum,diff,nAngles);
-		locations[j].id = gsl_vector_int_get(row,3);
+	if (locations==NULL) {
+		fprintf(stderr,"Fatal malloc error in locateFromFile: returning NULL pointer...\n");
 	}
-	
+	else {
+		for (j=0; j<rows; j++) {
+			gsl_matrix_int_get_row(row,data,j);
+			for (i=0; i<nAngles; i++) {
+				gsl_vector_int_set(sum,i,gsl_vector_int_get(row,4+i));
+				gsl_vector_int_set(diff,i,gsl_vector_int_get(row,4+nAngles+i));
+			}
+
+			locations[j] = locateFromData(sum,diff,nAngles);
+			locations[j].id = gsl_vector_int_get(row,3);
+		}
+	}
 	gsl_vector_int_free(sum);
 	gsl_vector_int_free(diff);
+	gsl_vector_int_free(row);
 	gsl_matrix_int_free(data);
 	return locations;
 }

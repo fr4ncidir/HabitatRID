@@ -16,19 +16,24 @@ int open_serial(const char name[],SerialOptions * options) {
 	char message[50];
 	struct termios opt;
 
+	if (options==NULL) {
+		fprintf(stderr,"open_serial: options parameter is NULL\n");
+		return ERROR;
+	}
+	
 	/*
 	 * O_RDWR means that we want to open the serial port in read and write
 	 * O_NOCTTY means that it's the user the controller of the terminal, not the serial port itself
 	 * O_NDLEAY the open function is not blocking
 	 */
 	file_descriptor = open(name, O_RDWR | O_NOCTTY | O_NDELAY);
-	options->serial_fd = file_descriptor;
 	if (file_descriptor == ERROR) {
 		sprintf(message,"open_serial: Unable to open %s -",name);
 		perror(message);
 		return ERROR;
 	}
 	else {
+		options->serial_fd = file_descriptor;
 		/*
 		 * clears possible spurious flags
 		 */
@@ -81,7 +86,12 @@ int open_serial(const char name[],SerialOptions * options) {
 int read_nbyte(int file_descriptor,size_t fixed_lenght,void * buffer) {
 	int bytes_read;
 	size_t toBeRead = fixed_lenght;
-	uint8_t * rebuffer = buffer;
+	uint8_t *rebuffer = buffer;
+
+	if (buffer==NULL) {
+		fprintf(stderr,"read_nbyte: buffer parameter is NULL\n");
+		return EXIT_FAILURE;
+	}
 
 	while (toBeRead>0) {
 		bytes_read = read(file_descriptor,rebuffer+fixed_lenght-toBeRead,toBeRead);
@@ -96,11 +106,19 @@ int read_nbyte(int file_descriptor,size_t fixed_lenght,void * buffer) {
 
 int read_nbyte_packet(int file_descriptor,size_t fixed_lenght,void * buffer,uint8_t startByte) {
 	int startIndex=0,i;
-	uint8_t * rebuffer;
-	uint8_t * buffer_copy = buffer;
+	uint8_t *rebuffer;
+	uint8_t *buffer_copy = buffer;
+
+	if (buffer==NULL) {
+		fprintf(stderr,"read_nbyte_packet: buffer parameter is NULL\n");
+		return EXIT_FAILURE;
+	}
 
 	rebuffer = (uint8_t *) malloc(fixed_lenght*sizeof(uint8_t));
-
+	if (rebuffer==NULL) {
+		fprintf(stderr,"read_nbyte_packet: malloc error\n");
+		return EXIT_FAILURE;
+	}
 	if (read_nbyte(file_descriptor,fixed_lenght,rebuffer) == EXIT_FAILURE) {
 		free(rebuffer);
 		return EXIT_FAILURE;
@@ -130,10 +148,15 @@ int read_nbyte_packet(int file_descriptor,size_t fixed_lenght,void * buffer,uint
 }
 
 int read_until_terminator(int file_descriptor,size_t max_dim,void * buffer,uint8_t terminator) {
-	uint8_t * rebuffer = buffer;
+	uint8_t *rebuffer = buffer;
 	uint8_t bytebuffer;
 	int i=0,bytes_read;
 
+	if (buffer==NULL) {
+		fprintf(stderr,"read_until_terminator: buffer parameter is NULL\n");
+		return ERROR;
+	}
+	
 	do {
 		bytes_read = read(file_descriptor,&bytebuffer,1);
 		if ((bytes_read == ERROR) || (!bytes_read)) {
@@ -154,7 +177,7 @@ int write_serial(int file_descriptor,size_t lenght,void * buffer) {
 	while (bytes_sent<lenght) {
 		result = write(file_descriptor,buffer,lenght);
 		if ((result == ERROR) || (!result)) {
-			perror("write_serial: Unable to write from the serial port - ");
+			perror("write_serial: Unable to write to the serial port - ");
 			return EXIT_FAILURE;
 		}
 		bytes_sent = bytes_sent + result;
