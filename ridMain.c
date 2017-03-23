@@ -24,31 +24,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
+#include <ctype.h>
 #include "serial.h"
 #include "RIDLib.h"
 #include "producer.h"
 
 #define TRUE						1
 #define FALSE						0
-#define COMMAND_NAME				argv[0]
-#define EXECUTION_PARAMS			argv[1]
-#define N_ITERATIONS_OR_USB			argv[2]
-#define FOUR_PARAMS_USB				argv[3]
-#define SEPA_ADDRESS				argv[4]
-#define CUSTOM_USB					1
-#define CUSTOM_ITERATIONS			0
-#define CONTINUOUS_ITERATION		0
-#define SEPA_UPDATE_UNBOUNDED		390
 #define SEPA_UPDATE_BOUNDED			500
-#define WRONG_PARAMETER				-1
 
-int continuousRead;
+int continuousRead = FALSE;
 intVector *idVector;
 intMatrix *sumVectors;
 intMatrix *diffVectors;
 uint8_t nID;
 SerialOptions ridSerial;
-char *http_sepa_address;
+char *http_sepa_address,*usbportAddress;
 
 extern uint8_t request_packet[STD_PACKET_STRING_DIM];
 extern uint8_t reset_packet[STD_PACKET_STRING_DIM];
@@ -59,7 +51,8 @@ uint8_t param_check(const char * params);
 int ridExecution(uint8_t execution_code,const char * usb_address,int iterations);
 int third_param_check(const char * third_param);
 int readAllAngles(int nAngles,size_t id_array_size);
-void sepafree(int code,char * sparql_unbounded,char * sparql_bounded);
+void free_all(int code);
+void free_internal(int count,...);
 void sepaLocationUpdate(int code,coord location,const char * unbounded_sparql);
 
 void interruptHandler(int signalCode) {
@@ -70,85 +63,103 @@ void interruptHandler(int signalCode) {
 }
 
 int main(int argc, char **argv) {
-	uint8_t execution_code;
-	int iterationNumber,codeCheck;
+	uint8_t execution_code = 0;
+	int cmdlineOpt,force_missingOption=FALSE,my_optopt;
+	int iterationNumber=0,execution_result,i;
 	
-	// default behaviour is limited number of reads
-	continuousRead = FALSE;
-	
-	// argc and argv handling
-	switch (argc) {
-	case 1:
-		// only prints help
-		printUsage(NULL);
-		break;
-	case 2:
-		// prints help
-		if (!strcmp(EXECUTION_PARAMS,"help")) printUsage(NULL);
-		// checking [OPTIONS]
-		execution_code = param_check(EXECUTION_PARAMS);
-		if (!execution_code) printUsage("Wrong parameters!\n");
-		// setting continuous read
-		continuousRead = TRUE;
-		return ridExecution(execution_code,"/dev/ttyUSB0",CONTINUOUS_ITERATION);
-	case 3:
-		// checking [OPTIONS] and if second param is [-nREPEAT] or [USB_PORT]
-		execution_code = param_check(EXECUTION_PARAMS);
-		codeCheck = third_param_check(N_ITERATIONS_OR_USB);
-		if ((!execution_code) || (codeCheck==WRONG_PARAMETER)) printUsage("Wrong parameters!\n");
-		if (codeCheck==CUSTOM_ITERATIONS) {
-			// [-nREPEAT] case
-			sscanf(N_ITERATIONS_OR_USB,"-n%d",&iterationNumber);
-			return ridExecution(execution_code,"/dev/ttyUSB0",iterationNumber);
-		}
-		// [USB_PORT] case
-		continuousRead = TRUE;
-		return ridExecution(execution_code,N_ITERATIONS_OR_USB,CONTINUOUS_ITERATION);
-	case 4:
-		// checking [OPTIONS]
-		execution_code = param_check(EXECUTION_PARAMS);
-		if (!execution_code) printUsage("Wrong parameters!\n");
-		// second param must be [-nREPEAT], third must be [USB_PORT]
-		if (third_param_check(N_ITERATIONS_OR_USB)!=CUSTOM_ITERATIONS) printUsage("right order: [-nREPEAT] [USB_PORT]\n");
-		sscanf(N_ITERATIONS_OR_USB,"-n%d",&iterationNumber);
-		return ridExecution(execution_code,FOUR_PARAMS_USB,iterationNumber);
-	case 5:
-		// checking [OPTIONS], adding -u flag manually
-		execution_code = param_check(EXECUTION_PARAMS);
-		if (!execution_code) printUsage("Wrong parameters!\n");
-		execution_code = execution_code | 0x08;
-		// second param must be [-nREPEAT], third must be [USB_PORT]
-		if (third_param_check(N_ITERATIONS_OR_USB)!=CUSTOM_ITERATIONS) printUsage("Wrong spelling of third param!\n");
-		sscanf(N_ITERATIONS_OR_USB,"-n%d",&iterationNumber);
-		// fourth parameter must be [-uSEPA_ADDRESS]
-		if (strstr(SEPA_ADDRESS,"-u")!=SEPA_ADDRESS) printUsage("Wrong SEPA address format!\n");
-		http_sepa_address = (char *) malloc(strlen(SEPA_ADDRESS)*sizeof(char));
-		if (http_sepa_address==NULL) {
-			fprintf(stderr,"SEPA address malloc problem\n");
-			return EXIT_FAILURE;
-		}
-		sscanf(SEPA_ADDRESS,"-u%s",http_sepa_address);
-		return ridExecution(execution_code,FOUR_PARAMS_USB,iterationNumber);
-	default:
-		// all other cases are wrong
-		printUsage("Wrong parameter number!\n");
+	usbportAddress = strdup("/dev/ttyUSB0");
+	if (usbportAddress==NULL) {
+		fprintf(stderr,"malloc error in usbportAddress.\n");
 		return EXIT_FAILURE;
 	}
-	// argc and argv handling end
-	return EXIT_SUCCESS;
-}
-
-uint8_t param_check(const char * params) {
-	// checks [OPTIONS] parameter and returns corresponding flags
-	uint8_t execution_code = 0;
-	if (params[0]!='-') return 0;
-	if (strchr(params,'r')!=NULL) execution_code = execution_code | 0x01;
-	if (strchr(params,'l')!=NULL) execution_code = execution_code | 0x02;
-	if (strchr(params,'b')!=NULL) execution_code = execution_code | 0x04;
 	
-	// r e b cannot be together
-	if ((execution_code & 0x05)==0x05) return 0; 
-	return execution_code;
+	opterr = 0;
+	if ((argc==1) || ((argc==2) && (!strcmp(argv[1],"help")))) {
+		printUsage(NULL);
+		free(usbportAddress);
+		return EXIT_SUCCESS;
+	}
+	while ((cmdlineOpt = getopt(argc, argv, "-rlbn:u:p:"))!=-1) {
+		if (((cmdlineOpt=='n') || (cmdlineOpt=='u') || (cmdlineOpt=='p')) && (optarg[0]=='-')) {
+			force_missingOption = TRUE;
+			my_optopt = cmdlineOpt;
+			cmdlineOpt = '?';
+		}
+		switch (cmdlineOpt) {
+			case 'r':
+				execution_code = execution_code | 0x01;
+				break;
+			case 'l':
+				execution_code = execution_code | 0x02;
+				break;
+			case 'b':
+				execution_code = execution_code | 0x04;
+				break;
+			case 'n':
+				for (i=0; i<strlen(optarg); i++) {
+					// optarg must be an integer number
+					if ((optarg[i]<'0') || (optarg[i]>'9')) {
+						fprintf(stderr,"%s is not an integer: -n argument must be an integer.\n",optarg);
+						printUsage(NULL);
+						free_all(execution_code);
+						return EXIT_FAILURE;
+					}
+				}
+				sscanf(optarg,"%d",&iterationNumber);
+				printf("Requested %d iterations.\n",iterationNumber);
+				break;
+			case 'u':
+				execution_code = execution_code | 0x08;
+				http_sepa_address = strdup(optarg);
+				if (http_sepa_address==NULL) {
+					fprintf(stderr,"malloc error in usbportAddress.\n");
+					free(usbportAddress);
+					return EXIT_FAILURE;
+				}
+				printf("Sepa address: %s\n",http_sepa_address);
+				break;
+			case 'p':
+				execution_code = execution_code | 0x10;
+				free(usbportAddress);
+				usbportAddress = strdup(optarg);
+				if (usbportAddress==NULL) {
+					fprintf(stderr,"malloc error in usbportAddress.\n");
+					if ((execution_code & 0x08)==0x08) free(http_sepa_address);
+					return EXIT_FAILURE;
+				}
+				printf("USB port address: %s\n",usbportAddress);
+				break;
+			case '?':
+				if (!force_missingOption) my_optopt = optopt;
+				if ((my_optopt=='n') || (my_optopt=='u') || (my_optopt=='p')) fprintf(stderr,"Option -%c requires an argument.\n",my_optopt);
+				else {
+					if (isprint(my_optopt)) fprintf(stderr,"Unknown option -%c.\n",my_optopt);
+					else fprintf(stderr,"Unknown option character \\x%x.\n",my_optopt);
+				}
+				printUsage(NULL);
+				free_all(execution_code);
+				return EXIT_FAILURE;
+			default:
+				printUsage("Wrong syntax!\n");
+				free_all(execution_code);
+				return EXIT_FAILURE;
+		}
+		if ((execution_code & 0x05)==0x05) {
+			printUsage("-r and -b are not compatible\n");
+			free_all(execution_code);
+			return EXIT_FAILURE;
+		}
+		if (!execution_code) {
+			printUsage("Wrong syntax!\n");
+			free_all(execution_code);
+			return EXIT_FAILURE;
+		}
+	}
+	execution_result = ridExecution(execution_code,usbportAddress,iterationNumber);
+	if (execution_result==EXIT_FAILURE) printf("Execution ended with code EXIT_FAILURE.\n");
+	else printf("Execution ended with code EXIT_SUCCESS.\n");
+	free_all(execution_code);
+	return execution_result;
 }
 
 int ridExecution(uint8_t code,const char * usb_address,int iterations) {
@@ -167,13 +178,12 @@ int ridExecution(uint8_t code,const char * usb_address,int iterations) {
 	uint8_t request_confirm[STD_PACKET_STRING_DIM] = {'x','x','\0'};
 	
 	if ((code & 0x08)==0x08) { // u
-		sparqlUpdate_unbounded = (char *) malloc(SEPA_UPDATE_UNBOUNDED*sizeof(char));
+		sparqlUpdate_unbounded = strdup("PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX hbt:<http://www.unibo.it/Habitat#> DELETE {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateY ?oldY} INSERT {%s rdf:type hbt:ID. %s hbt:hasPosition %s. %s rdf:type hbt:Position. %s hbt:hasCoordinateX \"%lf\". %s hbt:hasCoordinateY \"%lf\"} WHERE {{} UNION {OPTIONAL {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateX ?oldY}}}");
 		sparqlUpdate_bounded = (char *) malloc(SEPA_UPDATE_BOUNDED*sizeof(char));
 		if ((sparqlUpdate_unbounded==NULL) || (sparqlUpdate_bounded==NULL)){
 			fprintf(stderr,"SPARQL malloc problem\n");
 			return EXIT_FAILURE;
 		}
-		strcpy(sparqlUpdate_unbounded,"PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX hbt:<http://www.unibo.it/Habitat#> DELETE {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateY ?oldY} INSERT {%s rdf:type hbt:ID. %s hbt:hasPosition %s. %s rdf:type hbt:Position. %s hbt:hasCoordinateX \"%lf\". %s hbt:hasCoordinateY \"%lf\"} WHERE {{} UNION {OPTIONAL {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateX ?oldY}}}");
 	}
 	
 	if ((code & 0x01)==0x01) { // r
@@ -182,7 +192,7 @@ int ridExecution(uint8_t code,const char * usb_address,int iterations) {
 		locations = locateFromFile(logFileName,&locationDim);
 		if (locations==NULL) {
 			fprintf(stderr,"Failed in retrieving locations from %s\n",logFileName);
-			sepafree(code,sparqlUpdate_unbounded,sparqlUpdate_bounded);
+			if ((code & 0x08)==0x08) free_internal(2,sparqlUpdate_unbounded,sparqlUpdate_bounded);
 			return EXIT_FAILURE;
 		}
 		if ((code & 0x02)==0x02) { // rl
@@ -191,8 +201,8 @@ int ridExecution(uint8_t code,const char * usb_address,int iterations) {
 			customOutput = fopen(logFileName,"w");
 			if (customOutput==NULL) {
 				fprintf(stderr,"log on %s generated an error.\n",logFileName);
-				free(locations);
-				sepafree(code,sparqlUpdate_unbounded,sparqlUpdate_bounded);
+				if ((code & 0x08)==0x08) free_internal(3,locations,sparqlUpdate_unbounded,sparqlUpdate_bounded);
+				else free(locations);
 				return EXIT_FAILURE;
 			}
 		}
@@ -210,14 +220,14 @@ int ridExecution(uint8_t code,const char * usb_address,int iterations) {
 		ridSerial.parityBit = NO_PARITY;
 		ridSerial.stopbits = ONE_STOP;
 		if (open_serial(usb_address,&ridSerial) == ERROR) {
-			sepafree(code,sparqlUpdate_unbounded,sparqlUpdate_bounded);
+			if ((code & 0x08)==0x08) free_internal(2,sparqlUpdate_unbounded,sparqlUpdate_bounded);
 			return EXIT_FAILURE;
 		}
 		// serial opening end
 		
 		// writes to serial "+\n": rid reset
 		if (send_packet(ridSerial.serial_fd,reset_packet,std_packet_size,"Reset packet send failure") == EXIT_FAILURE) {
-			sepafree(code,sparqlUpdate_unbounded,sparqlUpdate_bounded);
+			if ((code & 0x08)==0x08) free_internal(2,sparqlUpdate_unbounded,sparqlUpdate_bounded);
 			close(ridSerial.serial_fd);
 			return EXIT_FAILURE;
 		}
@@ -227,7 +237,7 @@ int ridExecution(uint8_t code,const char * usb_address,int iterations) {
 		
 		// writes to serial "<\n": start transmission request
 		if (send_packet(ridSerial.serial_fd,request_packet,std_packet_size,"Request id packet send failure") == EXIT_FAILURE) {
-			sepafree(code,sparqlUpdate_unbounded,sparqlUpdate_bounded);
+			if ((code & 0x08)==0x08) free_internal(2,sparqlUpdate_unbounded,sparqlUpdate_bounded);
 			close(ridSerial.serial_fd);
 			return EXIT_FAILURE;
 		}
@@ -239,14 +249,14 @@ int ridExecution(uint8_t code,const char * usb_address,int iterations) {
 		if (result == ERROR) {
 			fprintf(stderr,"request confirm command read_until_terminator failure\n");
 			send_packet(ridSerial.serial_fd,reset_packet,std_packet_size,"Reset packet send failure");
-			sepafree(code,sparqlUpdate_unbounded,sparqlUpdate_bounded);
+			if ((code & 0x08)==0x08) free_internal(2,sparqlUpdate_unbounded,sparqlUpdate_bounded);
 			close(ridSerial.serial_fd);
 			return EXIT_FAILURE;
 		}
 		if (strcmp((char*) request_packet,(char*) request_confirm)) {
 			fprintf(stderr,"Received unexpected %s instead of %s\n",(char*) request_confirm,(char*) request_packet);
 			send_packet(ridSerial.serial_fd,reset_packet,std_packet_size,"Reset packet send failure");
-			sepafree(code,sparqlUpdate_unbounded,sparqlUpdate_bounded);
+			if ((code & 0x08)==0x08) free_internal(2,sparqlUpdate_unbounded,sparqlUpdate_bounded);
 			close(ridSerial.serial_fd);
 			return EXIT_FAILURE;
 		}
@@ -257,13 +267,13 @@ int ridExecution(uint8_t code,const char * usb_address,int iterations) {
 		result = read_nbyte(ridSerial.serial_fd,sizeof(uint8_t),&nID);
 		if (result == EXIT_FAILURE) {
 			fprintf(stderr,"nID number read_nbyte failure\n");
-			sepafree(code,sparqlUpdate_unbounded,sparqlUpdate_bounded);
+			if ((code & 0x08)==0x08) free_internal(2,sparqlUpdate_unbounded,sparqlUpdate_bounded);
 			close(ridSerial.serial_fd);
 			return EXIT_FAILURE;
 		}
 		if (nID==WRONG_NID) {
 			fprintf(stderr,"nId == 255 error\n");
-			sepafree(code,sparqlUpdate_unbounded,sparqlUpdate_bounded);
+			if ((code & 0x08)==0x08) free_internal(2,sparqlUpdate_unbounded,sparqlUpdate_bounded);
 			close(ridSerial.serial_fd);
 			return EXIT_FAILURE;
 		}
@@ -277,8 +287,8 @@ int ridExecution(uint8_t code,const char * usb_address,int iterations) {
 		result = read_until_terminator(ridSerial.serial_fd,id_array_size,id_array,SCHWARZENEGGER);
 		if (result == ERROR) {
 			fprintf(stderr,"id list command read_until_terminator failure\n");
-			free(id_array);
-			sepafree(code,sparqlUpdate_unbounded,sparqlUpdate_bounded);
+			if ((code & 0x08)==0x08) free_internal(3,id_array,sparqlUpdate_unbounded,sparqlUpdate_bounded);
+			else free(id_array);
 			close(ridSerial.serial_fd);
 			return EXIT_FAILURE;
 		}
@@ -301,6 +311,7 @@ int ridExecution(uint8_t code,const char * usb_address,int iterations) {
 
 		rowOfSums = gsl_vector_int_alloc(ANGLE_ITERATIONS);
 		rowOfDiffs = gsl_vector_int_alloc(ANGLE_ITERATIONS);
+		if (!iterations) continuousRead = TRUE;
 		do {
 			result = readAllAngles(ANGLE_ITERATIONS,id_array_size);
 			if (result == EXIT_FAILURE) break;
@@ -325,34 +336,27 @@ int ridExecution(uint8_t code,const char * usb_address,int iterations) {
 		gsl_matrix_int_free(sumVectors);
 		gsl_matrix_int_free(diffVectors);
 		gsl_vector_int_free(idVector);
+		close(ridSerial.serial_fd);
 	}
-	sepafree(code,sparqlUpdate_unbounded,sparqlUpdate_bounded);
-	close(ridSerial.serial_fd);
+	
+	if ((code & 0x08)==0x08) free_internal(2,sparqlUpdate_unbounded,sparqlUpdate_bounded);
 	return EXIT_SUCCESS;
 }
 
-int third_param_check(const char * third_param) {
-	// third param examination and validation
-	int i;
-	if (strstr(third_param,"-n")==third_param) {
-		// [-nREPEAT] case
-		for (i=2; i<strlen(third_param); i++) {
-			// must be an integer number
-			if ((third_param[i]<'0') || (third_param[i]>'9')) return WRONG_PARAMETER;
-		}
-		return CUSTOM_ITERATIONS;
-	}
-	// [USB_PORT] case
-	return CUSTOM_USB;
+void free_all(int code) {
+	free(usbportAddress);
+	if ((code & 0x08)==0x08) free(http_sepa_address);
 }
 
-void sepafree(int code,char * sparql_unbounded,char * sparql_bounded) {
-	if ((code & 0x08)==0x08) {
-		// active only if [-uSEPA_ADDRESS] is present
-		free(http_sepa_address);
-		free(sparql_unbounded);
-		free(sparql_bounded);
-	}
+void free_internal(int count,...) {
+	va_list ap;
+    int j;
+
+    va_start(ap, count);
+    for (j=0; j<count; j++) {
+        free(va_arg(ap, void*));
+    }
+    va_end(ap);
 }
 
 void sepaLocationUpdate(int code,coord location,const char * unbounded_sparql) {
