@@ -1,7 +1,7 @@
 NAME:
 	ridReader - reads from Unibo's Habitat rfid reader
 SYNOPSIS:
-	ridReader [OPTIONS] [-nREPEAT] [USB_PORT] [-uSEPA_ADDRESS]
+	ridReader [OPTIONS] [-nREPEAT] [-pUSB_PORT] [-uSEPA_ADDRESS]
 OPTIONS DESCRIPTION:
 	-l
 		log on txt file
@@ -16,7 +16,7 @@ OPTIONS DESCRIPTION:
 	-nXXX
 		written in the form -n45, for example, identifies the number of iterations to be done.
 		If absent, we consider it equivalent to -n0, which means "infinite iterations".
-USB_PORT
+-pUSB_PORT
 	Must be the address in /dev/ folder to the USB device.
 -uSEPA_ADDRESS
 	-uhttp://sepa_address.it:8000/sparql
@@ -24,7 +24,7 @@ USB_PORT
 		If present, it updates locations on the SEPA.
 	This parameter MUST be the last one, and can be used only in full-custom configuration, i.e. when
 	you call the command like
-	ridReader -l -n12 /dev/ttyUSB0 -uhttp://mysepa_address.it:8000/sparql
+	ridReader -l -n12 -p/dev/ttyUSB0 -uhttp://mysepa_address.it:8000/sparql
 	
 Exit status:
 	0 if exit success
