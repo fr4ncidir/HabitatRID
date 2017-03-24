@@ -26,9 +26,7 @@ from platform import linux_distribution
 from random import uniform
 from time import sleep
 from Producer import *
-import sys
-import logging
-import json
+import sys,argparse,logging,json,subprocess
 
 logging.basicConfig(format="%(filename)s\t%(levelname)s:\t%(message)s",level=logging.INFO)
 
@@ -37,18 +35,18 @@ RASPBERRY_INPUT_PIN = 17
 SIMULATION_UPDATE =  \
 """PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
 PREFIX hbt:<http://www.unibo.it/Habitat#>
-DELETE {?pos hbt:hasCoordinateX ?oldX. ?pos hbt:hasCoordinateY ?oldY} 
-INSERT {?id rdf:type hbt:ID. ?id hbt:hasPosition ?pos. ?pos hbt:hasCoordinateX ?x. ?pos hbt:hasCoordinateY ?y} 
+DELETE {	?pos 		hbt:hasCoordinateX 	?oldX. 
+			?pos 		hbt:hasCoordinateY 	?oldY} 
+INSERT {	?id 		rdf:type 			hbt:ID. 
+			?pos 		rdf:type 			hbt:Position. 
+			hbt:Unknown rdf:type 			hbt:Location. 
+			?id 		rdfs:label 			?label 
+			?id 		hbt:role 			?role. 
+			?id 		hbt:hasLocation 	hbt:Unknown. 
+			?id 		hbt:hasPosition 	?pos. 
+			?pos 		hbt:hasCoordinateX 	?x. 
+			?pos 		hbt:hasCoordinateY 	?y} 
 WHERE {{} UNION {OPTIONAL{?pos hbt:hasCoordinateX ?oldX. ?pos hbt:hasCoordinateY ?oldY}}}"""
-
-def printUsage():
-	print """USAGE:
-		python ridSimulation.py help
-		\tprints this guide
-		python ridSimulation.py <configuration file>
-		\tstarts simulation using the configuration file (non Raspberry)
-		python ridSimulation.py <configuration file> Raspberry
-		\tstarts simulation using the configuration file (Raspberry)"""
 		
 def wait_next_iteration(iteration_type,timing):
 	if iteration_type=="timer":
@@ -72,13 +70,6 @@ def wait_next_iteration(iteration_type,timing):
 			return True
 	return False
 
-		
-def os_noRaspbian_message():
-	os_name,vers,iden = linux_distribution()
-	notes = "ridSimulation.py\tTrigger simulation by button disabled."
-	print "ridSimulation.py\t{}\n\nWelcome to the RIDsimulator on {}!\n{}".format(os_name,os_name,notes)
-	return True
-
 def json_config_open(json_config_file):
 	json_format_array = ["sepa_ip","sepa_update_port","simulation","type","timing","iterations","x_topleft","y_topleft","ridUid","locations"]
 	try:
@@ -87,7 +78,8 @@ def json_config_open(json_config_file):
 		for index in json_format_array:
 			if index not in config_data:
 				raise ValueError("Invalid configuration json: missing '{}' field".format(index))
-	except:
+	except Exception as openingjsonException:
+		print openingjsonException
 		logging.error("Caught exception in config file. Aborting.")
 		return None,3
 	return config_data,0
@@ -104,65 +96,47 @@ def simulate_new_position(kp,uid,pos,x,y):
 		print e
 	
 def main(args):
-	print "\nridSimulation.py - Francesco Antoniazzi <francesco.antoniazzi@unibo.it>"
-	ignore_button_type = False
-	
-	if len(args)==1:
-		printUsage()
-		return 1
-	elif len(args)==2:
-		if args[1]=="help":
-			printUsage()
-			return 2
+	print "ridSimulation.py - Francesco Antoniazzi <francesco.antoniazzi@unibo.it>"
+	os_name,vers,iden = linux_distribution()
+	if args.button==True:
+		p1 = subprocess.Popen(["cat","/etc/issue"], stdout=subprocess.PIPE)
+		p2 = subprocess.Popen(["grep","-c","Raspbian"], stdin=p1.stdout, stdout=subprocess.PIPE)
+		p1.stdout.close()
+		output = p2.communicate()[0]
+		if output=="0\n":
+			print "Button parameter is valid only if running from Raspberry! Detected {} OS".format(os_name)
+			return 1
 		else:
-			ignore_button_type = os_noRaspbian_message()
-			config_data,error_code = json_config_open(args[1])
-			if error_code:
-				return error_code
-	elif len(args)==3:
-		if args[2]!="Raspberry":
-			ignore_button_type = os_noRaspbian_message()
-		else:
-			print "ridSimulation.py\tRaspbian\n\nWelcome to the RIDsimulator on Raspbian!\n"
+			print "Raspbian OS\nWelcome to the python RIDsimulator on Raspbian!\n"
 			import RPi.GPIO as gpio
 			gpio.setmode(gpio.BCM)
 			gpio.setup(RASPBERRY_INPUT_PIN,gpio.IN)
-		config_data,error_code = json_config_open(args[1])
-		if error_code:
-			return error_code
 	else:
-		logging.error("Unexpected arguments. Aborting.")
-		printUsage()
-		return 4
-	
+		print "{} OS\nWelcome to the python RIDsimulator on {}!\n".format(os_name,os_name)
+	config_data,error_code = json_config_open(args.JSON_configuration_file)
+	if error_code:
+		return error_code
+		
 	logging.info("SEPA ip: {}".format(config_data["sepa_ip"]))
 	logging.info("SEPA update port: {}".format(config_data["sepa_update_port"]))
-	
 	sibHost = "http://{}:{}/sparql".format(config_data["sepa_ip"],config_data["sepa_update_port"])
 	kp = Producer(sibHost)
+	
 	identifier = config_data["ridUid"]
 	position = config_data["positionId"]
 	logging.info("Identifier: {}".format(identifier))
 	logging.info("Position: {}".format(position))
 	
 	logging.info("Simulation max iterations: {}".format(config_data["iterations"]))
+	logging.info("Simulation type: {}".format(config_data["type"]))
 	
-	if (ignore_button_type and (config_data["type"]=="button")):
-		ignored = "IGNORED"
-	else:
-		ignored = ""
-	logging.info("Simulation type: {} {}".format(config_data["type"],ignored))
-	
-	sleep_time = None
-	simulation_type = "button"
-	if ((config_data["type"]=="timer") or ignore_button_type):
-		sleep_time = int(config_data["timing"])/1000
+	sleep_time = int(config_data["timing"])/1000
+	simulation_type = config_data["type"]
+	if simultation_type=="timer":
 		logging.info("Timing: {} s".format(sleep_time))
-		simulation_type = "timer"
 	else:
 		logging.warning("Button interrupts for simulation... Check configurations on <github>")
 
-	
 	if config_data["simulation"]=="file":
 		for i in range(min(int(config_data["iterations"]),len(config_data["locations"]))):
 			# waits next iteration
@@ -176,12 +150,14 @@ def main(args):
 	elif config_data["simulation"]=="random":
 		logging.info("x_max={}".format(config_data["x_topleft"]))
 		logging.info("y_max={}".format(config_data["y_topleft"]))
+		new_x = uniform(0,float(config_data["x_topleft"]))
+		new_y = uniform(0,float(config_data["y_topleft"]))
 		for i in range(int(config_data["iterations"])):
 			# waits next iteration
 			if wait_next_iteration(simulation_type,sleep_time):
 				break
-			new_x = uniform(0,float(config_data["x_topleft"]))
-			new_y = uniform(0,float(config_data["y_topleft"]))
+			new_x = min(config_data["x_topleft"],new_x+uniform(-20,20))
+			new_y = min(config_data["y_topleft"],new_y+uniform(-20,20))
 			logging.info("{}. ({},{})".format(i,new_x,new_y))
 			# update sib
 			simulate_new_position(kp,identifier,position,new_x,new_y)
@@ -193,4 +169,8 @@ def main(args):
 	return 0
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv))
+	parser = argparse.ArgumentParser()
+	parser.add_argument("JSON_configuration_file",help="Path to the json config file for simulation")
+	parser.add_argument("-b","--button",help="If the script is running on Raspberry, this argument enables the hardware button interrupts.",action="store_true")
+	arguments = parser.parse_args()
+	sys.exit(main(arguments))

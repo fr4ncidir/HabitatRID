@@ -231,3 +231,22 @@ int vector_subst(intVector * vector,int oldVal,int newVal) {
 void printLocation(FILE * output_stream,coord xy) {
 	fprintf(output_stream,"Location of id %d: (x,y)=(%lf,%lf)\n",xy.id,xy.x,xy.y);
 }
+
+long sepaLocationUpdate(const char * SEPA_address,coord location,const char * unbounded_sparql) {
+	char posUid[20];
+	char ridUid[20];
+	char bounded_sparql[SEPA_UPDATE_BOUNDED];
+	if (SEPA_address!=NULL) {
+		// active only if [-uSEPA_ADDRESS] is present
+		sprintf(ridUid,"hbt:rid%d",location.id); //TODO must be checked
+		sprintf(posUid,"hbt:pos%d",location.id); //TODO must be checked
+		sprintf(bounded_sparql,unbounded_sparql, 
+			posUid,posUid,				//DELETE {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateY ?oldY} 
+			ridUid,ridUid,posUid, 		//INSERT {%s rdf:type hbt:ID. %s hbt:hasPosition %s.
+			posUid,posUid,location.x,	//        %s rdf:type hbt:Position. %s hbt:hasCoordinateX \"%lf\".
+			posUid,location.y,			//		  %s hbt:hasCoordinateY \"%lf\"}
+			posUid,posUid);				//WHERE {{} UNION {OPTIONAL {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateX ?oldY}}}
+		return kpProduce(bounded_sparql,SEPA_address);
+	}
+	return -1;
+}

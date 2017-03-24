@@ -19,6 +19,7 @@
 #include <gsl/gsl_vector_int.h>
 #include <gsl/gsl_matrix_int.h>
 #include <time.h>
+#include "producer.h"
 
 #define RADIUS_TH		6
 #define N1_low			2
@@ -43,6 +44,7 @@
 #define SUM_CORRECTION					-100
 #define DIFF_CORRECTION					100
 
+#define SEPA_UPDATE_BOUNDED				500
 #define MATLAB_COMPATIBLE_TXT			1
 #define VERBOSE_CALCULATION
 
@@ -75,6 +77,7 @@ double radiusFormula(double A,double B,double C);
 double thetaFind(int i_ref);
 int vector_subst(intVector * vector,int oldVal,int newVal);
 void printLocation(FILE * output_stream,coord xy);
+long sepaLocationUpdate(const char * SEPA_address,coord location,const char * unbounded_sparql);
 
 
 #endif /* RIDLIB_H_ */
