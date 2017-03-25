@@ -1,22 +1,32 @@
 {
-	"sepa_ip":"mml.arces.unibo.it",
+	"sepa_ip":"10.0.2.15",
 	"sepa_update_port":8000,
 	"simulation":"random", 		
 	"type":"timer", 			
-	"timing":3000,	 			
+	"timing":2000,	 			
 	"iterations":10,
 	"x_topleft":500,				
 	"y_topleft":500,
-	"ridUid":"ID_abb1def4-baa0-4fbb-841d-47faba84160b",
-	"positionId":"",
+	"ridUid":"ID_5df14a0b-c4a5-4018-82ca-189785249797",
+	"positionId":"POS_e658da08-88e1-43b0-aefc-303c18d74662",
+	"role":"PATIENT",
+	"label":"Francesco",
 	"locations": [				
 		{
-			"x":3.5,
-			"y":1.9
+			"x":200,
+			"y":200
 		},
 		{
-			"x":6.2,
-			"y":7.1
+			"x":210,
+			"y":210
+		},
+		{
+			"x":220,
+			"y":210
+		},
+		{
+			"x":230,
+			"y":190
 		}
 	]
 }

@@ -33,17 +33,17 @@ logging.basicConfig(format="%(filename)s\t%(levelname)s:\t%(message)s",level=log
 RASPBERRY_INPUT_PIN = 17
 
 SIMULATION_UPDATE =  \
-"""PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+"""PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
 PREFIX hbt:<http://www.unibo.it/Habitat#>
-DELETE {	?pos 		hbt:hasCoordinateX 	?oldX. 
-			?pos 		hbt:hasCoordinateY 	?oldY} 
-INSERT {	?id 		rdf:type 			hbt:ID. 
+DELETE {?pos 		hbt:hasCoordinateX 	?oldX. ?pos hbt:hasCoordinateY ?oldY} 
+INSERT {	?id 		rdf:type 			hbt:ID.
+			?id			hbt:hasLocation		hbt:Unknown.
+			hbt:Unknown	rdf:type			hbt:Location.
+			?id 		hbt:hasPosition 	?pos.
 			?pos 		rdf:type 			hbt:Position. 
-			hbt:Unknown rdf:type 			hbt:Location. 
-			?id 		rdfs:label 			?label 
-			?id 		hbt:role 			?role. 
-			?id 		hbt:hasLocation 	hbt:Unknown. 
-			?id 		hbt:hasPosition 	?pos. 
+			?id 		rdfs:label 			?label. 
+			?id 		hbt:role 			?role.
 			?pos 		hbt:hasCoordinateX 	?x. 
 			?pos 		hbt:hasCoordinateY 	?y} 
 WHERE {{} UNION {OPTIONAL{?pos hbt:hasCoordinateX ?oldX. ?pos hbt:hasCoordinateY ?oldY}}}"""
@@ -71,7 +71,7 @@ def wait_next_iteration(iteration_type,timing):
 	return False
 
 def json_config_open(json_config_file):
-	json_format_array = ["sepa_ip","sepa_update_port","simulation","type","timing","iterations","x_topleft","y_topleft","ridUid","locations"]
+	json_format_array = ["sepa_ip","sepa_update_port","simulation","type","timing","iterations","x_topleft","y_topleft","ridUid","locations","role","label"]
 	try:
 		with open(json_config_file) as config_file:    
 			config_data = json.load(config_file)
@@ -84,12 +84,14 @@ def json_config_open(json_config_file):
 		return None,3
 	return config_data,0
 
-def simulate_new_position(kp,uid,pos,x,y):
+def simulate_new_position(kp,uid,pos,x,y,label,role):
 	bounded_update = SIMULATION_UPDATE \
 	.replace("?id","hbt:{}".format(uid)) \
 	.replace("?pos","hbt:{}".format(pos)) \
 	.replace("?x","\"{}\"".format(x)) \
-	.replace("?y","\"{}\"".format(y)) 
+	.replace("?y","\"{}\"".format(y)) \
+	.replace("?role","\"{}\"".format(role)) \
+	.replace("?label","\"{}\"".format(label))
 	try:
 		kp.produce(bounded_update)
 	except Exception as e:
@@ -124,15 +126,18 @@ def main(args):
 	
 	identifier = config_data["ridUid"]
 	position = config_data["positionId"]
+	label = config_data["label"]
+	role = config_data["role"]
 	logging.info("Identifier: {}".format(identifier))
 	logging.info("Position: {}".format(position))
+	logging.info("Label and Role: {}, {}".format(label,role))
 	
 	logging.info("Simulation max iterations: {}".format(config_data["iterations"]))
 	logging.info("Simulation type: {}".format(config_data["type"]))
 	
 	sleep_time = int(config_data["timing"])/1000
 	simulation_type = config_data["type"]
-	if simultation_type=="timer":
+	if simulation_type=="timer":
 		logging.info("Timing: {} s".format(sleep_time))
 	else:
 		logging.warning("Button interrupts for simulation... Check configurations on <github>")
@@ -146,7 +151,7 @@ def main(args):
 			new_y = config_data["locations"][i]["y"]
 			logging.info("{}. ({},{})".format(i,new_x,new_y))
 			# update sib
-			simulate_new_position(kp,identifier,position,new_x,new_y)
+			simulate_new_position(kp,identifier,position,new_x,new_y,label,role)
 	elif config_data["simulation"]=="random":
 		logging.info("x_max={}".format(config_data["x_topleft"]))
 		logging.info("y_max={}".format(config_data["y_topleft"]))
@@ -156,11 +161,11 @@ def main(args):
 			# waits next iteration
 			if wait_next_iteration(simulation_type,sleep_time):
 				break
-			new_x = min(config_data["x_topleft"],new_x+uniform(-20,20))
-			new_y = min(config_data["y_topleft"],new_y+uniform(-20,20))
+			new_x = int(round(max(0,min(config_data["x_topleft"],new_x+uniform(-20,20)))))
+			new_y = int(round(max(0,min(config_data["y_topleft"],new_y+uniform(-20,20)))))
 			logging.info("{}. ({},{})".format(i,new_x,new_y))
 			# update sib
-			simulate_new_position(kp,identifier,position,new_x,new_y)
+			simulate_new_position(kp,identifier,position,new_x,new_y,label,role)
 	else:
 		logging.error("Config file error (unknown value simulation field)")
 		return 5
