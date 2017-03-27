@@ -71,8 +71,8 @@ int main(int argc, char ** argv) {
 	
 	opterr = 0;
 	if ((argc==1) || ((argc==2) && (!strcmp(argv[1],"help")))) {
-		printUsage(NULL);
 		free(usbportAddress);
+		printUsage(NULL);
 		return EXIT_SUCCESS;
 	}
 	while ((cmdlineOpt = getopt(argc, argv, "-rlbn:u:p:"))!=-1) {
@@ -96,8 +96,8 @@ int main(int argc, char ** argv) {
 					// optarg must be an integer number
 					if (!isdigit(optarg[i])) {
 						fprintf(stderr,"%s is not an integer: -n argument must be an integer.\n",optarg);
-						printUsage(NULL);
 						free_arrays(2,usbportAddress,http_sepa_address);
+						printUsage(NULL);
 						return EXIT_FAILURE;
 					}
 				}
@@ -130,13 +130,13 @@ int main(int argc, char ** argv) {
 					if (isprint(my_optopt)) fprintf(stderr,"Unknown option -%c.\n",my_optopt);
 					else fprintf(stderr,"Unknown option character \\x%x.\n",my_optopt);
 				}
-				printUsage("Wrong syntax!\n");
 				free_arrays(2,usbportAddress,http_sepa_address);
+				printUsage("Wrong syntax!\n");
 				return EXIT_FAILURE;
 		}
 		if (((execution_code & 0x05)==0x05) || (!(execution_code & 0x07))){
-			printUsage("Wrong syntax! [-r and -b are not compatible]\n");
 			free_arrays(2,usbportAddress,http_sepa_address);
+			printUsage("Wrong syntax! [-r and -b are not compatible]\n");
 			return EXIT_FAILURE;
 		}
 	}
@@ -151,7 +151,7 @@ int ridExecution(uint8_t code,const char * usb_address,const char * SEPA_address
 	// functioning core
 	coord *locations;
 	coord last_location;
-	int locationDim,i,j,result;
+	int locationDim,i,j,result,protocol_error=0;
 	char logFileName[50];
 	FILE *customOutput = stdout;
 	uint8_t *id_array;
@@ -228,15 +228,12 @@ int ridExecution(uint8_t code,const char * usb_address,const char * SEPA_address
 		
 		// reads from serial "<\n" request confirm and check
 		result = read_until_terminator(ridSerial.serial_fd,std_packet_size,request_confirm,SCHWARZENEGGER);
-		if (result == ERROR) {
-			fprintf(stderr,"request confirm command read_until_terminator failure\n");
-			i = TRUE;
+		if (result == ERROR) fprintf(stderr,"request confirm command read_until_terminator failure\n");
+		else {
+			protocol_error = strcmp((char*) request_packet,(char*) request_confirm);
+			if (protocol_error) fprintf(stderr,"Received unexpected %s instead of %s\n",(char*) request_confirm,(char*) request_packet);
 		}
-		if (strcmp((char*) request_packet,(char*) request_confirm)) {
-			fprintf(stderr,"Received unexpected %s instead of %s\n",(char*) request_confirm,(char*) request_packet);
-			i = TRUE;
-		}
-		if (i) {
+		if ((result==ERROR) || (protocol_error)) {
 			send_packet(ridSerial.serial_fd,reset_packet,std_packet_size,"Reset packet send failure");
 			free_arrays(2,sparqlUpdate_unbounded,sparqlUpdate_bounded);
 			close(ridSerial.serial_fd);
