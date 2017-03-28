@@ -37,15 +37,15 @@ SIMULATION_UPDATE =  \
 PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
 PREFIX hbt:<http://www.unibo.it/Habitat#>
 DELETE {?pos 		hbt:hasCoordinateX 	?oldX. ?pos hbt:hasCoordinateY ?oldY} 
-INSERT {	?id 		rdf:type 			hbt:ID.
-			?id			hbt:hasLocation		hbt:Unknown.
-			hbt:Unknown	rdf:type			hbt:Location.
-			?id 		hbt:hasPosition 	?pos.
-			?pos 		rdf:type 			hbt:Position. 
-			?id 		rdfs:label 			?label. 
-			?id 		hbt:role 			?role.
-			?pos 		hbt:hasCoordinateX 	?x. 
-			?pos 		hbt:hasCoordinateY 	?y} 
+INSERT {	?id 		rdf:type 		hbt:ID.
+		?id		hbt:hasLocation		hbt:Unknown.
+		hbt:Unknown	rdf:type		hbt:Location.
+		?id 		hbt:hasPosition 	?pos.
+		?pos 		rdf:type 		hbt:Position. 
+		?id 		rdfs:label 		?label. 
+		?id 		hbt:role 		?role.
+		?pos 		hbt:hasCoordinateX 	?x. 
+		?pos 		hbt:hasCoordinateY 	?y} 
 WHERE {{} UNION {OPTIONAL{?pos hbt:hasCoordinateX ?oldX. ?pos hbt:hasCoordinateY ?oldY}}}"""
 		
 def wait_next_iteration(iteration_type,timing):
