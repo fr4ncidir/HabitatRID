@@ -246,7 +246,7 @@ long sepaLocationUpdate(const char * SEPA_address,coord location,const char * un
 			posUid,posUid,location.x,	//        %s rdf:type hbt:Position. %s hbt:hasCoordinateX \"%lf\".
 			posUid,location.y,			//		  %s hbt:hasCoordinateY \"%lf\"}
 			posUid,posUid);				//WHERE {{} UNION {OPTIONAL {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateX ?oldY}}}
-		return kpProduce(bounded_sparql,SEPA_address);
+		return kpProduce(bounded_sparql,SEPA_address,NULL);
 	}
 	return -1;
 }
