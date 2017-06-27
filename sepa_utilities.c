@@ -131,7 +131,7 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 	jsmn_parser parser;
 	jsmntok_t *jstokens;
 	int parsing_result,jstok_dim,i,completed=0;
-	char *js_buffer=NULL,*checkA,*checkB,*checkC;
+	char *js_buffer=NULL,*checkA,*checkC;
 
 	if (jsonResults==NULL) {
 		logE("NullpointerException in subscriptionResultParser.\n");
@@ -318,7 +318,7 @@ sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 			if (getJsonItem(json,tokens[j+1],&js_buffer)==PARSING_ERROR) return NULL;
 			logD("token[%d]=%s - token[%d].size=%d\n",j+1,js_buffer,j+1,tokens[j+1].size);
 #endif
-			for (i<j+tokens[j+1].size*BINDING_LEN; i+=BINDING_LEN) {
+			for (;i<j+tokens[j+1].size*BINDING_LEN; i+=BINDING_LEN) {
 				if (getJsonItem(json,tokens[i+BINDING_NAME],&bindingName)==PARSING_ERROR) return NULL;
 				logD("Binding Name %d=%s - size=%d\n",BINDING_NAME,bindingName,tokens[i+BINDING_NAME].size);
 				if (getJsonItem(json,tokens[i+BINDING_TYPE],&bindingType)==PARSING_ERROR) return NULL;
