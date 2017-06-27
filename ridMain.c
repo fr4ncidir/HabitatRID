@@ -29,9 +29,6 @@
 #include "serial.h"
 #include "RIDLib.h"
 
-#define TRUE						1
-#define FALSE						0
-
 int continuousRead = FALSE;
 intVector *idVector;
 intMatrix *sumVectors;
