@@ -212,7 +212,6 @@ int subscriptionResultsParser(char * jsonResults,sepaNode ** addedNodes,int * ad
 			// (un)subscription confirm case
 			checkA = strstr(jsonResults,"{\"subscribed\":\"");
 			checkC = strstr(jsonResults,"{\"unsubscribed\":\"");
-			checkB = strstr(jsonResults,"\"}");
 			if (checkC!=NULL) parsing_result = UNSUBSCRIBE_CONFIRM;
 			else {
 				if (checkA!=NULL) {
@@ -319,7 +318,7 @@ sepaNode * getResultBindings(char * json,jsmntok_t * tokens,int * outlen) {
 			if (getJsonItem(json,tokens[j+1],&js_buffer)==PARSING_ERROR) return NULL;
 			logD("token[%d]=%s - token[%d].size=%d\n",j+1,js_buffer,j+1,tokens[j+1].size);
 #endif
-			for (i; i<j+tokens[j+1].size*BINDING_LEN; i+=BINDING_LEN) {
+			for (i<j+tokens[j+1].size*BINDING_LEN; i+=BINDING_LEN) {
 				if (getJsonItem(json,tokens[i+BINDING_NAME],&bindingName)==PARSING_ERROR) return NULL;
 				logD("Binding Name %d=%s - size=%d\n",BINDING_NAME,bindingName,tokens[i+BINDING_NAME].size);
 				if (getJsonItem(json,tokens[i+BINDING_TYPE],&bindingType)==PARSING_ERROR) return NULL;
