@@ -237,6 +237,7 @@ long sepaLocationUpdate(const char * SEPA_address,coord location,const char * un
 	char ridUid[20];
 	char bounded_sparql[SEPA_UPDATE_BOUNDED];
 	if (SEPA_address!=NULL) {
+		// TODO query da riscrivere
 		// active only if [-uSEPA_ADDRESS] is present
 		sprintf(ridUid,"hbt:rid%d",location.id); //TODO must be checked
 		sprintf(posUid,"hbt:pos%d",location.id); //TODO must be checked
@@ -246,7 +247,7 @@ long sepaLocationUpdate(const char * SEPA_address,coord location,const char * un
 			posUid,posUid,location.x,	//        %s rdf:type hbt:Position. %s hbt:hasCoordinateX \"%lf\".
 			posUid,location.y,			//		  %s hbt:hasCoordinateY \"%lf\"}
 			posUid,posUid);				//WHERE {{} UNION {OPTIONAL {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateX ?oldY}}}
-		return kpProduce(bounded_sparql,SEPA_address);
+		return kpProduce(bounded_sparql,SEPA_address,NULL);
 	}
 	return -1;
 }

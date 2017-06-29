@@ -19,7 +19,7 @@
 #include <gsl/gsl_vector_int.h>
 #include <gsl/gsl_matrix_int.h>
 #include <time.h>
-#include "producer.h"
+#include "sepa_producer.h"
 
 #define RADIUS_TH		6
 #define N1_low			2
@@ -46,7 +46,7 @@
 
 #define SEPA_UPDATE_BOUNDED				500
 #define MATLAB_COMPATIBLE_TXT			1
-#define VERBOSE_CALCULATION
+//#define VERBOSE_CALCULATION
 
 
 #define RESET_COMMAND				'+'
