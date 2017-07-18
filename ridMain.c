@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  * 
- * 
+gcc -Wall -I/usr/local/include ridMain.c RIDLib.c serial.c ../sepa-C-kpi/sepa_producer.c ../sepa-C-kpi/sepa_utilities.c ../sepa-C-kpi/jsmn.c -o ridReader -lgsl -lgslcblas -lm -lcurl `pkg-config --cflags --libs glib-2.0 libwebsockets`
  */
 
 // TODO dati della stanza in un file JSON
@@ -42,6 +42,7 @@ extern uint8_t request_packet[STD_PACKET_STRING_DIM];
 extern uint8_t reset_packet[STD_PACKET_STRING_DIM];
 extern uint8_t detect_packet[STD_PACKET_STRING_DIM];
 extern size_t std_packet_size;
+extern RidParams parameters;
 
 uint8_t param_check(const char * params);
 int ridExecution(uint8_t execution_code,const char * usb_address,const char * SEPA_address,int iterations);
@@ -74,13 +75,17 @@ int main(int argc, char ** argv) {
 		printUsage(NULL);
 		return EXIT_SUCCESS;
 	}
-	while ((cmdlineOpt = getopt(argc, argv, "-rlbn:u:p:"))!=-1) {
-		if (((cmdlineOpt=='n') || (cmdlineOpt=='u') || (cmdlineOpt=='p')) && (optarg[0]=='-')) {
+	while ((cmdlineOpt = getopt(argc, argv, "-rlbn:u:p:f:"))!=-1) {
+		if (((cmdlineOpt=='n') || (cmdlineOpt=='u') || (cmdlineOpt=='p') || (cmdlineOpt=='f')) && (optarg[0]=='-')) {
 			force_missingOption = TRUE;
 			my_optopt = cmdlineOpt;
 			cmdlineOpt = '?';
 		}
 		switch (cmdlineOpt) {
+			case 'f':
+				if (parametrize(optarg)==EXIT_SUCCESS) break;
+				fprintf(stderr,"Parametrization from %s failed.\n",optarg);
+				return EXIT_FAILURE;
 			case 'r':
 				execution_code = execution_code | 0x01;
 				break;
@@ -124,7 +129,7 @@ int main(int argc, char ** argv) {
 				break;
 			default: // case '?'
 				if (!force_missingOption) my_optopt = optopt;
-				if ((my_optopt=='n') || (my_optopt=='u') || (my_optopt=='p')) fprintf(stderr,"Option -%c requires an argument.\n",my_optopt);
+				if ((my_optopt=='n') || (my_optopt=='u') || (my_optopt=='p') || (my_optopt=='f')) fprintf(stderr,"Option -%c requires an argument.\n",my_optopt);
 				else {
 					if (isprint(my_optopt)) fprintf(stderr,"Unknown option -%c.\n",my_optopt);
 					else fprintf(stderr,"Unknown option character \\x%x.\n",my_optopt);
@@ -274,27 +279,27 @@ int ridExecution(uint8_t code,const char * usb_address,const char * SEPA_address
 		// read ids end
 		
 		// retrieves sum and diff vectors
-		sumVectors = gsl_matrix_int_alloc(nID,ANGLE_ITERATIONS);
-		diffVectors = gsl_matrix_int_alloc(nID,ANGLE_ITERATIONS);
+		sumVectors = gsl_matrix_int_alloc(nID,parameters.ANGLE_ITERATIONS);
+		diffVectors = gsl_matrix_int_alloc(nID,parameters.ANGLE_ITERATIONS);
 
 		printf("Info: use Ctrl-c to stop reading\n\n");
 		signal(SIGINT,interruptHandler);
 
-		rowOfSums = gsl_vector_int_alloc(ANGLE_ITERATIONS);
-		rowOfDiffs = gsl_vector_int_alloc(ANGLE_ITERATIONS);
+		rowOfSums = gsl_vector_int_alloc(parameters.ANGLE_ITERATIONS);
+		rowOfDiffs = gsl_vector_int_alloc(parameters.ANGLE_ITERATIONS);
 		if (!iterations) continuousRead = TRUE;
 		do {
-			result = readAllAngles(ANGLE_ITERATIONS,id_array_size);
+			result = readAllAngles(parameters.ANGLE_ITERATIONS,id_array_size);
 			if (result == EXIT_FAILURE) break;
 
 			// log files
-			if ((code & 0x02)==0x02) log_file_txt(idVector,sumVectors,diffVectors,nID,ANGLE_ITERATIONS,0);
-			if ((code & 0x04)==0x04) log_file_bin(idVector,sumVectors,diffVectors,nID,ANGLE_ITERATIONS,logFileName);
+			if ((code & 0x02)==0x02) log_file_txt(idVector,sumVectors,diffVectors,nID,parameters.ANGLE_ITERATIONS,0);
+			if ((code & 0x04)==0x04) log_file_bin(idVector,sumVectors,diffVectors,nID,parameters.ANGLE_ITERATIONS,logFileName);
 
 			for (j=0; j<nID; j++) {
 				gsl_matrix_int_get_row(rowOfSums,sumVectors,j);
 				gsl_matrix_int_get_row(rowOfDiffs,diffVectors,j);
-				last_location = locateFromData(rowOfSums,rowOfDiffs,ANGLE_ITERATIONS);
+				last_location = locateFromData(rowOfSums,rowOfDiffs,parameters.ANGLE_ITERATIONS);
 				last_location.id = gsl_vector_int_get(idVector,j);
 				printLocation(stdout,last_location);
 				sepaLocationUpdate(SEPA_address,last_location,sparqlUpdate_unbounded);

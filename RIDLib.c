@@ -12,6 +12,7 @@ const uint8_t request_packet[STD_PACKET_STRING_DIM] = {REQUEST_COMMAND,SCHWARZEN
 const uint8_t reset_packet[STD_PACKET_STRING_DIM] = {RESET_COMMAND,SCHWARZENEGGER,'\0'};
 const uint8_t detect_packet[STD_PACKET_STRING_DIM] = {DETECT_COMMAND,SCHWARZENEGGER,'\0'};
 const size_t std_packet_size = STD_PACKET_DIM*sizeof(uint8_t);
+RidParams parameters;
 
 void printUsage(const char * error_message) {
 	if (error_message!=NULL) fprintf(stderr,"%s\n",error_message);
@@ -124,7 +125,7 @@ coord locateFromData(intVector * sum,intVector * diff,int nAngles) {
 
 	printf("Info: radius=%lf\ntheta=%lf\n",radius,theta);
 
-	location.x = radius*cos(theta)+BOTTOM_LEFT_CORNER_DISTANCE;
+	location.x = radius*cos(theta)+parameters.BOTTOM_LEFT_CORNER_DISTANCE;
 	location.y = radius*sin(theta);
 
 	gsl_vector_int_free(mpr);
@@ -186,22 +187,22 @@ double radiusFind(int i_ref2,intVector * sum) {
 	double radius;
 	power = gsl_vector_int_max(sum);
 	if (i_ref2<RANGE1) {
-		radius = radiusFormula(power,Pr01_low,N1_low);
-		if (radius>RADIUS_TH) {
-			return radiusFormula(power,Pr01_high,N1_high);
+		radius = radiusFormula(power,parameters.Pr01_low,parameters.N1_low);
+		if (radius>parameters.RADIUS_TH) {
+			return radiusFormula(power,parameters.Pr01_high,parameters.N1_high);
 		}
 	}
 	else {
 		if (i_ref2<RANGE2) {
-			radius = radiusFormula(power,Pr02_low,N2_low);
-			if (radius>RADIUS_TH) {
-				return radiusFormula(power,Pr02_high,N2_high);
+			radius = radiusFormula(power,parameters.Pr02_low,parameters.N2_low);
+			if (radius>parameters.RADIUS_TH) {
+				return radiusFormula(power,parameters.Pr02_high,parameters.N2_high);
 			}
 		}
 		else {
-			radius = radiusFormula(power,Pr03_low,N3_low);
-			if (radius>RADIUS_TH) {
-				return radiusFormula(power,Pr03_high,N3_high);
+			radius = radiusFormula(power,parameters.Pr03_low,parameters.N3_low);
+			if (radius>parameters.RADIUS_TH) {
+				return radiusFormula(power,parameters.Pr03_high,parameters.N3_high);
 			}
 		}
 	}
@@ -213,8 +214,8 @@ double radiusFormula(double A,double B,double C) {
 }
 
 double thetaFind(int i_ref) {
-	double i_ref_deg = dDegrees/2-dDegrees*i_ref/(ANGLE_ITERATIONS-1);
-	return i_ref_deg-dTheta0+dDegrees;
+	double i_ref_deg = parameters.dDegrees/2-parameters.dDegrees*i_ref/(parameters.ANGLE_ITERATIONS-1);
+	return i_ref_deg-parameters.dTheta0+parameters.dDegrees;
 }
 
 int vector_subst(intVector * vector,int oldVal,int newVal) {
@@ -250,4 +251,107 @@ long sepaLocationUpdate(const char * SEPA_address,coord location,const char * un
 		return kpProduce(bounded_sparql,SEPA_address,NULL);
 	}
 	return -1;
+}
+
+int parametrize(const char * fParam) {
+	FILE *json;
+	jsmn_parser parser;
+	jsmntok_t *jstokens;
+	char c;
+	char *jsonString,*js_buffer=NULL,*js_data=NULL,id_field[7];
+	int i=0,jDim=300,n_field,jstok_dim,completed=0;
+	
+	json = fopen(fParam,"r");
+	if (json==NULL) {
+		fprintf(stderr,"Error while opening %s.\n",fParam);
+		return EXIT_FAILURE;
+	}
+	jsonString = (char *) malloc(jDim*sizeof(char));
+	if (jsonString==NULL) {
+		fprintf(stderr,"Malloc error while opening %s.\n",fParam);
+		fclose(json);
+		return EXIT_FAILURE;
+	}
+	
+	do {
+		c = getc(json);
+		if ((c=='{') || (c=='}') || (c=='"') || (c=='.') || (c==',') || (c=='-') || (c==':') || (isalnum(c))) {
+			jsonString[i]=c;
+			i++;
+			if (i==jDim) {
+				jDim += 100;
+				jsonString = (char *) realloc(jsonString,jDim*sizeof(char));
+			}
+		}
+	} while (!feof(json));
+	fclose(json);
+	
+	jsmn_init(&parser);
+	jstok_dim = jsmn_parse(&parser, jsonString, strlen(jsonString), NULL, 0);
+	if (jstok_dim<0) {
+		fprintf(stderr,"Result dimension parsing gave %d\n",jstok_dim);
+		free(jsonString);
+		return EXIT_FAILURE;
+	}
+	
+	jstokens = (jsmntok_t *) malloc(jstok_dim*sizeof(jsmntok_t));
+	if (jstokens==NULL) {
+		fprintf(stderr,"Malloc error in json parsing!\n");
+		free(jsonString);
+		return EXIT_FAILURE;
+	}
+	jsmn_init(&parser);
+	jsmn_parse(&parser, jsonString, strlen(jsonString), jstokens, jstok_dim);
+	for (i=0; (i<jstok_dim-1) && (completed<17); i++) {
+		if (jstokens[i].type==JSMN_STRING) {
+			getJsonItem(jsonString,jstokens[i],&js_buffer);
+			getJsonItem(jsonString,jstokens[i+1],&js_data);
+			if (js_buffer[0]=='r') {
+				sscanf(js_data,"%lf",&(parameters.RADIUS_TH));
+				completed++;
+				continue;
+			}	
+			if (js_buffer[0]=='A') {
+				sscanf(js_data,"%d",&(parameters.ANGLE_ITERATIONS));
+				completed++;
+				continue;
+			}	
+			if (js_buffer[0]=='B') {
+				sscanf(js_data,"%lf",&(parameters.BOTTOM_LEFT_CORNER_DISTANCE));
+				completed++;
+				continue;
+			}
+			if (!strcmp(js_buffer,"delta_Degrees")) {
+				sscanf(js_data,"%d",&(parameters.dDegrees));
+				completed++;
+				continue;
+			}
+			if (!strcmp(js_buffer,"delta_Theta0")) {
+				sscanf(js_data,"%d",&(parameters.dTheta0));
+				completed++;
+				continue;
+			}
+			if (js_buffer[0]=='N') {
+				sscanf(js_buffer,"N%d_%s",&n_field,id_field);
+				if (!strcmp(id_field,"low")) sscanf(js_data,"%lf",&(parameters.N_low[n_field-1]));
+				else sscanf(js_data,"%lf",&(parameters.N_high[n_field-1]));
+				completed++;
+				continue;
+			}
+			if (js_buffer[0]=='P') {
+				sscanf(js_buffer,"Pr0%d_%s",&n_field,id_field);
+				if (!strcmp(id_field,"low")) sscanf(js_data,"%lf",&(parameters.Pr0_low[n_field-1]));
+				else sscanf(js_data,"%lf",&(parameters.Pr0_high[n_field-1]));
+				completed++;
+			}	
+		}
+	}
+	free(jstokens);
+	free(jsonString);
+	free(js_data);
+	if (completed<17) {
+		fprintf(stderr,"ERROR! Parameter json not complete!\n");
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
 }

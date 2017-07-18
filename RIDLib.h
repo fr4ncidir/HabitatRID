@@ -15,32 +15,29 @@
 #include <unistd.h>
 #include <signal.h>
 #include <inttypes.h>
+#include <ctype.h>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_vector_int.h>
 #include <gsl/gsl_matrix_int.h>
 #include <time.h>
 #include "sepa_producer.h"
 
-#define RADIUS_TH		6
-#define N1_low			2
-#define N2_low			2
-#define N3_low			2
-#define Pr01_low		-63.0
-#define	Pr02_low		-61.0
-#define Pr03_low		-63.0
-#define N1_high			3
-#define N2_high			3
-#define N3_high			3
-#define Pr01_high		-74.0
-#define	Pr02_high		-72.0
-#define Pr03_high		-74.0
+//#define RADIUS_TH		6
+#define N1_low			N_low[0]
+#define N2_low			N_low[1]
+#define N3_low			N_low[2]
+#define Pr01_low		Pr0_low[0]
+#define	Pr02_low		Pr0_low[1]
+#define Pr03_low		Pr0_low[2]
+#define N1_high			N_high[0]
+#define N2_high			N_high[1]
+#define N3_high			N_high[2]
+#define Pr01_high		Pr0_high[0]
+#define	Pr02_high		Pr0_high[1]
+#define Pr03_high		Pr0_high[2]
 #define RANGE1			11
 #define RANGE2			31
-#define dDegrees		90
-#define dTheta0			0
 
-#define ANGLE_ITERATIONS				40
-#define BOTTOM_LEFT_CORNER_DISTANCE		2.74
 #define SUM_CORRECTION					-100
 #define DIFF_CORRECTION					100
 
@@ -61,6 +58,13 @@
 typedef struct tm 					TimeStruct;
 typedef gsl_vector_int 				intVector;
 typedef gsl_matrix_int 				intMatrix;
+typedef struct rid_parameters {
+	double RADIUS_TH;
+	double N_low[3],N_high[3];
+	double Pr0_low[3],Pr0_high[3];
+	int dDegrees,dTheta0,ANGLE_ITERATIONS;
+	double BOTTOM_LEFT_CORNER_DISTANCE;
+} 									RidParams,*pRidParams;
 typedef struct coordinates {
 	int id;
 	double x;
@@ -78,6 +82,6 @@ double thetaFind(int i_ref);
 int vector_subst(intVector * vector,int oldVal,int newVal);
 void printLocation(FILE * output_stream,coord xy);
 long sepaLocationUpdate(const char * SEPA_address,coord location,const char * unbounded_sparql);
-
+int parametrize(const char * fParam);
 
 #endif /* RIDLIB_H_ */
