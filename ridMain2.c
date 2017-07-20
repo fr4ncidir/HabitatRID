@@ -18,17 +18,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  * 
-gcc -Wall -I/usr/local/include ridMain.c RIDLib.c serial.c ../sepa-C-kpi/sepa_producer.c ../sepa-C-kpi/sepa_utilities.c ../sepa-C-kpi/jsmn.c -o ridReader -lgsl -lgslcblas -lm -lcurl `pkg-config --cflags --libs glib-2.0 libwebsockets`
+gcc -Wall -I/usr/local/include ridMain2.c RIDLib.c serial.c ../sepa-C-kpi/sepa_producer.c ../sepa-C-kpi/sepa_utilities.c ../sepa-C-kpi/jsmn.c -o ridReader -lgsl -lgslcblas -lm -lcurl `pkg-config --cflags --libs glib-2.0`
  */
  
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdarg.h>
 #include "serial.h"
 #include "RIDLib.h"
 
-int continuousRead = FALSE;
+volatile int continuousRead = FALSE;
 intVector *idVector;
 intMatrix *sumVectors;
 intMatrix *diffVectors;
@@ -43,7 +42,6 @@ extern RidParams parameters;
 
 int ridExecution(const char * usb_address,const char * SEPA_address,int iterations);
 int readAllAngles(int nAngles,size_t id_array_size);
-void free_arrays(int count,...);
 
 void interruptHandler(int signalCode) {
 	signal(signalCode,SIG_IGN);
@@ -89,7 +87,6 @@ int main(int argc, char ** argv) {
 			case 'u':
 				// the path to usb port
 				execution_code |= 0x02;
-				free(usbportAddress);
 				usbportAddress = strdup(optarg);
 				if (usbportAddress==NULL) {
 					fprintf(stderr,"malloc error in usbportAddress.\n");
@@ -130,13 +127,13 @@ int main(int argc, char ** argv) {
 	printf("USB port address: %s\n",usbportAddress);
 	printf("Sepa address: %s\n",parameters.http_sepa_address);
 	
-	execution_result = ridExecution(usbportAddress,parameters.http_sepa_address,iterationNumber);
+	execution_result = ridExecution(usbportAddress,iterationNumber);
 	if (execution_result==EXIT_FAILURE) printf("Execution ended with code EXIT_FAILURE.\n");
 	else printf("Execution ended with code EXIT_SUCCESS.\n");
 	return execution_result;
 }
 
-int ridExecution(const char * usb_address,const char * SEPA_address,int iterations) {
+int ridExecution(const char * usb_address,int iterations) {
 	// functioning core
 	coord last_location;
 	int i,j,result,protocol_error=0;
@@ -144,33 +141,18 @@ int ridExecution(const char * usb_address,const char * SEPA_address,int iteratio
 	uint8_t *id_array;
 	intVector *rowOfSums,*rowOfDiffs;
 	size_t id_array_size;
-	char *sparqlUpdate_unbounded=NULL,*sparqlUpdate_bounded=NULL;
 	uint8_t request_confirm[STD_PACKET_STRING_DIM] = {'x','x','\0'};
-	//clock_t t;
-	
-	if (SEPA_address!=NULL) { // u
-		sparqlUpdate_unbounded = strdup("PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX hbt:<http://www.unibo.it/Habitat#> DELETE {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateY ?oldY} INSERT {%s rdf:type hbt:ID. %s hbt:hasPosition %s. %s rdf:type hbt:Position. %s hbt:hasCoordinateX \"%lf\". %s hbt:hasCoordinateY \"%lf\"} WHERE {{} UNION {OPTIONAL {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateX ?oldY}}}");
-		sparqlUpdate_bounded = (char *) malloc(SEPA_UPDATE_BOUNDED*sizeof(char));
-		if ((sparqlUpdate_unbounded==NULL) || (sparqlUpdate_bounded==NULL)){
-			fprintf(stderr,"SPARQL malloc problem\n");
-			return EXIT_FAILURE;
-		}
-	}
 	
 	// serial opening
 	ridSerial.baudRate = B115200;
 	ridSerial.dataBits = CS8;
 	ridSerial.parityBit = NO_PARITY;
 	ridSerial.stopbits = ONE_STOP;
-	if (open_serial(usb_address,&ridSerial) == ERROR) {
-		free_arrays(2,sparqlUpdate_unbounded,sparqlUpdate_bounded);
-		return EXIT_FAILURE;
-	}
+	if (open_serial(usb_address,&ridSerial) == ERROR) return EXIT_FAILURE;
 	// serial opening end
 		
 	// writes to serial "+\n": rid reset
 	if (send_packet(ridSerial.serial_fd,reset_packet,std_packet_size,"Reset packet send failure") == EXIT_FAILURE) {
-		free_arrays(2,sparqlUpdate_unbounded,sparqlUpdate_bounded);
 		close(ridSerial.serial_fd);
 		return EXIT_FAILURE;
 	}
@@ -180,7 +162,6 @@ int ridExecution(const char * usb_address,const char * SEPA_address,int iteratio
 		
 	// writes to serial "<\n": start transmission request
 	if (send_packet(ridSerial.serial_fd,request_packet,std_packet_size,"Request id packet send failure") == EXIT_FAILURE) {
-		free_arrays(2,sparqlUpdate_unbounded,sparqlUpdate_bounded);
 		close(ridSerial.serial_fd);
 		return EXIT_FAILURE;
 	}
@@ -196,7 +177,6 @@ int ridExecution(const char * usb_address,const char * SEPA_address,int iteratio
 	}
 	if ((result==ERROR) || (protocol_error)) {
 		send_packet(ridSerial.serial_fd,reset_packet,std_packet_size,"Reset packet send failure");
-		free_arrays(2,sparqlUpdate_unbounded,sparqlUpdate_bounded);
 		close(ridSerial.serial_fd);
 		return EXIT_FAILURE;
 	}
@@ -207,7 +187,6 @@ int ridExecution(const char * usb_address,const char * SEPA_address,int iteratio
 	result = read_nbyte(ridSerial.serial_fd,sizeof(uint8_t),&nID);
 	if ((result==EXIT_FAILURE) || (nID==WRONG_NID)) {
 		fprintf(stderr,"nID number read_nbyte failure: result=%d, nID=%d\n",result,nID);
-		free_arrays(2,sparqlUpdate_unbounded,sparqlUpdate_bounded);
 		close(ridSerial.serial_fd);
 		return EXIT_FAILURE;
 	}
@@ -221,7 +200,7 @@ int ridExecution(const char * usb_address,const char * SEPA_address,int iteratio
 	result = read_until_terminator(ridSerial.serial_fd,id_array_size,id_array,SCHWARZENEGGER);
 	if (result == ERROR) {
 		fprintf(stderr,"id list command read_until_terminator failure\n");
-		free_arrays(3,id_array,sparqlUpdate_unbounded,sparqlUpdate_bounded);
+		free(id_array);
 		close(ridSerial.serial_fd);
 		return EXIT_FAILURE;
 	}
@@ -244,13 +223,11 @@ int ridExecution(const char * usb_address,const char * SEPA_address,int iteratio
 
 	rowOfSums = gsl_vector_int_alloc(parameters.ANGLE_ITERATIONS);
 	rowOfDiffs = gsl_vector_int_alloc(parameters.ANGLE_ITERATIONS);
+	
+	if (http_client_init()==EXIT_FAILURE) return EXIT_FAILURE;
 	if (!iterations) continuousRead = TRUE;
 	do {
-		
-    		//t = clock();
 		result = readAllAngles(parameters.ANGLE_ITERATIONS,id_array_size);
-		//t = clock()-t;
-		
 		if (result == EXIT_FAILURE) break;
 
 		for (j=0; j<nID; j++) {
@@ -260,37 +237,21 @@ int ridExecution(const char * usb_address,const char * SEPA_address,int iteratio
 			last_location.id = gsl_vector_int_get(idVector,j);
 			printLocation(stdout,last_location);
 			log_file_txt(idVector,sumVectors,diffVectors,j,parameters.ANGLE_ITERATIONS,last_location,logFileNameTXT);
-			sepaLocationUpdate(SEPA_address,last_location,sparqlUpdate_unbounded);
+			sepaLocationUpdate(parameters.http_sepa_address,last_location,sparqlUpdate_unbounded);
 		}
 		
 		iterations--;
-		//usleep(GSL_MAX(0,1000*(parameters.sample_time-t)));
 		usleep(1000*(parameters.sample_time));
-		printf("Nuova iterazione\n");
 	} while ((continuousRead) || (iterations>0));
 	
+	http_client_free();
 	gsl_vector_int_free(rowOfSums);
 	gsl_vector_int_free(rowOfDiffs);
 	gsl_matrix_int_free(sumVectors);
 	gsl_matrix_int_free(diffVectors);
 	gsl_vector_int_free(idVector);
 	close(ridSerial.serial_fd);
-	
-	free_arrays(2,sparqlUpdate_unbounded,sparqlUpdate_bounded);
 	return EXIT_SUCCESS;
-}
-
-void free_arrays(int count,...) {
-	va_list ap;
-    int j;
-    void *mypointer;
-
-    va_start(ap, count);
-    for (j=0; j<count; j++) {
-		mypointer = va_arg(ap, void*);
-		if (mypointer!=NULL) free(mypointer);
-    }
-    va_end(ap);
 }
 
 int readAllAngles(int nAngles,size_t id_array_size) {

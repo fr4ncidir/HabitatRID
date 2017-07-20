@@ -71,6 +71,10 @@ coord locateFromData(intVector * sum,intVector * diff,int nAngles) {
 	gsl_vector_int_memcpy(mpr,sum);
 	gsl_vector_int_sub(mpr,diff);
 
+	maxIndexMPR = gsl_vector_int_max_index(mpr);
+	theta = thetaFind(maxIndexMPR)*M_PI/180;
+	radius = radiusFind(maxIndexMPR,sum);
+	
 #ifdef VERBOSE_CALCULATION
 	printf("Debug: sum vector:\n");
 	gsl_vector_int_fprintf(stdout,sum,"%d");
@@ -79,13 +83,7 @@ coord locateFromData(intVector * sum,intVector * diff,int nAngles) {
 	printf("Debug: mpr vector:\n");
 	gsl_vector_int_fprintf(stdout,mpr,"%d");
 #endif
-
-	maxIndexMPR = gsl_vector_int_max_index(mpr);
-	theta = thetaFind(maxIndexMPR)*M_PI/180;
-	radius = radiusFind(maxIndexMPR,sum);
-
-	printf("Info: radius=%lf\ntheta=%lf\n",radius,theta);
-
+	logI("Info: radius=%lf\ntheta=%lf\n",radius,theta);
 	location.x = radius*cos(theta)+parameters.BOTTOM_LEFT_CORNER_DISTANCE;
 	location.y = radius*sin(theta);
 
@@ -93,7 +91,7 @@ coord locateFromData(intVector * sum,intVector * diff,int nAngles) {
 	return location;
 }
 
-coord* locateFromFile(const char logFileName[],int * output_dim) {
+/*coord* locateFromFile(const char logFileName[],int * output_dim) {
 	FILE *logFile;
 	coord *locations;
 	intMatrix *data;
@@ -141,7 +139,7 @@ coord* locateFromFile(const char logFileName[],int * output_dim) {
 	gsl_vector_int_free(row);
 	gsl_matrix_int_free(data);
 	return locations;
-}
+}*/
 
 double radiusFind(int i_ref2,intVector * sum) {
 	int power;
@@ -197,21 +195,26 @@ void printLocation(FILE * output_stream,coord xy) {
 long sepaLocationUpdate(const char * SEPA_address,coord location,const char * unbounded_sparql) {
 	char posUid[20];
 	char ridUid[20];
-	char bounded_sparql[SEPA_UPDATE_BOUNDED];
+	char *bounded_sparql;
+	long result=-1;
 	if (SEPA_address!=NULL) {
 		// TODO query da riscrivere
 		// active only if [-uSEPA_ADDRESS] is present
 		sprintf(ridUid,"hbt:rid%d",location.id); //TODO must be checked
 		sprintf(posUid,"hbt:pos%d",location.id); //TODO must be checked
-		sprintf(bounded_sparql,unbounded_sparql, 
+		
+		bounded_sparql = (char *) malloc((400+8*strlen(posUid)+strlen(ridUid)+20)*sizeof(char));
+		
+		sprintf(bounded_sparql,PREFIX_RDF PREFIX_HBT "DELETE {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateY ?oldY} INSERT {%s rdf:type hbt:ID. %s hbt:hasPosition %s. %s rdf:type hbt:Position. %s hbt:hasCoordinateX '%lf'. %s hbt:hasCoordinateY '%lf'} WHERE {OPTIONAL {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateX ?oldY}}", 
 			posUid,posUid,				//DELETE {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateY ?oldY} 
-			ridUid,ridUid,posUid, 		//INSERT {%s rdf:type hbt:ID. %s hbt:hasPosition %s.
-			posUid,posUid,location.x,	//        %s rdf:type hbt:Position. %s hbt:hasCoordinateX \"%lf\".
-			posUid,location.y,			//		  %s hbt:hasCoordinateY \"%lf\"}
-			posUid,posUid);				//WHERE {{} UNION {OPTIONAL {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateX ?oldY}}}
-		return kpProduce(bounded_sparql,SEPA_address,NULL);
+			ridUid,ridUid,posUid, 			//INSERT {%s rdf:type hbt:ID. %s hbt:hasPosition %s.
+			posUid,posUid,location.x,		//        %s rdf:type hbt:Position. %s hbt:hasCoordinateX '%lf'.
+			posUid,location.y,			//		  %s hbt:hasCoordinateY '%lf'}
+			posUid,posUid);				//WHERE {OPTIONAL {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateX ?oldY}}
+		result = kpProduce(bounded_sparql,SEPA_address,NULL);
+		free(bounded_sparql);
 	}
-	return -1;
+	return result;
 }
 
 int parametrize(const char * fParam) {
