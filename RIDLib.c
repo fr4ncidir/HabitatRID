@@ -337,11 +337,11 @@ int parametrize(const char * fParam) {
 		fprintf(stderr,"ERROR! Parameter json not complete! (%d/20)\n",completed);
 		return EXIT_FAILURE;
 	}
-	printf("N_low: %lf %lf %lf\n",parameters.N1_low,parameters.N2_low,parameters.N3_low);
-	printf("N_high: %lf %lf %lf\n",parameters.N1_high,parameters.N2_high,parameters.N3_high);
-	printf("Pr_low: %lf %lf %lf\n",parameters.Pr01_low,parameters.Pr02_low,parameters.Pr03_low);
-	printf("Pr_high: %lf %lf %lf\n",parameters.Pr01_high,parameters.Pr02_high,parameters.Pr03_high);
-	printf("dDegrees: %d\ndTheta: %d\nAngle iterations: %d\nBtm_left_corner: %lf\n",parameters.dDegrees,parameters.dTheta0,parameters.ANGLE_ITERATIONS,parameters.BOTTOM_LEFT_CORNER_DISTANCE);
-	printf("Sample time: %d\nRID_id=%d\n",parameters.sample_time,parameters.rid_identifier);
+	logD("N_low: %lf %lf %lf\n",parameters.N1_low,parameters.N2_low,parameters.N3_low);
+	logD("N_high: %lf %lf %lf\n",parameters.N1_high,parameters.N2_high,parameters.N3_high);
+	logD("Pr_low: %lf %lf %lf\n",parameters.Pr01_low,parameters.Pr02_low,parameters.Pr03_low);
+	logD("Pr_high: %lf %lf %lf\n",parameters.Pr01_high,parameters.Pr02_high,parameters.Pr03_high);
+	logD("dDegrees: %d\ndTheta: %d\nAngle iterations: %d\nBtm_left_corner: %lf\n",parameters.dDegrees,parameters.dTheta0,parameters.ANGLE_ITERATIONS,parameters.BOTTOM_LEFT_CORNER_DISTANCE);
+	logD("Sample time: %d\nRID_id=%d\n",parameters.sample_time,parameters.rid_identifier);
 	return EXIT_SUCCESS;
 }

@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  * 
-gcc -Wall -I/usr/local/include ridMain2.c RIDLib.c serial.c ../sepa-C-kpi/sepa_producer.c ../sepa-C-kpi/sepa_utilities.c ../sepa-C-kpi/jsmn.c -o ridReader -lgsl -lgslcblas -lm -lcurl `pkg-config --cflags --libs glib-2.0`
+gcc -Wall -I/usr/local/include ridMain2.c RIDLib.c serial.c zf_log.c ../sepa-C-kpi/sepa_producer.c ../sepa-C-kpi/sepa_utilities.c ../sepa-C-kpi/jsmn.c -o ridReader -lgsl -lgslcblas -lm -lcurl `pkg-config --cflags --libs glib-2.0`
  */
  
 #include <stdio.h>
@@ -26,6 +26,12 @@ gcc -Wall -I/usr/local/include ridMain2.c RIDLib.c serial.c ../sepa-C-kpi/sepa_p
 #include <string.h>
 #include "serial.h"
 #include "RIDLib.h"
+
+#define LOG_YES
+#ifdef LOG_YES
+#define ZF_LOG_LEVEL ZF_LOG_INFO
+#include "zf_log.h"
+#endif
 
 volatile int continuousRead = FALSE;
 intVector *idVector;
@@ -55,10 +61,11 @@ int main(int argc, char ** argv) {
 	uint8_t execution_code = 0;
 	int cmdlineOpt,force_missingOption=0,my_optopt,i,iterationNumber=0,execution_result=0;
 	
+	zf_log_set_tag_prefix("HabitatRID");
+	
 	opterr = 0;
 	if ((argc==1) || ((argc==2) && (!strcmp(argv[1],"help")))) {
 		printUsage(NULL);
-		printf("Error 1!\n");
 		return EXIT_SUCCESS;
 	}
 	
