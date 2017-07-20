@@ -64,6 +64,8 @@ typedef struct rid_parameters {
 	double Pr0_low[3],Pr0_high[3];
 	int dDegrees,dTheta0,ANGLE_ITERATIONS;
 	double BOTTOM_LEFT_CORNER_DISTANCE;
+	int rid_identifier,sample_time;
+	char *http_sepa_address;
 } 									RidParams,*pRidParams;
 typedef struct coordinates {
 	int id;
@@ -72,8 +74,7 @@ typedef struct coordinates {
 } 									coord;
 
 void printUsage(const char * error_message);
-int log_file_txt(intVector * ids,intMatrix * sums,intMatrix * diffs,int rows,int cols,int matlab_mode);
-int log_file_bin(intVector * ids,intMatrix * sums,intMatrix * diffs,int rows,int cols,char * logFileName);
+int log_file_txt(intVector * ids,intMatrix * sums,intMatrix * diffs,int index,int cols,coord location,char * logFileName);
 coord locateFromData(intVector * sum,intVector * diff,int nAngles);
 coord* locateFromFile(const char logFileName[],int * output_dim);
 double radiusFind(int i_ref2,intVector * sum);

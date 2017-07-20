@@ -20,8 +20,6 @@
  * 
 gcc -Wall -I/usr/local/include ridMain.c RIDLib.c serial.c ../sepa-C-kpi/sepa_producer.c ../sepa-C-kpi/sepa_utilities.c ../sepa-C-kpi/jsmn.c -o ridReader -lgsl -lgslcblas -lm -lcurl `pkg-config --cflags --libs glib-2.0 libwebsockets`
  */
-
-// TODO dati della stanza in un file JSON
  
 #include <stdio.h>
 #include <stdlib.h>
@@ -63,6 +61,7 @@ int main(int argc, char ** argv) {
 	int iterationNumber=0,execution_result,i;
 	char *http_sepa_address=NULL,*usbportAddress;
 	
+	// setting default RID USB address
 	usbportAddress = strdup("/dev/ttyUSB0");
 	if (usbportAddress==NULL) {
 		fprintf(stderr,"malloc error in usbportAddress.\n");
@@ -71,31 +70,32 @@ int main(int argc, char ** argv) {
 	
 	opterr = 0;
 	if ((argc==1) || ((argc==2) && (!strcmp(argv[1],"help")))) {
+		// the "help case"
 		free(usbportAddress);
 		printUsage(NULL);
 		return EXIT_SUCCESS;
 	}
-	while ((cmdlineOpt = getopt(argc, argv, "-rlbn:u:p:f:"))!=-1) {
-		if (((cmdlineOpt=='n') || (cmdlineOpt=='u') || (cmdlineOpt=='p') || (cmdlineOpt=='f')) && (optarg[0]=='-')) {
+	while ((cmdlineOpt = getopt(argc, argv, "-rn:u:p:f:"))!=-1) {
+		if (((cmdlineOpt=='n') || (cmdlineOpt=='u') || (cmdlineOpt=='p') || (cmdlineOpt=='f')) && (!strcmp(optarg,""))) {
+			// check if parameters n,u,p,f that must have specification do not have one. In that case, we switch to '?' case
 			force_missingOption = TRUE;
 			my_optopt = cmdlineOpt;
 			cmdlineOpt = '?';
 		}
 		switch (cmdlineOpt) {
+			case 'r':
+				// read mode: that is, we will read data.
+				execution_code = execution_code | 0x01;
+				break;
 			case 'f':
+				// this parameter specifies where the configuration parameters JSON is stored
+				execution_code = execution_code | 0x02;
 				if (parametrize(optarg)==EXIT_SUCCESS) break;
 				fprintf(stderr,"Parametrization from %s failed.\n",optarg);
 				return EXIT_FAILURE;
-			case 'r':
-				execution_code = execution_code | 0x01;
-				break;
-			case 'l':
-				execution_code = execution_code | 0x02;
-				break;
-			case 'b':
-				execution_code = execution_code | 0x04;
-				break;
 			case 'n':
+				// the number of iterations
+				execution_code = execution_code | 0x04;
 				for (i=0; i<strlen(optarg); i++) {
 					// optarg must be an integer number
 					if (!isdigit(optarg[i])) {
@@ -109,6 +109,8 @@ int main(int argc, char ** argv) {
 				printf("Requested %d iterations.\n",iterationNumber);
 				break;
 			case 'u':
+				// the IP:PORT of the Sepa
+				execution_code = execution_code | 0x08;
 				http_sepa_address = strdup(optarg);
 				if (http_sepa_address==NULL) {
 					fprintf(stderr,"malloc error in http SEPA Address.\n");
@@ -118,6 +120,8 @@ int main(int argc, char ** argv) {
 				printf("Sepa address: %s\n",http_sepa_address);
 				break;
 			case 'p':
+				// the path to usb port
+				execution_code = execution_code | 0x10;
 				free(usbportAddress);
 				usbportAddress = strdup(optarg);
 				if (usbportAddress==NULL) {
@@ -127,7 +131,8 @@ int main(int argc, char ** argv) {
 				}
 				printf("USB port address: %s\n",usbportAddress);
 				break;
-			default: // case '?'
+			default: 
+				// case '?': error cases
 				if (!force_missingOption) my_optopt = optopt;
 				if ((my_optopt=='n') || (my_optopt=='u') || (my_optopt=='p') || (my_optopt=='f')) fprintf(stderr,"Option -%c requires an argument.\n",my_optopt);
 				else {
@@ -138,9 +143,9 @@ int main(int argc, char ** argv) {
 				printUsage("Wrong syntax!\n");
 				return EXIT_FAILURE;
 		}
-		if (((execution_code & 0x05)==0x05) || (!(execution_code & 0x07))){
+		if (((execution_code & 0x01)!=execution_code) || (execution_code!=0x1E)){
 			free_arrays(2,usbportAddress,http_sepa_address);
-			printUsage("Wrong syntax! [-r and -b are not compatible]\n");
+			printUsage("Wrong syntax!\n");
 			return EXIT_FAILURE;
 		}
 	}
@@ -156,13 +161,35 @@ int ridExecution(uint8_t code,const char * usb_address,const char * SEPA_address
 	coord *locations;
 	coord last_location;
 	int locationDim,i,j,result,protocol_error=0;
-	char logFileName[50];
+	char logFileNameTXT[100]="",logFileNameBIN[100]="";
 	FILE *customOutput = stdout;
 	uint8_t *id_array;
 	intVector *rowOfSums,*rowOfDiffs;
 	size_t id_array_size;
 	char *sparqlUpdate_unbounded=NULL,*sparqlUpdate_bounded=NULL;
 	uint8_t request_confirm[STD_PACKET_STRING_DIM] = {'x','x','\0'};
+	
+	switch (code) {
+		case 0x01:
+			// ./ridReader -r
+			printf("Info: Please insert the name of the txt logfile: \n-> ");
+			scanf("%s",logFileNameTXT);
+			strcpy(logFileNameTXT,logFileNameBIN);
+			strcat(logFileNameTXT,".txt");
+			customOutput = fopen(logFileNameTXT,"w");
+			if (customOutput==NULL) {
+				fprintf(stderr,"log on %s generated an error.\n",logFileNameTXT);
+				free_arrays(3,locations,sparqlUpdate_unbounded,sparqlUpdate_bounded);
+				return EXIT_FAILURE;
+			}
+			break;
+		case 0x1E:
+			// ./ridReader -n12 -uhttp://wot.arces.unibo.it:8000/sparql-update -p/dev/ttyUSB0 -f./params.json
+			break;
+		default:
+			fprintf(stderr,"Unknown execution code %02x\n",code);
+			break;
+	}
 	
 	if (SEPA_address!=NULL) { // u
 		sparqlUpdate_unbounded = strdup("PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX hbt:<http://www.unibo.it/Habitat#> DELETE {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateY ?oldY} INSERT {%s rdf:type hbt:ID. %s hbt:hasPosition %s. %s rdf:type hbt:Position. %s hbt:hasCoordinateX \"%lf\". %s hbt:hasCoordinateY \"%lf\"} WHERE {{} UNION {OPTIONAL {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateX ?oldY}}}");
@@ -175,19 +202,19 @@ int ridExecution(uint8_t code,const char * usb_address,const char * SEPA_address
 	
 	if ((code & 0x01)==0x01) { // r
 		printf("Info: Please insert the name of the binary logfile: \n-> ");
-		scanf("%s",logFileName);
-		locations = locateFromFile(logFileName,&locationDim);
+		scanf("%s",logFileNameBIN);
+		locations = locateFromFile(logFileNameBIN,&locationDim);
 		if (locations==NULL) {
-			fprintf(stderr,"Failed in retrieving locations from %s\n",logFileName);
+			fprintf(stderr,"Failed in retrieving locations from %s\n",logFileNameBIN);
 			free_arrays(2,sparqlUpdate_unbounded,sparqlUpdate_bounded);
 			return EXIT_FAILURE;
 		}
 		if ((code & 0x02)==0x02) { // rl
-			strcat(logFileName,".txt");
-			printf("Location logged on %s\n",logFileName);
-			customOutput = fopen(logFileName,"w");
+			strcat(logFileNameTXT,".txt");
+			printf("Location logged on %s\n",logFileNameTXT);
+			customOutput = fopen(logFileNameTXT,"w");
 			if (customOutput==NULL) {
-				fprintf(stderr,"log on %s generated an error.\n",logFileName);
+				fprintf(stderr,"log on %s generated an error.\n",logFileNameTXT);
 				free_arrays(3,locations,sparqlUpdate_unbounded,sparqlUpdate_bounded);
 				return EXIT_FAILURE;
 			}
@@ -293,8 +320,8 @@ int ridExecution(uint8_t code,const char * usb_address,const char * SEPA_address
 			if (result == EXIT_FAILURE) break;
 
 			// log files
-			if ((code & 0x02)==0x02) log_file_txt(idVector,sumVectors,diffVectors,nID,parameters.ANGLE_ITERATIONS,0);
-			if ((code & 0x04)==0x04) log_file_bin(idVector,sumVectors,diffVectors,nID,parameters.ANGLE_ITERATIONS,logFileName);
+			if ((code & 0x02)==0x02) log_file_txt(idVector,sumVectors,diffVectors,nID,parameters.ANGLE_ITERATIONS,0,logFileNameTXT);
+			if ((code & 0x04)==0x04) log_file_bin(idVector,sumVectors,diffVectors,nID,parameters.ANGLE_ITERATIONS,logFileNameBIN);
 
 			for (j=0; j<nID; j++) {
 				gsl_matrix_int_get_row(rowOfSums,sumVectors,j);

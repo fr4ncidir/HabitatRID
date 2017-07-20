@@ -21,76 +21,37 @@ void printUsage(const char * error_message) {
 	exit(EXIT_FAILURE);
 }
 
-int log_file_txt(intVector * ids,intMatrix * sums,intMatrix * diffs,int rows,int cols,int matlab_mode) {
+int log_file_txt(intVector * ids,intMatrix * sums,intMatrix * diffs,int index,int cols,coord location,char * logFileName) {
 	time_t sysclock = time(NULL);
 	TimeStruct * date = localtime(&sysclock);
 	FILE * logFile;
-	char logFileName[50];
-	int i,j;
+	int j;
 
-	sprintf(logFileName,"M_%d-%d-%d-%d-%d-%d.txt",
+	if (!strcmp(logFileName,"")) {
+		sprintf(logFileName,"M_%d-%d-%d-%d-%d-%d.txt",
 			date->tm_mday,1+date->tm_mon,1900+date->tm_year,date->tm_hour,date->tm_min,date->tm_sec);
-	printf("Info: File name: %s\n",logFileName);
-	logFile = fopen(logFileName,"w");
-	if (logFile == NULL) {
-		fprintf(stderr,"Error while opening log file in text append mode\n");
-		return EXIT_FAILURE;
-	}
-	if (matlab_mode != MATLAB_COMPATIBLE_TXT) fprintf(logFile,"rows=%d\ncols=%d\n",rows,4+2*cols);
-	for (i=0; i<rows; i++) {
-		fprintf(logFile,"%d %d %d %d ",date->tm_hour,date->tm_min,date->tm_sec,gsl_vector_int_get(ids,i));
-		for (j=0; j<cols; j++) {
-			fprintf(logFile,"%d ",gsl_matrix_int_get(sums,i,j));
+		printf("Info: File name: %s\n",logFileName);
+		logFile = fopen(logFileName,"w");
+		if (logFile == NULL) {
+			fprintf(stderr,"Error while creating log file %s\n",logFileName);
+			return EXIT_FAILURE;
 		}
-		for (j=0; j<cols; j++) {
-			fprintf(logFile,"%d ",gsl_matrix_int_get(diffs,i,j));
+	}
+	else {
+		logFile = fopen(logFileName,"a");
+		if (logFile == NULL) {
+			fprintf(stderr,"Error while accessing log file %s\n",logFileName);
+			return EXIT_FAILURE;
 		}
-		fprintf(logFile,"\n");
 	}
-	fclose(logFile);
-	return EXIT_SUCCESS;
-}
-
-int log_file_bin(intVector * ids,intMatrix * sums,intMatrix * diffs,int rows,int cols,char * logFileName) {
-	time_t sysclock = time(NULL);
-	TimeStruct * date = localtime(&sysclock);
-	FILE * logFile;
-	intVector * temp;
-	intMatrix * complete_matrix_log;
-	int i,realCols;
-
-	sprintf(logFileName,"M_%d-%d-%d-%d-%d-%d.rid",
-			date->tm_mday,1+date->tm_mon,1900+date->tm_year,date->tm_hour,date->tm_min,date->tm_sec);
-	logFile = fopen(logFileName,"wb");
-	if (logFile == NULL) {
-		fprintf(stderr,"Error while opening log file in byte append mode\n");
-		return EXIT_FAILURE;
+	fprintf(logFile,"%d %d %d %d %d ",date->tm_hour,date->tm_min,date->tm_sec,parameters.rid_identifier,gsl_vector_int_get(ids,index));
+	for (j=0; j<cols; j++) {
+		fprintf(logFile,"%d ",gsl_matrix_int_get(sums,index,j));
 	}
-
-	realCols = 4+cols*2;
-	complete_matrix_log = gsl_matrix_int_alloc(rows,realCols);
-	temp = gsl_vector_int_alloc(rows);
-
-	gsl_vector_int_set_all(temp,date->tm_hour);
-	gsl_matrix_int_set_col(complete_matrix_log,0,temp);
-	gsl_vector_int_set_all(temp,date->tm_min);
-	gsl_matrix_int_set_col(complete_matrix_log,1,temp);
-	gsl_vector_int_set_all(temp,date->tm_sec);
-	gsl_matrix_int_set_col(complete_matrix_log,2,temp);
-	gsl_matrix_int_set_col(complete_matrix_log,3,ids);
-	for (i=4; i<cols+4; i++) {
-		gsl_matrix_int_get_col(temp,sums,i-4);
-		gsl_matrix_int_set_col(complete_matrix_log,i,temp);
-		gsl_matrix_int_get_col(temp,diffs,i-4);
-		gsl_matrix_int_set_col(complete_matrix_log,cols+i,temp);
+	for (j=0; j<cols; j++) {
+		fprintf(logFile,"%d ",gsl_matrix_int_get(diffs,index,j));
 	}
-
-	fwrite(&rows,sizeof(int),1,logFile);
-	fwrite(&realCols,sizeof(int),1,logFile);
-	gsl_matrix_int_fwrite(logFile,complete_matrix_log);
-
-	gsl_vector_int_free(temp);
-	gsl_matrix_int_free(complete_matrix_log);
+	fprintf(logFile,"(%lf,%lf)\n",location.x,location.y);
 	fclose(logFile);
 	return EXIT_SUCCESS;
 }
@@ -275,7 +236,7 @@ int parametrize(const char * fParam) {
 	
 	do {
 		c = getc(json);
-		if ((c=='{') || (c=='}') || (c=='"') || (c=='.') || (c==',') || (c=='-') || (c==':') || (isalnum(c))) {
+		if ((c=='{') || (c=='}') || (c=='"') || (c=='.') || (c==',') || (c=='-') || (c==':') || (c=='_') || (c=='/') || (isalnum(c))) {
 			jsonString[i]=c;
 			i++;
 			if (i==jDim) {
@@ -302,10 +263,30 @@ int parametrize(const char * fParam) {
 	}
 	jsmn_init(&parser);
 	jsmn_parse(&parser, jsonString, strlen(jsonString), jstokens, jstok_dim);
-	for (i=0; (i<jstok_dim-1) && (completed<17); i++) {
+	for (i=0; (i<jstok_dim-1) && (completed<20); i++) {
 		if (jstokens[i].type==JSMN_STRING) {
 			getJsonItem(jsonString,jstokens[i],&js_buffer);
 			getJsonItem(jsonString,jstokens[i+1],&js_data);
+			if (js_buffer[0]=='l') {
+				sscanf(js_data,"%d",&(parameters.sample_time));
+				completed++;
+				continue;
+			}
+			if (js_buffer[0]=='I') {
+				sscanf(js_data,"%d",&(parameters.rid_identifier));
+				completed++;
+				continue;
+			}
+			if (js_buffer[0]=='s') {
+				parameters.http_sepa_address = NULL;
+				parameters.http_sepa_address = strdup(js_data);
+				if (parameters.http_sepa_address==NULL) {
+					fprintf(stderr,"Error while allocating space for sepa address!\n");
+					return EXIT_FAILURE;
+				}
+				completed++;
+				continue;
+			}
 			if (js_buffer[0]=='r') {
 				sscanf(js_data,"%lf",&(parameters.RADIUS_TH));
 				completed++;
@@ -349,9 +330,15 @@ int parametrize(const char * fParam) {
 	free(jstokens);
 	free(jsonString);
 	free(js_data);
-	if (completed<17) {
-		fprintf(stderr,"ERROR! Parameter json not complete!\n");
+	if (completed!=20) {
+		fprintf(stderr,"ERROR! Parameter json not complete! (%d/20)\n",completed);
 		return EXIT_FAILURE;
 	}
+	printf("N_low: %lf %lf %lf\n",parameters.N1_low,parameters.N2_low,parameters.N3_low);
+	printf("N_high: %lf %lf %lf\n",parameters.N1_high,parameters.N2_high,parameters.N3_high);
+	printf("Pr_low: %lf %lf %lf\n",parameters.Pr01_low,parameters.Pr02_low,parameters.Pr03_low);
+	printf("Pr_high: %lf %lf %lf\n",parameters.Pr01_high,parameters.Pr02_high,parameters.Pr03_high);
+	printf("dDegrees: %d\ndTheta: %d\nAngle iterations: %d\nBtm_left_corner: %lf\n",parameters.dDegrees,parameters.dTheta0,parameters.ANGLE_ITERATIONS,parameters.BOTTOM_LEFT_CORNER_DISTANCE);
+	printf("Sample time: %d\nRID_id=%d\n",parameters.sample_time,parameters.rid_identifier);
 	return EXIT_SUCCESS;
 }
