@@ -1,26 +1,33 @@
 /*
  * RIDLib.h
- *
- *  Created on: 16 nov 2016
- *      Author: Francesco Antoniazzi
- * 	francesco.antoniazzi@unibo.it
+ * 
+ * Copyright 2017 Francesco Antoniazzi <francesco.antoniazzi@unibo.it>
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ * 
  */
 
 #ifndef RIDLIB_H_
 #define RIDLIB_H_
 
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <signal.h>
-#include <inttypes.h>
-#include <ctype.h>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_vector_int.h>
 #include <gsl/gsl_matrix_int.h>
-#include <time.h>
-#include "sepa_producer.h"
+#include "../sepa-C-kpi/sepa_producer.h"
 
 #define PREFIX_RDF		"PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 #define PREFIX_HBT		"PREFIX hbt:<http://www.unibo.it/Habitat#> "
@@ -72,16 +79,14 @@ typedef struct coordinates {
 	double x,y;
 } 						coord;
 
-void printUsage(const char * error_message);
 int log_file_txt(intVector * ids,intMatrix * sums,intMatrix * diffs,int index,int cols,coord location,char * logFileName);
 coord locateFromData(intVector * sum,intVector * diff,int nAngles);
-coord* locateFromFile(const char logFileName[],int * output_dim);
 double radiusFind(int i_ref2,intVector * sum);
 double radiusFormula(double A,double B,double C);
 double thetaFind(int i_ref);
 int vector_subst(intVector * vector,int oldVal,int newVal);
 void printLocation(FILE * output_stream,coord xy);
-long sepaLocationUpdate(const char * SEPA_address,coord location,const char * unbounded_sparql);
+long sepaLocationUpdate(const char * SEPA_address,coord location);
 int parametrize(const char * fParam);
 
 #endif /* RIDLIB_H_ */

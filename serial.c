@@ -1,14 +1,32 @@
-/**
- * @mainpage C serial libray main page
- * Contact <francesco.antoniazzi1991@gmail.com>
- */
-
-/**
+/*
  * serial.c
- * @author Francesco Antoniazzi
- * @version 0.9
- * @date 20 oct 2016
+ * 
+ * Copyright 2017 Francesco Antoniazzi <francesco.antoniazzi1991@gmail.com>
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ * 
  */
+ 
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <termios.h>
+#include <errno.h>
+#include <inttypes.h>
 #include "serial.h"
 
 int open_serial(const char name[],SerialOptions * options) {

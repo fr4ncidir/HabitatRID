@@ -18,20 +18,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  * 
-gcc -Wall -I/usr/local/include ridMain2.c RIDLib.c serial.c zf_log.c ../sepa-C-kpi/sepa_producer.c ../sepa-C-kpi/sepa_utilities.c ../sepa-C-kpi/jsmn.c -o ridReader -lgsl -lgslcblas -lm -lcurl `pkg-config --cflags --libs glib-2.0`
+gcc -Wall -I/usr/local/include ridMain2.c RIDLib.c serial.c ../sepa-C-kpi/sepa_producer.c ../sepa-C-kpi/sepa_utilities.c ../sepa-C-kpi/jsmn.c -o ridReader -lgsl -lgslcblas -lm -lcurl `pkg-config --cflags --libs glib-2.0`
  */
- 
-#include <stdio.h>
+
 #include <stdlib.h>
+#include <ctype.h>
 #include <string.h>
+#include <glib.h>
 #include "serial.h"
 #include "RIDLib.h"
-
-#define LOG_YES
-#ifdef LOG_YES
-#define ZF_LOG_LEVEL ZF_LOG_INFO
-#include "zf_log.h"
-#endif
 
 volatile int continuousRead = FALSE;
 intVector *idVector;
@@ -46,12 +41,13 @@ extern uint8_t detect_packet[STD_PACKET_STRING_DIM];
 extern size_t std_packet_size;
 extern RidParams parameters;
 
-int ridExecution(const char * usb_address,const char * SEPA_address,int iterations);
+int ridExecution(const char * usb_address,int iterations);
 int readAllAngles(int nAngles,size_t id_array_size);
+void printUsage(const char * error_message);
 
 void interruptHandler(int signalCode) {
 	signal(signalCode,SIG_IGN);
-	printf("Info: Caught Ctrl-C: stopping reading RID\n");
+	g_message("Caught Ctrl-C: stopping reading RID\n");
 	continuousRead = FALSE;
 	signal(signalCode,SIG_DFL);
 }
@@ -61,7 +57,7 @@ int main(int argc, char ** argv) {
 	uint8_t execution_code = 0;
 	int cmdlineOpt,force_missingOption=0,my_optopt,i,iterationNumber=0,execution_result=0;
 	
-	zf_log_set_tag_prefix("HabitatRID");
+	g_log_set_handler(NULL, G_LOG_LEVEL_MASK, g_log_default_handler,NULL);
 	
 	opterr = 0;
 	if ((argc==1) || ((argc==2) && (!strcmp(argv[1],"help")))) {
@@ -70,7 +66,8 @@ int main(int argc, char ** argv) {
 	}
 	
 	while ((cmdlineOpt = getopt(argc, argv, "n:u:f:"))!=-1) {
-		if (((cmdlineOpt=='n') || (cmdlineOpt=='u') || (cmdlineOpt=='f')) && (!strcmp(optarg,""))) {
+		if (((cmdlineOpt=='n') || (cmdlineOpt=='u') || (cmdlineOpt=='f')) && 
+		((!strcmp(optarg,"")) || (optarg[0]=='-'))) {
 			// check if parameters n,u,s,f that must have specification do not have one. In that case, we switch to '?' case
 			force_missingOption = 1;
 			my_optopt = cmdlineOpt;
@@ -83,8 +80,8 @@ int main(int argc, char ** argv) {
 				for (i=0; i<strlen(optarg); i++) {
 					// optarg must be an integer number
 					if (!isdigit(optarg[i])) {
-						fprintf(stderr,"%s is not an integer: -n argument must be an integer.\n",optarg);
-						free_arrays(1,usbportAddress);
+						g_critical("%s is not an integer: -n argument must be an integer.\n",optarg);
+						free(usbportAddress);
 						printUsage(NULL);
 						return EXIT_FAILURE;
 					}
@@ -96,7 +93,7 @@ int main(int argc, char ** argv) {
 				execution_code |= 0x02;
 				usbportAddress = strdup(optarg);
 				if (usbportAddress==NULL) {
-					fprintf(stderr,"malloc error in usbportAddress.\n");
+					g_error("malloc error in usbportAddress.");
 					return EXIT_FAILURE;
 				}
 				break;
@@ -104,16 +101,16 @@ int main(int argc, char ** argv) {
 				// this parameter specifies where the configuration parameters JSON is stored
 				execution_code |= 0x04;
 				if (parametrize(optarg)==EXIT_SUCCESS) break;
-				fprintf(stderr,"Parametrization from %s failed.\n",optarg);
+				g_critical("Parametrization from %s failed.",optarg);
 				break;
 			default: // case '?'
 				if (!force_missingOption) my_optopt = optopt;
-				if ((my_optopt=='n') || (my_optopt=='u') || (my_optopt=='f')) fprintf(stderr,"Option -%c requires an argument.\n",my_optopt);
+				if ((my_optopt=='n') || (my_optopt=='u') || (my_optopt=='f')) g_critical("Option -%c requires an argument.",my_optopt);
 				else {
-					if (isprint(my_optopt)) fprintf(stderr,"Unknown option -%c.\n",my_optopt);
-					else fprintf(stderr,"Unknown option character \\x%x.\n",my_optopt);
+					if (isprint(my_optopt)) g_critical("Unknown option -%c.",my_optopt);
+					else g_critical("Unknown option character \\x%x.",my_optopt);
 				}
-				free_arrays(1,usbportAddress);
+				free(usbportAddress);
 				printUsage("Wrong syntax!\n");
 				return EXIT_FAILURE;
 		}
@@ -121,22 +118,22 @@ int main(int argc, char ** argv) {
 	
 	switch (execution_code) {
 		case 0x07:
-			printf("Requested %d iterations.\n",iterationNumber);
+			g_debug("Requested %d iterations.\n",iterationNumber);
 			break;
 		case 0x06:
-			printf("Requested infinite iterations.\n");
+			g_debug("Requested infinite iterations.\n");
 			break;
 		default:
 			printUsage("Wrong syntax!\n");
-			printf("Error 2 %04x!\n",execution_code);
+			g_error("Error 2 %04x!\n",execution_code);
 			return EXIT_FAILURE;
 	}
-	printf("USB port address: %s\n",usbportAddress);
-	printf("Sepa address: %s\n",parameters.http_sepa_address);
+	g_debug("USB port address: %s\n",usbportAddress);
+	g_debug("Sepa address: %s\n",parameters.http_sepa_address);
 	
 	execution_result = ridExecution(usbportAddress,iterationNumber);
-	if (execution_result==EXIT_FAILURE) printf("Execution ended with code EXIT_FAILURE.\n");
-	else printf("Execution ended with code EXIT_SUCCESS.\n");
+	if (execution_result==EXIT_FAILURE) g_critical("Execution ended with code EXIT_FAILURE.\n");
+	else g_message("Execution ended with code EXIT_SUCCESS.\n");
 	return execution_result;
 }
 
@@ -163,7 +160,7 @@ int ridExecution(const char * usb_address,int iterations) {
 		close(ridSerial.serial_fd);
 		return EXIT_FAILURE;
 	}
-	printf("Info: Reset packet sent\n");
+	g_message("Reset packet sent");
 	sleep(1);
 	// rid reset end
 		
@@ -172,32 +169,32 @@ int ridExecution(const char * usb_address,int iterations) {
 		close(ridSerial.serial_fd);
 		return EXIT_FAILURE;
 	}
-	printf("Info: Request packet sent\n");
+	g_message("Request packet sent");
 	// end transmission request
 		
 	// reads from serial "<\n" request confirm and check
 	result = read_until_terminator(ridSerial.serial_fd,std_packet_size,request_confirm,SCHWARZENEGGER);
-	if (result == ERROR) fprintf(stderr,"request confirm command read_until_terminator failure\n");
+	if (result == ERROR) g_critical("request confirm command read_until_terminator failure");
 	else {
 		protocol_error = strcmp((char*) request_packet,(char*) request_confirm);
-		if (protocol_error) fprintf(stderr,"Received unexpected %s instead of %s\n",(char*) request_confirm,(char*) request_packet);
+		if (protocol_error) g_critical("Received unexpected %s instead of %s\n",(char*) request_confirm,(char*) request_packet);
 	}
 	if ((result==ERROR) || (protocol_error)) {
 		send_packet(ridSerial.serial_fd,reset_packet,std_packet_size,"Reset packet send failure");
 		close(ridSerial.serial_fd);
 		return EXIT_FAILURE;
 	}
-	printf("Info: Confirmation received\n");
+	g_message("Confirmation received");
 	// read request confirm end
 		
 	// reads from serial the number of ids
 	result = read_nbyte(ridSerial.serial_fd,sizeof(uint8_t),&nID);
 	if ((result==EXIT_FAILURE) || (nID==WRONG_NID)) {
-		fprintf(stderr,"nID number read_nbyte failure: result=%d, nID=%d\n",result,nID);
+		g_critical("nID number read_nbyte failure: result=%d, nID=%d",result,nID);
 		close(ridSerial.serial_fd);
 		return EXIT_FAILURE;
 	}
-	printf("Info: Number of id received: %d\n",nID);
+	g_debug("Number of id received: %d",nID);
 	// read number of id end
 		
 	// reads from serial the ids
@@ -206,7 +203,7 @@ int ridExecution(const char * usb_address,int iterations) {
 	// id_array is checked !=NULL in read_until_terminator
 	result = read_until_terminator(ridSerial.serial_fd,id_array_size,id_array,SCHWARZENEGGER);
 	if (result == ERROR) {
-		fprintf(stderr,"id list command read_until_terminator failure\n");
+		g_critical("id list command read_until_terminator failure");
 		free(id_array);
 		close(ridSerial.serial_fd);
 		return EXIT_FAILURE;
@@ -218,14 +215,14 @@ int ridExecution(const char * usb_address,int iterations) {
 		j++;
 	}
 	free(id_array);
-	printf("Info: Id list received\n");
+	g_debug("Id list received");
 	// read ids end
 		
 	// retrieves sum and diff vectors
 	sumVectors = gsl_matrix_int_alloc(nID,parameters.ANGLE_ITERATIONS);
 	diffVectors = gsl_matrix_int_alloc(nID,parameters.ANGLE_ITERATIONS);
 
-	printf("Info: use Ctrl-c to stop reading\n\n");
+	g_message("Use Ctrl-c to stop reading");
 	signal(SIGINT,interruptHandler);
 
 	rowOfSums = gsl_vector_int_alloc(parameters.ANGLE_ITERATIONS);
@@ -244,7 +241,7 @@ int ridExecution(const char * usb_address,int iterations) {
 			last_location.id = gsl_vector_int_get(idVector,j);
 			printLocation(stdout,last_location);
 			log_file_txt(idVector,sumVectors,diffVectors,j,parameters.ANGLE_ITERATIONS,last_location,logFileNameTXT);
-			sepaLocationUpdate(parameters.http_sepa_address,last_location,sparqlUpdate_unbounded);
+			sepaLocationUpdate(parameters.http_sepa_address,last_location);
 		}
 		
 		iterations--;
@@ -269,15 +266,15 @@ int readAllAngles(int nAngles,size_t id_array_size) {
 	
 	sum_diff_array = (uint8_t*) malloc(id_array_size);
 	if (sum_diff_array==NULL) {
-		fprintf(stderr,"malloc error in readAllAngles\n");
+		g_critical("malloc error in readAllAngles");
 		return EXIT_FAILURE;
 	}
 	
-	printf("Info: Angle iterations");
+	fprintf(stderr,"Angle iterations");
 	for (i=0; i<nAngles; i++) {
 		printf(".");
 		// writes to serial "+\n"
-		sprintf(error_message,"\nSending request packet for the %d-th angle failure",i+1);
+		sprintf(error_message,"Sending request packet for the %d-th angle failure",i+1);
 		if (send_packet(ridSerial.serial_fd,request_packet,std_packet_size,error_message) == EXIT_FAILURE) {
 			free(sum_diff_array);
 			return EXIT_FAILURE;
@@ -286,7 +283,7 @@ int readAllAngles(int nAngles,size_t id_array_size) {
 		// reads sum and diff values
 		result = read_until_terminator(ridSerial.serial_fd,id_array_size,sum_diff_array,SCHWARZENEGGER);
 		if (result == ERROR) {
-			fprintf(stderr,"\nReading sum-diff vector for %d-th angle failure\n",i+1);
+			g_critical("Reading sum-diff vector for %d-th angle failure",i+1);
 			free(sum_diff_array);
 			return EXIT_FAILURE;
 		}
@@ -296,9 +293,15 @@ int readAllAngles(int nAngles,size_t id_array_size) {
 			gsl_matrix_int_set(diffVectors,j,i,sum_diff_array[2*j+1]-CENTRE_RESCALE);
 		}
 	}
-	printf("completed\n");
+	fprintf(stderr,"completed");
 	send_packet(ridSerial.serial_fd,reset_packet,std_packet_size,"Detect packet send failure");
 	free(sum_diff_array);
 	return EXIT_SUCCESS;
 }
 
+void printUsage(const char * error_message) {
+	if (error_message!=NULL) g_critical("%s",error_message);
+	execlp("cat","cat","./manpage.txt",NULL);
+	perror("Couldn't print manpage - ");
+	exit(EXIT_FAILURE);
+}

@@ -1,25 +1,39 @@
 /*
  * RIDLib.c
- *
- *  Created on: 16 nov 2016
- *      Author: Francesco Antoniazzi
- * 	francesco.antoniazzi@unibo.it
+ * 
+ * Copyright 2017 Francesco Antoniazzi <francesco.antoniazzi@unibo.it>
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ * 
  */
 
+#include <string.h>
+#include <inttypes.h>
+#include <ctype.h>
+#include <time.h>
 #include "RIDLib.h"
+
+#define G_LOG_DOMAIN    "HabitatRID"
+#include <glib.h>
 
 const uint8_t request_packet[STD_PACKET_STRING_DIM] = {REQUEST_COMMAND,SCHWARZENEGGER,'\0'};
 const uint8_t reset_packet[STD_PACKET_STRING_DIM] = {RESET_COMMAND,SCHWARZENEGGER,'\0'};
 const uint8_t detect_packet[STD_PACKET_STRING_DIM] = {DETECT_COMMAND,SCHWARZENEGGER,'\0'};
 const size_t std_packet_size = STD_PACKET_DIM*sizeof(uint8_t);
 RidParams parameters;
-
-void printUsage(const char * error_message) {
-	if (error_message!=NULL) fprintf(stderr,"%s\n",error_message);
-	execlp("more","more","./manpage.txt",NULL);
-	perror("Couldn't print manpage - ");
-	exit(EXIT_FAILURE);
-}
 
 int log_file_txt(intVector * ids,intMatrix * sums,intMatrix * diffs,int index,int cols,coord location,char * logFileName) {
 	time_t sysclock = time(NULL);
@@ -30,17 +44,17 @@ int log_file_txt(intVector * ids,intMatrix * sums,intMatrix * diffs,int index,in
 	if (!strcmp(logFileName,"")) {
 		sprintf(logFileName,"M_%d-%d-%d-%d-%d-%d.txt",
 			date->tm_mday,1+date->tm_mon,1900+date->tm_year,date->tm_hour,date->tm_min,date->tm_sec);
-		printf("Info: File name: %s\n",logFileName);
+		g_debug("File name: %s",logFileName);
 		logFile = fopen(logFileName,"w");
 		if (logFile == NULL) {
-			fprintf(stderr,"Error while creating log file %s\n",logFileName);
+			g_critical("Error while creating log file %s\n",logFileName);
 			return EXIT_FAILURE;
 		}
 	}
 	else {
 		logFile = fopen(logFileName,"a");
 		if (logFile == NULL) {
-			fprintf(stderr,"Error while accessing log file %s\n",logFileName);
+			g_critical("Error while accessing log file %s\n",logFileName);
 			return EXIT_FAILURE;
 		}
 	}
@@ -83,63 +97,13 @@ coord locateFromData(intVector * sum,intVector * diff,int nAngles) {
 	printf("Debug: mpr vector:\n");
 	gsl_vector_int_fprintf(stdout,mpr,"%d");
 #endif
-	logI("Info: radius=%lf\ntheta=%lf\n",radius,theta);
+	g_debug("Radius=%lf - Theta=%lf",radius,theta);
 	location.x = radius*cos(theta)+parameters.BOTTOM_LEFT_CORNER_DISTANCE;
 	location.y = radius*sin(theta);
 
 	gsl_vector_int_free(mpr);
 	return location;
 }
-
-/*coord* locateFromFile(const char logFileName[],int * output_dim) {
-	FILE *logFile;
-	coord *locations;
-	intMatrix *data;
-	intVector *row;
-	intVector *sum;
-	intVector *diff;
-	int i,j,nAngles,rows,cols;
-
-	logFile = fopen(logFileName,"rb");
-	if (logFile == NULL) {
-		fprintf(stderr,"Error while opening %s.\n",logFileName);
-		return NULL;
-	}
-
-	fread(&rows,sizeof(int),1,logFile);
-	fread(&cols,sizeof(int),1,logFile);
-	data = gsl_matrix_int_alloc(rows,cols);
-	row = gsl_vector_int_alloc(cols);
-	gsl_matrix_int_fread(logFile,data);
-	nAngles = (cols-4)/2;
-	sum = gsl_vector_int_alloc(nAngles);
-	diff = gsl_vector_int_alloc(nAngles);
-	
-	fclose(logFile);
-	*output_dim = rows;
-	
-	locations = (coord *) malloc(rows*sizeof(coord));
-	if (locations==NULL) {
-		fprintf(stderr,"Fatal malloc error in locateFromFile: returning NULL pointer...\n");
-	}
-	else {
-		for (j=0; j<rows; j++) {
-			gsl_matrix_int_get_row(row,data,j);
-			for (i=0; i<nAngles; i++) {
-				gsl_vector_int_set(sum,i,gsl_vector_int_get(row,4+i));
-				gsl_vector_int_set(diff,i,gsl_vector_int_get(row,4+nAngles+i));
-			}
-
-			locations[j] = locateFromData(sum,diff,nAngles);
-			locations[j].id = gsl_vector_int_get(row,3);
-		}
-	}
-	gsl_vector_int_free(sum);
-	gsl_vector_int_free(diff);
-	gsl_vector_int_free(row);
-	gsl_matrix_int_free(data);
-	return locations;
-}*/
 
 double radiusFind(int i_ref2,intVector * sum) {
 	int power;
@@ -192,7 +156,7 @@ void printLocation(FILE * output_stream,coord xy) {
 	fprintf(output_stream,"Location of id %d: (x,y)=(%lf,%lf)\n",xy.id,xy.x,xy.y);
 }
 
-long sepaLocationUpdate(const char * SEPA_address,coord location,const char * unbounded_sparql) {
+long sepaLocationUpdate(const char * SEPA_address,coord location) {
 	char posUid[20];
 	char ridUid[20];
 	char *bounded_sparql;
@@ -227,12 +191,12 @@ int parametrize(const char * fParam) {
 	
 	json = fopen(fParam,"r");
 	if (json==NULL) {
-		fprintf(stderr,"Error while opening %s.\n",fParam);
+		g_critical("Error while opening %s.\n",fParam);
 		return EXIT_FAILURE;
 	}
 	jsonString = (char *) malloc(jDim*sizeof(char));
 	if (jsonString==NULL) {
-		fprintf(stderr,"Malloc error while opening %s.\n",fParam);
+		g_critical("Malloc error while opening %s.\n",fParam);
 		fclose(json);
 		return EXIT_FAILURE;
 	}
@@ -253,14 +217,14 @@ int parametrize(const char * fParam) {
 	jsmn_init(&parser);
 	jstok_dim = jsmn_parse(&parser, jsonString, strlen(jsonString), NULL, 0);
 	if (jstok_dim<0) {
-		fprintf(stderr,"Result dimension parsing gave %d\n",jstok_dim);
+		g_critical("Result dimension parsing gave %d\n",jstok_dim);
 		free(jsonString);
 		return EXIT_FAILURE;
 	}
 	
 	jstokens = (jsmntok_t *) malloc(jstok_dim*sizeof(jsmntok_t));
 	if (jstokens==NULL) {
-		fprintf(stderr,"Malloc error in json parsing!\n");
+		g_critical("Malloc error in json parsing!\n");
 		free(jsonString);
 		return EXIT_FAILURE;
 	}
@@ -284,7 +248,7 @@ int parametrize(const char * fParam) {
 				parameters.http_sepa_address = NULL;
 				parameters.http_sepa_address = strdup(js_data);
 				if (parameters.http_sepa_address==NULL) {
-					fprintf(stderr,"Error while allocating space for sepa address!\n");
+					g_error("Error while allocating space for sepa address!\n");
 					return EXIT_FAILURE;
 				}
 				completed++;
@@ -334,14 +298,14 @@ int parametrize(const char * fParam) {
 	free(jsonString);
 	free(js_data);
 	if (completed!=20) {
-		fprintf(stderr,"ERROR! Parameter json not complete! (%d/20)\n",completed);
+		g_error("ERROR! Parameter json not complete! (%d/20)\n",completed);
 		return EXIT_FAILURE;
 	}
-	logD("N_low: %lf %lf %lf\n",parameters.N1_low,parameters.N2_low,parameters.N3_low);
-	logD("N_high: %lf %lf %lf\n",parameters.N1_high,parameters.N2_high,parameters.N3_high);
-	logD("Pr_low: %lf %lf %lf\n",parameters.Pr01_low,parameters.Pr02_low,parameters.Pr03_low);
-	logD("Pr_high: %lf %lf %lf\n",parameters.Pr01_high,parameters.Pr02_high,parameters.Pr03_high);
-	logD("dDegrees: %d\ndTheta: %d\nAngle iterations: %d\nBtm_left_corner: %lf\n",parameters.dDegrees,parameters.dTheta0,parameters.ANGLE_ITERATIONS,parameters.BOTTOM_LEFT_CORNER_DISTANCE);
-	logD("Sample time: %d\nRID_id=%d\n",parameters.sample_time,parameters.rid_identifier);
+	g_debug("\nN_low: %lf %lf %lf\n",parameters.N1_low,parameters.N2_low,parameters.N3_low);
+	g_debug("\nN_high: %lf %lf %lf\n",parameters.N1_high,parameters.N2_high,parameters.N3_high);
+	g_debug("\nPr_low: %lf %lf %lf\n",parameters.Pr01_low,parameters.Pr02_low,parameters.Pr03_low);
+	g_debug("\nPr_high: %lf %lf %lf\n",parameters.Pr01_high,parameters.Pr02_high,parameters.Pr03_high);
+	g_debug("\ndDegrees: %d\ndTheta: %d\nAngle iterations: %d\nBtm_left_corner: %lf\n",parameters.dDegrees,parameters.dTheta0,parameters.ANGLE_ITERATIONS,parameters.BOTTOM_LEFT_CORNER_DISTANCE);
+	g_debug("\nSample time: %d\nRID_id=%d\n",parameters.sample_time,parameters.rid_identifier);
 	return EXIT_SUCCESS;
 }

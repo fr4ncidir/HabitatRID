@@ -1,0 +1,1 @@
+gcc: error: zf_log.c: No such file or directory
