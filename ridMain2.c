@@ -272,7 +272,7 @@ int readAllAngles(int nAngles,size_t id_array_size) {
 	
 	fprintf(stderr,"Angle iterations");
 	for (i=0; i<nAngles; i++) {
-		printf(".");
+		fprintf(stderr,".");
 		// writes to serial "+\n"
 		sprintf(error_message,"Sending request packet for the %d-th angle failure",i+1);
 		if (send_packet(ridSerial.serial_fd,request_packet,std_packet_size,error_message) == EXIT_FAILURE) {
@@ -293,7 +293,7 @@ int readAllAngles(int nAngles,size_t id_array_size) {
 			gsl_matrix_int_set(diffVectors,j,i,sum_diff_array[2*j+1]-CENTRE_RESCALE);
 		}
 	}
-	fprintf(stderr,"completed");
+	fprintf(stderr,"completed\n");
 	send_packet(ridSerial.serial_fd,reset_packet,std_packet_size,"Detect packet send failure");
 	free(sum_diff_array);
 	return EXIT_SUCCESS;
