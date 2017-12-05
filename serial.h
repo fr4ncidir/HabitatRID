@@ -33,6 +33,10 @@
 #ifndef SERIAL_H_
 #define SERIAL_H_
 
+#include <unistd.h>
+#include <termios.h>
+#include <inttypes.h>
+
 #define ERROR				-1
 #define NO_PACKET			-2
 #define NO_PARITY			0

@@ -22,11 +22,8 @@
  
 #include <stdlib.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <fcntl.h>
-#include <termios.h>
 #include <errno.h>
-#include <inttypes.h>
 #include "serial.h"
 
 int open_serial(const char name[],SerialOptions * options) {

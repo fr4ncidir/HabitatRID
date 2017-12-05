@@ -13,10 +13,10 @@
 	"Pr02_high":-72.0,
 "Pr03_high":-74.0,
 	"delta_Degrees":90,
-	"delta_Theta0":0,
+	"delta_Theta0":-45,
 "Angle_Iterations":40,
-	"Bottom_Left_Corner_Distance":2.74,
-"sepa_ip":"http://wot.arces.unibo.it:8000/sparql-update",
+	"Bottom_Left_Corner_Distance":6.05,
+"sepa_ip":"",
 	"ID_rid":1,
-	"loc_time":800
+	"loc_time":1000
 }

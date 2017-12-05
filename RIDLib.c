@@ -75,6 +75,9 @@ coord locateFromData(intVector * sum,intVector * diff,int nAngles) {
 	coord location;
 	double theta,radius;
 	int maxIndexMPR;
+#ifdef VERBOSE_CALCULATION
+	FILE * verbose;
+#endif
 
 	gsl_vector_int_reverse(sum);
 	gsl_vector_int_reverse(diff);
@@ -90,12 +93,14 @@ coord locateFromData(intVector * sum,intVector * diff,int nAngles) {
 	radius = radiusFind(maxIndexMPR,sum);
 	
 #ifdef VERBOSE_CALCULATION
-	printf("Debug: sum vector:\n");
-	gsl_vector_int_fprintf(stdout,sum,"%d");
-	printf("Debug: diff vector:\n");
-	gsl_vector_int_fprintf(stdout,diff,"%d");
-	printf("Debug: mpr vector:\n");
-	gsl_vector_int_fprintf(stdout,mpr,"%d");
+	verbose = fopen("./verbose.txt","a");
+	fprintf(verbose,"Debug: sum vector:\n");
+	gsl_vector_int_fprintf(verbose,sum,"%d");
+	fprintf(verbose,"Debug: diff vector:\n");
+	gsl_vector_int_fprintf(verbose,diff,"%d");
+	fprintf(verbose,"Debug: mpr vector:\n");
+	gsl_vector_int_fprintf(verbose,mpr,"%d");
+	fclose(verbose);
 #endif
 	g_debug("Radius=%lf - Theta=%lf",radius,theta);
 	location.x = radius*cos(theta)+parameters.BOTTOM_LEFT_CORNER_DISTANCE;
@@ -161,7 +166,7 @@ long sepaLocationUpdate(const char * SEPA_address,coord location) {
 	char ridUid[20];
 	char *bounded_sparql;
 	long result=-1;
-	if (SEPA_address!=NULL) {
+	if ((SEPA_address!=NULL) && (strcmp(SEPA_address,""))) {
 		// TODO query da riscrivere
 		// active only if [-uSEPA_ADDRESS] is present
 		sprintf(ridUid,"hbt:rid%d",location.id); //TODO must be checked
@@ -169,7 +174,7 @@ long sepaLocationUpdate(const char * SEPA_address,coord location) {
 		
 		bounded_sparql = (char *) malloc((400+8*strlen(posUid)+strlen(ridUid)+20)*sizeof(char));
 		
-		sprintf(bounded_sparql,PREFIX_RDF PREFIX_HBT "DELETE {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateY ?oldY} INSERT {%s rdf:type hbt:ID. %s hbt:hasPosition %s. %s rdf:type hbt:Position. %s hbt:hasCoordinateX '%lf'. %s hbt:hasCoordinateY '%lf'} WHERE {OPTIONAL {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateX ?oldY}}", 
+		sprintf(bounded_sparql,PREFIX_RDF PREFIX_HBT "DELETE {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateY ?oldY} INSERT {%s rdf:type hbt:ID. %s hbt:hasPosition %s. %s rdf:type hbt:Position. %s hbt:hasCoordinateX '%lf'. %s hbt:hasCoordinateY '%lf'} WHERE {OPTIONAL {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateY ?oldY}}", 
 			posUid,posUid,				//DELETE {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateY ?oldY} 
 			ridUid,ridUid,posUid, 			//INSERT {%s rdf:type hbt:ID. %s hbt:hasPosition %s.
 			posUid,posUid,location.x,		//        %s rdf:type hbt:Position. %s hbt:hasCoordinateX '%lf'.
@@ -234,17 +239,17 @@ int parametrize(const char * fParam) {
 		if (jstokens[i].type==JSMN_STRING) {
 			getJsonItem(jsonString,jstokens[i],&js_buffer);
 			getJsonItem(jsonString,jstokens[i+1],&js_data);
-			if (js_buffer[0]=='l') {
+			if (js_buffer[0]=='l') { // loc_time
 				sscanf(js_data,"%d",&(parameters.sample_time));
 				completed++;
 				continue;
 			}
-			if (js_buffer[0]=='I') {
+			if (js_buffer[0]=='I') { // ID_rid
 				sscanf(js_data,"%d",&(parameters.rid_identifier));
 				completed++;
 				continue;
 			}
-			if (js_buffer[0]=='s') {
+			if (js_buffer[0]=='s') { // sepa_ip
 				parameters.http_sepa_address = NULL;
 				parameters.http_sepa_address = strdup(js_data);
 				if (parameters.http_sepa_address==NULL) {
@@ -254,7 +259,7 @@ int parametrize(const char * fParam) {
 				completed++;
 				continue;
 			}
-			if (js_buffer[0]=='r') {
+			if (js_buffer[0]=='r') { // radius_threshold
 				sscanf(js_data,"%lf",&(parameters.RADIUS_TH));
 				completed++;
 				continue;
@@ -264,7 +269,7 @@ int parametrize(const char * fParam) {
 				completed++;
 				continue;
 			}	
-			if (js_buffer[0]=='B') {
+			if (js_buffer[0]=='B') { // Bottom_Left_Corner_Distance
 				sscanf(js_data,"%lf",&(parameters.BOTTOM_LEFT_CORNER_DISTANCE));
 				completed++;
 				continue;
@@ -279,14 +284,14 @@ int parametrize(const char * fParam) {
 				completed++;
 				continue;
 			}
-			if (js_buffer[0]=='N') {
+			if (js_buffer[0]=='N') { // N parameters
 				sscanf(js_buffer,"N%d_%s",&n_field,id_field);
 				if (!strcmp(id_field,"low")) sscanf(js_data,"%lf",&(parameters.N_low[n_field-1]));
 				else sscanf(js_data,"%lf",&(parameters.N_high[n_field-1]));
 				completed++;
 				continue;
 			}
-			if (js_buffer[0]=='P') {
+			if (js_buffer[0]=='P') { // P parameters
 				sscanf(js_buffer,"Pr0%d_%s",&n_field,id_field);
 				if (!strcmp(id_field,"low")) sscanf(js_data,"%lf",&(parameters.Pr0_low[n_field-1]));
 				else sscanf(js_data,"%lf",&(parameters.Pr0_high[n_field-1]));
@@ -306,6 +311,9 @@ int parametrize(const char * fParam) {
 	g_debug("\nPr_low: %lf %lf %lf\n",parameters.Pr01_low,parameters.Pr02_low,parameters.Pr03_low);
 	g_debug("\nPr_high: %lf %lf %lf\n",parameters.Pr01_high,parameters.Pr02_high,parameters.Pr03_high);
 	g_debug("\ndDegrees: %d\ndTheta: %d\nAngle iterations: %d\nBtm_left_corner: %lf\n",parameters.dDegrees,parameters.dTheta0,parameters.ANGLE_ITERATIONS,parameters.BOTTOM_LEFT_CORNER_DISTANCE);
-	g_debug("\nSample time: %d\nRID_id=%d\n",parameters.sample_time,parameters.rid_identifier);
+	g_debug("\nSample time: %d\nRID_id=%d\nRadius threshold: %lf\n",parameters.sample_time,parameters.rid_identifier,parameters.RADIUS_TH);
+	
+	if (!strcmp(parameters.http_sepa_address,"")) g_warning("\nDetected empty SEPA address: will skip SEPA interaction!\n");
+	else g_debug("\nSEPA address: %s\n",parameters.http_sepa_address);
 	return EXIT_SUCCESS;
 }

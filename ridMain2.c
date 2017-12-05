@@ -194,7 +194,7 @@ int ridExecution(const char * usb_address,int iterations) {
 		close(ridSerial.serial_fd);
 		return EXIT_FAILURE;
 	}
-	g_debug("Number of id received: %d",nID);
+	g_message("Number of id received: %d",nID);
 	// read number of id end
 		
 	// reads from serial the ids

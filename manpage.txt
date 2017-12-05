@@ -1,7 +1,7 @@
 NAME:
 	ridReader - reads from Unibo's Habitat rfid reader
 SYNOPSIS:
-	ridReader [-nREPEAT] [-uUSB_PORT] [-sSEPA_ADDRESS] [-fJSON_PARAMETER FILE]
+	ridReader [-nREPEAT] [-uUSB_PORT] [-fJSON_PARAMETER FILE]
 OPTIONS DESCRIPTION:
 
 -nREPEAT DESCRIPTION
