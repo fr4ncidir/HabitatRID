@@ -263,6 +263,10 @@ int readAllAngles(int nAngles,size_t id_array_size) {
 	uint8_t *sum_diff_array;
 	char error_message[50];
 	int i,j,result;
+#ifdef VERBOSE_CALCULATION
+	FILE * verbose;
+	verbose = fopen("./readAllAnglesLog.txt","a");
+#endif
 	
 	sum_diff_array = (uint8_t*) malloc(id_array_size);
 	if (sum_diff_array==NULL) {
@@ -273,8 +277,11 @@ int readAllAngles(int nAngles,size_t id_array_size) {
 	fprintf(stderr,"Angle iterations");
 	for (i=0; i<nAngles; i++) {
 		fprintf(stderr,".");
-		// writes to serial "+\n"
-		sprintf(error_message,"Sending request packet for the %d-th angle failure",i+1);
+		// writes to serial "<\n"
+		sprintf(error_message,"Sending request packet '%u' for the %d-th angle failure",request_packet[0],i+1);
+#ifdef VERBOSE_CALCULATION		
+		fprintf(verbose,"Angolo %d: %s\n",i+1,request_packet);
+#endif
 		if (send_packet(ridSerial.serial_fd,request_packet,std_packet_size,error_message) == EXIT_FAILURE) {
 			free(sum_diff_array);
 			return EXIT_FAILURE;
@@ -287,6 +294,13 @@ int readAllAngles(int nAngles,size_t id_array_size) {
 			free(sum_diff_array);
 			return EXIT_FAILURE;
 		}
+#ifdef VERBOSE_CALCULATION
+		fprintf(verbose,"sum_diff_array:\nS\tD");
+		for (j=0; j<id_array_size; j+=2) {
+			fprintf(verbose,"%u\t%u",sum_diff_array[j],sum_diff_array[j+1]);
+		}
+		fclose(verbose);
+#endif
 		// puts data in vectors
 		for (j=0; j<nID; j++) {
 			gsl_matrix_int_set(sumVectors,j,i,sum_diff_array[2*j]-CENTRE_RESCALE);
