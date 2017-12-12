@@ -57,6 +57,12 @@ int main(int argc, char ** argv) {
 	uint8_t execution_code = 0;
 	int cmdlineOpt,force_missingOption=0,my_optopt,i,iterationNumber=0,execution_result=0;
 	
+#ifdef VERBOSE_CALCULATION_1
+	FILE * verbose;
+	verbose = fopen("./readAllAnglesLog.txt","w");
+	fclose(verbose);
+#endif
+	
 	g_log_set_handler(NULL, G_LOG_LEVEL_MASK, g_log_default_handler,NULL);
 	
 	opterr = 0;
@@ -263,9 +269,13 @@ int readAllAngles(int nAngles,size_t id_array_size) {
 	uint8_t *sum_diff_array;
 	char error_message[50];
 	int i,j,result;
-#ifdef VERBOSE_CALCULATION
+#ifdef VERBOSE_CALCULATION_1
 	FILE * verbose;
 	verbose = fopen("./readAllAnglesLog.txt","a");
+	if (verbose==NULL) {
+		g_error("Verbose failure");
+		return EXIT_FAILURE;
+	}
 #endif
 	
 	sum_diff_array = (uint8_t*) malloc(id_array_size);
@@ -279,8 +289,8 @@ int readAllAngles(int nAngles,size_t id_array_size) {
 		fprintf(stderr,".");
 		// writes to serial "<\n"
 		sprintf(error_message,"Sending request packet '%u' for the %d-th angle failure",request_packet[0],i+1);
-#ifdef VERBOSE_CALCULATION		
-		fprintf(verbose,"Angolo %d: %s\n",i+1,request_packet);
+#ifdef VERBOSE_CALCULATION_1		
+		fprintf(verbose,"Angolo %d: %s",i+1,request_packet);
 #endif
 		if (send_packet(ridSerial.serial_fd,request_packet,std_packet_size,error_message) == EXIT_FAILURE) {
 			free(sum_diff_array);
@@ -294,19 +304,21 @@ int readAllAngles(int nAngles,size_t id_array_size) {
 			free(sum_diff_array);
 			return EXIT_FAILURE;
 		}
-#ifdef VERBOSE_CALCULATION
-		fprintf(verbose,"sum_diff_array:\nS\tD");
-		for (j=0; j<id_array_size; j+=2) {
-			fprintf(verbose,"%u\t%u",sum_diff_array[j],sum_diff_array[j+1]);
-		}
-		fclose(verbose);
-#endif
+
 		// puts data in vectors
 		for (j=0; j<nID; j++) {
+#ifdef VERBOSE_CALCULATION_1
+			fprintf(verbose,"sum_diff_array:\nS\tD\n");
+			fprintf(verbose,"%u\t%u\n",sum_diff_array[2*j],sum_diff_array[2*j+1]);
+			fprintf(verbose,"%d\t%d\n\n",sum_diff_array[2*j]-CENTRE_RESCALE,sum_diff_array[2*j+1]-CENTRE_RESCALE);
+#endif
 			gsl_matrix_int_set(sumVectors,j,i,sum_diff_array[2*j]-CENTRE_RESCALE);
 			gsl_matrix_int_set(diffVectors,j,i,sum_diff_array[2*j+1]-CENTRE_RESCALE);
 		}
 	}
+#ifdef VERBOSE_CALCULATION_1
+	fclose(verbose);
+#endif
 	fprintf(stderr,"completed\n");
 	send_packet(ridSerial.serial_fd,reset_packet,std_packet_size,"Detect packet send failure");
 	free(sum_diff_array);

@@ -81,8 +81,8 @@ coord locateFromData(intVector * sum,intVector * diff,int nAngles) {
 
 	gsl_vector_int_reverse(sum);
 	gsl_vector_int_reverse(diff);
-	vector_subst(sum,-1,SUM_CORRECTION);
-	vector_subst(diff,-1,DIFF_CORRECTION);
+	g_debug("Corrected %d sums",vector_subst(sum,-1,SUM_CORRECTION));
+	g_debug("Corrected %d diffs",vector_subst(diff,-1,DIFF_CORRECTION));
 
 	mpr = gsl_vector_int_alloc(nAngles);
 	gsl_vector_int_memcpy(mpr,sum);
