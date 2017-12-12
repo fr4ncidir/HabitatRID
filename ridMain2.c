@@ -25,6 +25,7 @@ gcc -Wall -I/usr/local/include ridMain2.c RIDLib.c serial.c ../sepa-C-kpi/sepa_p
 #include <ctype.h>
 #include <string.h>
 #include <glib.h>
+#include <sys/time.h>
 #include "serial.h"
 #include "RIDLib.h"
 
@@ -57,7 +58,7 @@ int main(int argc, char ** argv) {
 	uint8_t execution_code = 0;
 	int cmdlineOpt,force_missingOption=0,my_optopt,i,iterationNumber=0,execution_result=0;
 	
-#ifdef VERBOSE_CALCULATION_1
+#ifdef VERBOSE_CALCULATION
 	FILE * verbose;
 	verbose = fopen("./readAllAnglesLog.txt","w");
 	fclose(verbose);
@@ -246,7 +247,7 @@ int ridExecution(const char * usb_address,int iterations) {
 			last_location = locateFromData(rowOfSums,rowOfDiffs,parameters.ANGLE_ITERATIONS);
 			last_location.id = gsl_vector_int_get(idVector,j);
 			printLocation(stdout,last_location);
-			log_file_txt(idVector,sumVectors,diffVectors,j,parameters.ANGLE_ITERATIONS,last_location,logFileNameTXT);
+			log_file_txt(idVector,rowOfSums,rowOfDiffs,j,parameters.ANGLE_ITERATIONS,last_location,logFileNameTXT);
 			sepaLocationUpdate(parameters.http_sepa_address,last_location);
 		}
 		
@@ -254,6 +255,7 @@ int ridExecution(const char * usb_address,int iterations) {
 		usleep(1000*(parameters.sample_time));
 	} while ((continuousRead) || (iterations>0));
 	
+	send_packet(ridSerial.serial_fd,reset_packet,std_packet_size,"Detect packet send failure");
 	http_client_free();
 	gsl_vector_int_free(rowOfSums);
 	gsl_vector_int_free(rowOfDiffs);
@@ -269,7 +271,9 @@ int readAllAngles(int nAngles,size_t id_array_size) {
 	uint8_t *sum_diff_array;
 	char error_message[50];
 	int i,j,result;
-#ifdef VERBOSE_CALCULATION_1
+	struct timeval t1, t2;
+	double elapsedTime;
+#ifdef VERBOSE_CALCULATION
 	FILE * verbose;
 	verbose = fopen("./readAllAnglesLog.txt","a");
 	if (verbose==NULL) {
@@ -285,11 +289,12 @@ int readAllAngles(int nAngles,size_t id_array_size) {
 	}
 	
 	fprintf(stderr,"Angle iterations");
+	gettimeofday(&t1, NULL);
 	for (i=0; i<nAngles; i++) {
 		fprintf(stderr,".");
 		// writes to serial "<\n"
 		sprintf(error_message,"Sending request packet '%u' for the %d-th angle failure",request_packet[0],i+1);
-#ifdef VERBOSE_CALCULATION_1		
+#ifdef VERBOSE_CALCULATION		
 		fprintf(verbose,"Angolo %d: %s",i+1,request_packet);
 #endif
 		if (send_packet(ridSerial.serial_fd,request_packet,std_packet_size,error_message) == EXIT_FAILURE) {
@@ -307,7 +312,7 @@ int readAllAngles(int nAngles,size_t id_array_size) {
 
 		// puts data in vectors
 		for (j=0; j<nID; j++) {
-#ifdef VERBOSE_CALCULATION_1
+#ifdef VERBOSE_CALCULATION
 			fprintf(verbose,"sum_diff_array:\nS\tD\n");
 			fprintf(verbose,"%u\t%u\n",sum_diff_array[2*j],sum_diff_array[2*j+1]);
 			fprintf(verbose,"%d\t%d\n\n",sum_diff_array[2*j]-CENTRE_RESCALE,sum_diff_array[2*j+1]-CENTRE_RESCALE);
@@ -316,11 +321,13 @@ int readAllAngles(int nAngles,size_t id_array_size) {
 			gsl_matrix_int_set(diffVectors,j,i,sum_diff_array[2*j+1]-CENTRE_RESCALE);
 		}
 	}
-#ifdef VERBOSE_CALCULATION_1
+	gettimeofday(&t2, NULL);
+	elapsedTime = (t2.tv_sec - t1.tv_sec) * 1000.0;
+	elapsedTime += (t2.tv_usec - t1.tv_usec) / 1000.0;
+#ifdef VERBOSE_CALCULATION
 	fclose(verbose);
 #endif
-	fprintf(stderr,"completed\n");
-	send_packet(ridSerial.serial_fd,reset_packet,std_packet_size,"Detect packet send failure");
+	fprintf(stderr,"completed in %lf ms\n",elapsedTime);
 	free(sum_diff_array);
 	return EXIT_SUCCESS;
 }

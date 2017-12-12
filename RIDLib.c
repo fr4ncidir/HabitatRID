@@ -35,7 +35,7 @@ const uint8_t detect_packet[STD_PACKET_STRING_DIM] = {DETECT_COMMAND,SCHWARZENEG
 const size_t std_packet_size = STD_PACKET_DIM*sizeof(uint8_t);
 RidParams parameters;
 
-int log_file_txt(intVector * ids,intMatrix * sums,intMatrix * diffs,int index,int cols,coord location,char * logFileName) {
+int log_file_txt(intVector * ids,intVector * sums,intVector * diffs,int index,int cols,coord location,char * logFileName) {
 	time_t sysclock = time(NULL);
 	TimeStruct * date = localtime(&sysclock);
 	FILE * logFile;
@@ -60,10 +60,10 @@ int log_file_txt(intVector * ids,intMatrix * sums,intMatrix * diffs,int index,in
 	}
 	fprintf(logFile,"%d %d %d %d %d ",date->tm_hour,date->tm_min,date->tm_sec,parameters.rid_identifier,gsl_vector_int_get(ids,index));
 	for (j=0; j<cols; j++) {
-		fprintf(logFile,"%d ",gsl_matrix_int_get(sums,index,j));
+		fprintf(logFile,"%d ",gsl_vector_int_get(sums,j));
 	}
 	for (j=0; j<cols; j++) {
-		fprintf(logFile,"%d ",gsl_matrix_int_get(diffs,index,j));
+		fprintf(logFile,"%d ",gsl_vector_int_get(diffs,j));
 	}
 	fprintf(logFile,"(%lf,%lf)\n",location.x,location.y);
 	fclose(logFile);
@@ -79,16 +79,15 @@ coord locateFromData(intVector * sum,intVector * diff,int nAngles) {
 	FILE * verbose;
 #endif
 
-	gsl_vector_int_reverse(sum);
-	gsl_vector_int_reverse(diff);
-	g_debug("Corrected %d sums",vector_subst(sum,-1,SUM_CORRECTION));
-	g_debug("Corrected %d diffs",vector_subst(diff,-1,DIFF_CORRECTION));
+	vector_subst(sum,-1,SUM_CORRECTION);
+	vector_subst(diff,-1,DIFF_CORRECTION);
 
 	mpr = gsl_vector_int_alloc(nAngles);
 	gsl_vector_int_memcpy(mpr,sum);
 	gsl_vector_int_sub(mpr,diff);
 
-	maxIndexMPR = gsl_vector_int_max_index(mpr);
+	// esegue anche il reverse dell'indice
+	maxIndexMPR = nAngles-1-gsl_vector_int_max_index(mpr);
 	theta = thetaFind(maxIndexMPR)*M_PI/180;
 	radius = radiusFind(maxIndexMPR,sum);
 	

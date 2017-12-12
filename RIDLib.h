@@ -51,7 +51,6 @@
 #define SEPA_UPDATE_BOUNDED			500
 #define MATLAB_COMPATIBLE_TXT			1
 #define VERBOSE_CALCULATION
-#define VERBOSE_CALCULATION_1
 
 
 #define RESET_COMMAND				'+'
@@ -80,7 +79,7 @@ typedef struct coordinates {
 	double x,y;
 } 						coord;
 
-int log_file_txt(intVector * ids,intMatrix * sums,intMatrix * diffs,int index,int cols,coord location,char * logFileName);
+int log_file_txt(intVector * ids,intVector * sums,intVector * diffs,int index,int cols,coord location,char * logFileName);
 coord locateFromData(intVector * sum,intVector * diff,int nAngles);
 double radiusFind(int i_ref2,intVector * sum);
 double radiusFormula(double A,double B,double C);

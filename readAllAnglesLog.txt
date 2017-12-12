@@ -1,464 +1,464 @@
 Angolo 1: <
 sum_diff_array:
 S	D
-177	189
--79	-67
+185	185
+-71	-71
 
 Angolo 2: <
 sum_diff_array:
 S	D
-177	188
--79	-68
+184	193
+-72	-63
 
 Angolo 3: <
 sum_diff_array:
 S	D
-184	187
--72	-69
+184	193
+-72	-63
 
 Angolo 4: <
 sum_diff_array:
 S	D
-183	188
--73	-68
+184	194
+-72	-62
 
 Angolo 5: <
 sum_diff_array:
 S	D
-182	189
--74	-67
+184	193
+-72	-63
 
 Angolo 6: <
 sum_diff_array:
 S	D
-184	188
--72	-68
+183	194
+-73	-62
 
 Angolo 7: <
 sum_diff_array:
 S	D
-184	189
--72	-67
+255	255
+-1	-1
 
 Angolo 8: <
 sum_diff_array:
 S	D
-184	189
--72	-67
+183	193
+-73	-63
 
 Angolo 9: <
 sum_diff_array:
 S	D
-183	189
--73	-67
+183	194
+-73	-62
 
 Angolo 10: <
 sum_diff_array:
 S	D
-183	189
--73	-67
+184	194
+-72	-62
 
 Angolo 11: <
 sum_diff_array:
 S	D
-183	189
--73	-67
+183	193
+-73	-63
 
 Angolo 12: <
 sum_diff_array:
 S	D
-182	188
--74	-68
+184	193
+-72	-63
 
 Angolo 13: <
 sum_diff_array:
 S	D
-181	189
--75	-67
+183	193
+-73	-63
 
 Angolo 14: <
 sum_diff_array:
 S	D
-181	189
--75	-67
+183	194
+-73	-62
 
 Angolo 15: <
 sum_diff_array:
 S	D
-181	190
--75	-66
+183	193
+-73	-63
 
 Angolo 16: <
 sum_diff_array:
 S	D
-181	189
--75	-67
+182	193
+-74	-63
 
 Angolo 17: <
 sum_diff_array:
 S	D
-179	190
--77	-66
+184	194
+-72	-62
 
 Angolo 18: <
 sum_diff_array:
 S	D
-178	190
--78	-66
+182	193
+-74	-63
 
 Angolo 19: <
 sum_diff_array:
 S	D
-178	190
--78	-66
+183	193
+-73	-63
 
 Angolo 20: <
 sum_diff_array:
 S	D
-176	190
--80	-66
+183	194
+-73	-62
 
 Angolo 21: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+182	194
+-74	-62
 
 Angolo 22: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+184	194
+-72	-62
 
 Angolo 23: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+183	194
+-73	-62
 
 Angolo 24: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+183	194
+-73	-62
 
 Angolo 25: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+183	194
+-73	-62
 
 Angolo 26: <
 sum_diff_array:
 S	D
-172	189
--84	-67
+183	193
+-73	-63
 
 Angolo 27: <
 sum_diff_array:
 S	D
-171	189
--85	-67
+184	193
+-72	-63
 
 Angolo 28: <
 sum_diff_array:
 S	D
-172	188
--84	-68
+183	193
+-73	-63
 
 Angolo 29: <
 sum_diff_array:
 S	D
-171	189
--85	-67
+184	193
+-72	-63
 
 Angolo 30: <
 sum_diff_array:
 S	D
-174	189
--82	-67
+184	192
+-72	-64
 
 Angolo 31: <
 sum_diff_array:
 S	D
-175	189
--81	-67
+255	255
+-1	-1
 
 Angolo 32: <
 sum_diff_array:
 S	D
-176	189
--80	-67
+185	192
+-71	-64
 
 Angolo 33: <
 sum_diff_array:
 S	D
-175	188
--81	-68
+185	192
+-71	-64
 
 Angolo 34: <
 sum_diff_array:
 S	D
-177	189
--79	-67
+185	191
+-71	-65
 
 Angolo 35: <
 sum_diff_array:
 S	D
-178	188
--78	-68
+185	191
+-71	-65
 
 Angolo 36: <
 sum_diff_array:
 S	D
-179	189
--77	-67
+185	191
+-71	-65
 
 Angolo 37: <
 sum_diff_array:
 S	D
-180	190
--76	-66
+186	190
+-70	-66
 
 Angolo 38: <
 sum_diff_array:
 S	D
-181	189
--75	-67
+186	191
+-70	-65
 
 Angolo 39: <
 sum_diff_array:
 S	D
-181	189
--75	-67
+186	190
+-70	-66
 
 Angolo 40: <
 sum_diff_array:
 S	D
-182	189
--74	-67
+187	190
+-69	-66
 
 Angolo 1: <
 sum_diff_array:
 S	D
-60	10
--196	-246
+186	189
+-70	-67
 
 Angolo 2: <
 sum_diff_array:
 S	D
-0	40
--256	-216
+186	196
+-70	-60
 
 Angolo 3: <
 sum_diff_array:
 S	D
-225	10
--31	-246
+185	192
+-71	-64
 
 Angolo 4: <
 sum_diff_array:
 S	D
-0	10
--256	-246
+187	193
+-69	-63
 
 Angolo 5: <
 sum_diff_array:
 S	D
-60	10
--196	-246
+255	255
+-1	-1
 
 Angolo 6: <
 sum_diff_array:
 S	D
-1	108
--255	-148
+186	195
+-70	-61
 
 Angolo 7: <
 sum_diff_array:
 S	D
-10	108
--246	-148
+186	192
+-70	-64
 
 Angolo 8: <
 sum_diff_array:
 S	D
-177	189
--79	-67
+188	193
+-68	-63
 
 Angolo 9: <
 sum_diff_array:
 S	D
-179	189
--77	-67
+186	193
+-70	-63
 
 Angolo 10: <
 sum_diff_array:
 S	D
-184	189
--72	-67
+186	194
+-70	-62
 
 Angolo 11: <
 sum_diff_array:
 S	D
-184	189
--72	-67
+186	194
+-70	-62
 
 Angolo 12: <
 sum_diff_array:
 S	D
-184	189
--72	-67
+187	194
+-69	-62
 
 Angolo 13: <
 sum_diff_array:
 S	D
-184	188
--72	-68
+185	195
+-71	-61
 
 Angolo 14: <
 sum_diff_array:
 S	D
-184	190
--72	-66
+255	255
+-1	-1
 
 Angolo 15: <
 sum_diff_array:
 S	D
-184	190
--72	-66
+186	194
+-70	-62
 
 Angolo 16: <
 sum_diff_array:
 S	D
-184	190
--72	-66
+186	194
+-70	-62
 
 Angolo 17: <
 sum_diff_array:
 S	D
-184	189
--72	-67
+186	192
+-70	-64
 
 Angolo 18: <
 sum_diff_array:
 S	D
-184	190
--72	-66
+186	194
+-70	-62
 
 Angolo 19: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+186	194
+-70	-62
 
 Angolo 20: <
 sum_diff_array:
 S	D
-183	189
--73	-67
+185	196
+-71	-60
 
 Angolo 21: <
 sum_diff_array:
 S	D
-182	190
--74	-66
+185	193
+-71	-63
 
 Angolo 22: <
 sum_diff_array:
 S	D
-182	190
--74	-66
+185	196
+-71	-60
 
 Angolo 23: <
 sum_diff_array:
 S	D
-180	189
--76	-67
+186	193
+-70	-63
 
 Angolo 24: <
 sum_diff_array:
 S	D
-180	191
--76	-65
+255	255
+-1	-1
 
 Angolo 25: <
 sum_diff_array:
 S	D
-178	189
--78	-67
+186	193
+-70	-63
 
 Angolo 26: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	193
+-71	-63
 
 Angolo 27: <
 sum_diff_array:
 S	D
-178	191
--78	-65
+185	193
+-71	-63
 
 Angolo 28: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	193
+-71	-63
 
 Angolo 29: <
 sum_diff_array:
 S	D
-174	189
--82	-67
+186	193
+-70	-63
 
 Angolo 30: <
 sum_diff_array:
 S	D
-174	191
--82	-65
+186	193
+-70	-63
 
 Angolo 31: <
 sum_diff_array:
 S	D
-173	189
--83	-67
+185	196
+-71	-60
 
 Angolo 32: <
 sum_diff_array:
 S	D
-175	188
--81	-68
+185	192
+-71	-64
 
 Angolo 33: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+186	194
+-70	-62
 
 Angolo 34: <
 sum_diff_array:
 S	D
-174	191
--82	-65
+186	194
+-70	-62
 
 Angolo 35: <
 sum_diff_array:
 S	D
-175	190
--81	-66
+185	195
+-71	-61
 
 Angolo 36: <
 sum_diff_array:
 S	D
-177	189
--79	-67
+186	194
+-70	-62
 
 Angolo 37: <
 sum_diff_array:
 S	D
-176	191
--80	-65
+185	255
+-71	-1
 
 Angolo 38: <
 sum_diff_array:
@@ -469,128 +469,128 @@ S	D
 Angolo 39: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	193
+-71	-63
 
 Angolo 40: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	193
+-71	-63
 
 Angolo 1: <
 sum_diff_array:
 S	D
-60	10
--196	-246
+186	195
+-70	-61
 
 Angolo 2: <
 sum_diff_array:
 S	D
-0	40
--256	-216
+255	255
+-1	-1
 
 Angolo 3: <
 sum_diff_array:
 S	D
-225	10
--31	-246
+185	193
+-71	-63
 
 Angolo 4: <
 sum_diff_array:
 S	D
-0	10
--256	-246
+185	194
+-71	-62
 
 Angolo 5: <
 sum_diff_array:
 S	D
-60	10
--196	-246
+185	193
+-71	-63
 
 Angolo 6: <
 sum_diff_array:
 S	D
-1	108
--255	-148
+185	255
+-71	-1
 
 Angolo 7: <
 sum_diff_array:
 S	D
-10	108
--246	-148
+186	194
+-70	-62
 
 Angolo 8: <
 sum_diff_array:
 S	D
-178	190
--78	-66
+185	194
+-71	-62
 
 Angolo 9: <
 sum_diff_array:
 S	D
-180	190
--76	-66
+185	195
+-71	-61
 
 Angolo 10: <
 sum_diff_array:
 S	D
-184	189
--72	-67
+185	195
+-71	-61
 
 Angolo 11: <
 sum_diff_array:
 S	D
-183	189
--73	-67
+185	193
+-71	-63
 
 Angolo 12: <
 sum_diff_array:
 S	D
-184	190
--72	-66
+185	195
+-71	-61
 
 Angolo 13: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	193
+-71	-63
 
 Angolo 14: <
 sum_diff_array:
 S	D
-184	190
--72	-66
+185	194
+-71	-62
 
 Angolo 15: <
 sum_diff_array:
 S	D
-184	189
--72	-67
+184	193
+-72	-63
 
 Angolo 16: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	195
+-71	-61
 
 Angolo 17: <
 sum_diff_array:
 S	D
-183	190
--73	-66
+186	194
+-70	-62
 
 Angolo 18: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+186	193
+-70	-63
 
 Angolo 19: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	193
+-71	-63
 
 Angolo 20: <
 sum_diff_array:
@@ -601,554 +601,554 @@ S	D
 Angolo 21: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	193
+-71	-63
 
 Angolo 22: <
 sum_diff_array:
 S	D
-183	189
--73	-67
+185	193
+-71	-63
 
 Angolo 23: <
 sum_diff_array:
 S	D
-183	189
--73	-67
+185	195
+-71	-61
 
 Angolo 24: <
 sum_diff_array:
 S	D
-182	190
--74	-66
+185	194
+-71	-62
 
 Angolo 25: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	195
+-71	-61
 
 Angolo 26: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+184	195
+-72	-61
 
 Angolo 27: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+184	194
+-72	-62
 
 Angolo 28: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+186	193
+-70	-63
 
 Angolo 29: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	194
+-71	-62
 
 Angolo 30: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	193
+-71	-63
 
 Angolo 31: <
 sum_diff_array:
 S	D
-175	189
--81	-67
+185	193
+-71	-63
 
 Angolo 32: <
 sum_diff_array:
 S	D
-177	189
--79	-67
+184	196
+-72	-60
 
 Angolo 33: <
 sum_diff_array:
 S	D
-176	189
--80	-67
+186	195
+-70	-61
 
 Angolo 34: <
 sum_diff_array:
 S	D
-175	191
--81	-65
+184	193
+-72	-63
 
 Angolo 35: <
 sum_diff_array:
 S	D
-177	189
--79	-67
+185	194
+-71	-62
 
 Angolo 36: <
 sum_diff_array:
 S	D
-177	188
--79	-68
+185	194
+-71	-62
 
 Angolo 37: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	192
+-71	-64
 
 Angolo 38: <
 sum_diff_array:
 S	D
-177	188
--79	-68
+184	192
+-72	-64
 
 Angolo 39: <
 sum_diff_array:
 S	D
-176	189
--80	-67
+185	193
+-71	-63
 
 Angolo 40: <
 sum_diff_array:
 S	D
-175	189
--81	-67
+185	193
+-71	-63
 
 Angolo 1: <
 sum_diff_array:
 S	D
-178	189
--78	-67
+186	194
+-70	-62
 
 Angolo 2: <
 sum_diff_array:
 S	D
-60	10
--196	-246
+186	255
+-70	-1
 
 Angolo 3: <
 sum_diff_array:
 S	D
-1	108
--255	-148
+184	193
+-72	-63
 
 Angolo 4: <
 sum_diff_array:
 S	D
-10	108
--246	-148
+186	195
+-70	-61
 
 Angolo 5: <
 sum_diff_array:
 S	D
-177	189
--79	-67
+185	195
+-71	-61
 
 Angolo 6: <
 sum_diff_array:
 S	D
-184	189
--72	-67
+255	255
+-1	-1
 
 Angolo 7: <
 sum_diff_array:
 S	D
-183	188
--73	-68
+184	194
+-72	-62
 
 Angolo 8: <
 sum_diff_array:
 S	D
-184	189
--72	-67
+185	193
+-71	-63
 
 Angolo 9: <
 sum_diff_array:
 S	D
-184	190
--72	-66
+184	194
+-72	-62
 
 Angolo 10: <
 sum_diff_array:
 S	D
-184	191
--72	-65
+184	193
+-72	-63
 
 Angolo 11: <
 sum_diff_array:
 S	D
-184	189
--72	-67
+255	255
+-1	-1
 
 Angolo 12: <
 sum_diff_array:
 S	D
-184	190
--72	-66
+186	195
+-70	-61
 
 Angolo 13: <
 sum_diff_array:
 S	D
-184	188
--72	-68
+185	193
+-71	-63
 
 Angolo 14: <
 sum_diff_array:
 S	D
-184	190
--72	-66
+185	193
+-71	-63
 
 Angolo 15: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	193
+-71	-63
 
 Angolo 16: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+186	194
+-70	-62
 
 Angolo 17: <
 sum_diff_array:
 S	D
-184	190
--72	-66
+185	193
+-71	-63
 
 Angolo 18: <
 sum_diff_array:
 S	D
-183	190
--73	-66
+182	192
+-74	-64
 
 Angolo 19: <
 sum_diff_array:
 S	D
-182	190
--74	-66
+183	194
+-73	-62
 
 Angolo 20: <
 sum_diff_array:
 S	D
-182	190
--74	-66
+184	192
+-72	-64
 
 Angolo 21: <
 sum_diff_array:
 S	D
-182	189
--74	-67
+184	194
+-72	-62
 
 Angolo 22: <
 sum_diff_array:
 S	D
-181	190
--75	-66
+186	193
+-70	-63
 
 Angolo 23: <
 sum_diff_array:
 S	D
-181	188
--75	-68
+185	194
+-71	-62
 
 Angolo 24: <
 sum_diff_array:
 S	D
-179	190
--77	-66
+185	195
+-71	-61
 
 Angolo 25: <
 sum_diff_array:
 S	D
-176	190
--80	-66
+255	255
+-1	-1
 
 Angolo 26: <
 sum_diff_array:
 S	D
-176	190
--80	-66
+185	194
+-71	-62
 
 Angolo 27: <
 sum_diff_array:
 S	D
-174	189
--82	-67
+185	193
+-71	-63
 
 Angolo 28: <
 sum_diff_array:
 S	D
-174	189
--82	-67
+185	194
+-71	-62
 
 Angolo 29: <
 sum_diff_array:
 S	D
-174	190
--82	-66
+186	195
+-70	-61
 
 Angolo 30: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	193
+-71	-63
 
 Angolo 31: <
 sum_diff_array:
 S	D
-175	191
--81	-65
+185	195
+-71	-61
 
 Angolo 32: <
 sum_diff_array:
 S	D
-176	189
--80	-67
+186	193
+-70	-63
 
 Angolo 33: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	255
+-71	-1
 
 Angolo 34: <
 sum_diff_array:
 S	D
-175	191
--81	-65
+185	194
+-71	-62
 
 Angolo 35: <
 sum_diff_array:
 S	D
-176	189
--80	-67
+185	194
+-71	-62
 
 Angolo 36: <
 sum_diff_array:
 S	D
-178	189
--78	-67
+184	193
+-72	-63
 
 Angolo 37: <
 sum_diff_array:
 S	D
-176	191
--80	-65
+185	194
+-71	-62
 
 Angolo 38: <
 sum_diff_array:
 S	D
-177	191
--79	-65
+186	193
+-70	-63
 
 Angolo 39: <
 sum_diff_array:
 S	D
-178	190
--78	-66
+186	194
+-70	-62
 
 Angolo 40: <
 sum_diff_array:
 S	D
-176	188
--80	-68
+185	193
+-71	-63
 
 Angolo 1: <
 sum_diff_array:
 S	D
-181	189
--75	-67
+185	194
+-71	-62
 
 Angolo 2: <
 sum_diff_array:
 S	D
-60	10
--196	-246
+184	196
+-72	-60
 
 Angolo 3: <
 sum_diff_array:
 S	D
-0	40
--256	-216
+185	193
+-71	-63
 
 Angolo 4: <
 sum_diff_array:
 S	D
-226	10
--30	-246
+186	195
+-70	-61
 
 Angolo 5: <
 sum_diff_array:
 S	D
-0	10
--256	-246
+185	194
+-71	-62
 
 Angolo 6: <
 sum_diff_array:
 S	D
-60	10
--196	-246
+186	194
+-70	-62
 
 Angolo 7: <
 sum_diff_array:
 S	D
-1	108
--255	-148
+185	193
+-71	-63
 
 Angolo 8: <
 sum_diff_array:
 S	D
-10	108
--246	-148
+185	193
+-71	-63
 
 Angolo 9: <
 sum_diff_array:
 S	D
-174	188
--82	-68
+185	193
+-71	-63
 
 Angolo 10: <
 sum_diff_array:
 S	D
-180	190
--76	-66
+186	194
+-70	-62
 
 Angolo 11: <
 sum_diff_array:
 S	D
-182	189
--74	-67
+185	193
+-71	-63
 
 Angolo 12: <
 sum_diff_array:
 S	D
-184	189
--72	-67
+185	196
+-71	-60
 
 Angolo 13: <
 sum_diff_array:
 S	D
-184	188
--72	-68
+185	194
+-71	-62
 
 Angolo 14: <
 sum_diff_array:
 S	D
-184	190
--72	-66
+185	195
+-71	-61
 
 Angolo 15: <
 sum_diff_array:
 S	D
-183	189
--73	-67
+186	194
+-70	-62
 
 Angolo 16: <
 sum_diff_array:
 S	D
-183	190
--73	-66
+185	195
+-71	-61
 
 Angolo 17: <
 sum_diff_array:
 S	D
-183	189
--73	-67
+185	193
+-71	-63
 
 Angolo 18: <
 sum_diff_array:
 S	D
-184	191
--72	-65
+185	193
+-71	-63
 
 Angolo 19: <
 sum_diff_array:
 S	D
-183	191
--73	-65
+185	193
+-71	-63
 
 Angolo 20: <
 sum_diff_array:
 S	D
-183	190
--73	-66
+185	193
+-71	-63
 
 Angolo 21: <
 sum_diff_array:
 S	D
-182	189
--74	-67
+186	193
+-70	-63
 
 Angolo 22: <
 sum_diff_array:
 S	D
-183	189
--73	-67
+185	194
+-71	-62
 
 Angolo 23: <
 sum_diff_array:
 S	D
-182	190
--74	-66
+186	194
+-70	-62
 
 Angolo 24: <
 sum_diff_array:
 S	D
-182	189
--74	-67
+186	193
+-70	-63
 
 Angolo 25: <
 sum_diff_array:
 S	D
-181	190
--75	-66
+184	193
+-72	-63
 
 Angolo 26: <
 sum_diff_array:
 S	D
-181	189
--75	-67
+184	193
+-72	-63
 
 Angolo 27: <
 sum_diff_array:
 S	D
-178	189
--78	-67
+185	194
+-71	-62
 
 Angolo 28: <
 sum_diff_array:
 S	D
-178	190
--78	-66
+186	193
+-70	-63
 
 Angolo 29: <
 sum_diff_array:
 S	D
-178	189
--78	-67
+185	193
+-71	-63
 
 Angolo 30: <
 sum_diff_array:
 S	D
-175	190
--81	-66
+184	193
+-72	-63
 
 Angolo 31: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	192
+-71	-64
 
 Angolo 32: <
 sum_diff_array:
 S	D
-175	189
--81	-67
+185	195
+-71	-61
 
 Angolo 33: <
 sum_diff_array:
@@ -1159,1242 +1159,1242 @@ S	D
 Angolo 34: <
 sum_diff_array:
 S	D
-174	189
--82	-67
+186	195
+-70	-61
 
 Angolo 35: <
 sum_diff_array:
 S	D
-174	190
--82	-66
+186	194
+-70	-62
 
 Angolo 36: <
 sum_diff_array:
 S	D
-175	189
--81	-67
+255	255
+-1	-1
 
 Angolo 37: <
 sum_diff_array:
 S	D
-176	189
--80	-67
+185	196
+-71	-60
 
 Angolo 38: <
 sum_diff_array:
 S	D
-174	191
--82	-65
+185	194
+-71	-62
 
 Angolo 39: <
 sum_diff_array:
 S	D
-175	190
--81	-66
+184	193
+-72	-63
 
 Angolo 40: <
 sum_diff_array:
 S	D
-173	189
--83	-67
+185	194
+-71	-62
 
 Angolo 1: <
 sum_diff_array:
 S	D
-174	190
--82	-66
+186	193
+-70	-63
 
 Angolo 2: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	193
+-71	-63
 
 Angolo 3: <
 sum_diff_array:
 S	D
-60	10
--196	-246
+185	195
+-71	-61
 
 Angolo 4: <
 sum_diff_array:
 S	D
-1	108
--255	-148
+185	193
+-71	-63
 
 Angolo 5: <
 sum_diff_array:
 S	D
-10	108
--246	-148
+185	193
+-71	-63
 
 Angolo 6: <
 sum_diff_array:
 S	D
-175	175
--81	-81
+186	193
+-70	-63
 
 Angolo 7: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+184	193
+-72	-63
 
 Angolo 8: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	194
+-71	-62
 
 Angolo 9: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+186	196
+-70	-60
 
 Angolo 10: <
 sum_diff_array:
 S	D
-184	188
--72	-68
+186	194
+-70	-62
 
 Angolo 11: <
 sum_diff_array:
 S	D
-183	189
--73	-67
+185	193
+-71	-63
 
 Angolo 12: <
 sum_diff_array:
 S	D
-184	191
--72	-65
+185	194
+-71	-62
 
 Angolo 13: <
 sum_diff_array:
 S	D
-183	189
--73	-67
+185	194
+-71	-62
 
 Angolo 14: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+184	193
+-72	-63
 
 Angolo 15: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+184	194
+-72	-62
 
 Angolo 16: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	195
+-71	-61
 
 Angolo 17: <
 sum_diff_array:
 S	D
-184	190
--72	-66
+185	196
+-71	-60
 
 Angolo 18: <
 sum_diff_array:
 S	D
-182	190
--74	-66
+185	193
+-71	-63
 
 Angolo 19: <
 sum_diff_array:
 S	D
-183	190
--73	-66
+185	255
+-71	-1
 
 Angolo 20: <
 sum_diff_array:
 S	D
-181	189
--75	-67
+186	194
+-70	-62
 
 Angolo 21: <
 sum_diff_array:
 S	D
-181	190
--75	-66
+185	255
+-71	-1
 
 Angolo 22: <
 sum_diff_array:
 S	D
-181	189
--75	-67
+255	255
+-1	-1
 
 Angolo 23: <
 sum_diff_array:
 S	D
-180	190
--76	-66
+184	194
+-72	-62
 
 Angolo 24: <
 sum_diff_array:
 S	D
-180	190
--76	-66
+184	193
+-72	-63
 
 Angolo 25: <
 sum_diff_array:
 S	D
-179	189
--77	-67
+186	194
+-70	-62
 
 Angolo 26: <
 sum_diff_array:
 S	D
-178	190
--78	-66
+185	196
+-71	-60
 
 Angolo 27: <
 sum_diff_array:
 S	D
-175	189
--81	-67
+184	192
+-72	-64
 
 Angolo 28: <
 sum_diff_array:
 S	D
-176	189
--80	-67
+186	194
+-70	-62
 
 Angolo 29: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+184	192
+-72	-64
 
 Angolo 30: <
 sum_diff_array:
 S	D
-175	189
--81	-67
+186	192
+-70	-64
 
 Angolo 31: <
 sum_diff_array:
 S	D
-175	189
--81	-67
+255	255
+-1	-1
 
 Angolo 32: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	193
+-71	-63
 
 Angolo 33: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	194
+-71	-62
 
 Angolo 34: <
 sum_diff_array:
 S	D
-176	192
--80	-64
+186	194
+-70	-62
 
 Angolo 35: <
 sum_diff_array:
 S	D
-176	190
--80	-66
+185	193
+-71	-63
 
 Angolo 36: <
 sum_diff_array:
 S	D
-178	189
--78	-67
+185	255
+-71	-1
 
 Angolo 37: <
 sum_diff_array:
 S	D
-177	189
--79	-67
+185	193
+-71	-63
 
 Angolo 38: <
 sum_diff_array:
 S	D
-178	190
--78	-66
+185	193
+-71	-63
 
 Angolo 39: <
 sum_diff_array:
 S	D
-178	190
--78	-66
+185	195
+-71	-61
 
 Angolo 40: <
 sum_diff_array:
 S	D
-177	188
--79	-68
+185	196
+-71	-60
 
 Angolo 1: <
 sum_diff_array:
 S	D
-60	10
--196	-246
+185	194
+-71	-62
 
 Angolo 2: <
 sum_diff_array:
 S	D
-0	40
--256	-216
+185	193
+-71	-63
 
 Angolo 3: <
 sum_diff_array:
 S	D
-226	10
--30	-246
+185	193
+-71	-63
 
 Angolo 4: <
 sum_diff_array:
 S	D
-0	10
--256	-246
+184	193
+-72	-63
 
 Angolo 5: <
 sum_diff_array:
 S	D
-60	10
--196	-246
+255	255
+-1	-1
 
 Angolo 6: <
 sum_diff_array:
 S	D
-1	108
--255	-148
+185	194
+-71	-62
 
 Angolo 7: <
 sum_diff_array:
 S	D
-10	108
--246	-148
+186	193
+-70	-63
 
 Angolo 8: <
 sum_diff_array:
 S	D
-177	189
--79	-67
+185	194
+-71	-62
 
 Angolo 9: <
 sum_diff_array:
 S	D
-179	190
--77	-66
+185	193
+-71	-63
 
 Angolo 10: <
 sum_diff_array:
 S	D
-183	190
--73	-66
+185	193
+-71	-63
 
 Angolo 11: <
 sum_diff_array:
 S	D
-183	190
--73	-66
+185	193
+-71	-63
 
 Angolo 12: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+186	193
+-70	-63
 
 Angolo 13: <
 sum_diff_array:
 S	D
-183	190
--73	-66
+185	194
+-71	-62
 
 Angolo 14: <
 sum_diff_array:
 S	D
-183	191
--73	-65
+186	195
+-70	-61
 
 Angolo 15: <
 sum_diff_array:
 S	D
-183	190
--73	-66
+186	194
+-70	-62
 
 Angolo 16: <
 sum_diff_array:
 S	D
-181	189
--75	-67
+185	195
+-71	-61
 
 Angolo 17: <
 sum_diff_array:
 S	D
-183	189
--73	-67
+185	193
+-71	-63
 
 Angolo 18: <
 sum_diff_array:
 S	D
-184	190
--72	-66
+185	194
+-71	-62
 
 Angolo 19: <
 sum_diff_array:
 S	D
-182	190
--74	-66
+185	193
+-71	-63
 
 Angolo 20: <
 sum_diff_array:
 S	D
-183	189
--73	-67
+185	255
+-71	-1
 
 Angolo 21: <
 sum_diff_array:
 S	D
-182	190
--74	-66
+186	195
+-70	-61
 
 Angolo 22: <
 sum_diff_array:
 S	D
-182	189
--74	-67
+185	194
+-71	-62
 
 Angolo 23: <
 sum_diff_array:
 S	D
-181	190
--75	-66
+186	194
+-70	-62
 
 Angolo 24: <
 sum_diff_array:
 S	D
-181	190
--75	-66
+186	193
+-70	-63
 
 Angolo 25: <
 sum_diff_array:
 S	D
-180	190
--76	-66
+185	193
+-71	-63
 
 Angolo 26: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	193
+-71	-63
 
 Angolo 27: <
 sum_diff_array:
 S	D
-179	190
--77	-66
+186	193
+-70	-63
 
 Angolo 28: <
 sum_diff_array:
 S	D
-178	189
--78	-67
+186	194
+-70	-62
 
 Angolo 29: <
 sum_diff_array:
 S	D
-176	190
--80	-66
+185	255
+-71	-1
 
 Angolo 30: <
 sum_diff_array:
 S	D
-174	191
--82	-65
+255	255
+-1	-1
 
 Angolo 31: <
 sum_diff_array:
 S	D
-177	189
--79	-67
+185	195
+-71	-61
 
 Angolo 32: <
 sum_diff_array:
 S	D
-175	191
--81	-65
+185	193
+-71	-63
 
 Angolo 33: <
 sum_diff_array:
 S	D
-177	190
--79	-66
+185	192
+-71	-64
 
 Angolo 34: <
 sum_diff_array:
 S	D
-176	189
--80	-67
+185	193
+-71	-63
 
 Angolo 35: <
 sum_diff_array:
 S	D
-175	190
--81	-66
+185	195
+-71	-61
 
 Angolo 36: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+186	255
+-70	-1
 
 Angolo 37: <
 sum_diff_array:
 S	D
-176	189
--80	-67
+184	195
+-72	-61
 
 Angolo 38: <
 sum_diff_array:
 S	D
-176	191
--80	-65
+186	193
+-70	-63
 
 Angolo 39: <
 sum_diff_array:
 S	D
-177	189
--79	-67
+185	196
+-71	-60
 
 Angolo 40: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	193
+-71	-63
 
 Angolo 1: <
 sum_diff_array:
 S	D
-178	188
--78	-68
+255	255
+-1	-1
 
 Angolo 2: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	194
+-71	-62
 
 Angolo 3: <
 sum_diff_array:
 S	D
-60	10
--196	-246
+185	196
+-71	-60
 
 Angolo 4: <
 sum_diff_array:
 S	D
-1	108
--255	-148
+186	196
+-70	-60
 
 Angolo 5: <
 sum_diff_array:
 S	D
-10	108
--246	-148
+186	193
+-70	-63
 
 Angolo 6: <
 sum_diff_array:
 S	D
-176	189
--80	-67
+186	195
+-70	-61
 
 Angolo 7: <
 sum_diff_array:
 S	D
-183	189
--73	-67
+185	193
+-71	-63
 
 Angolo 8: <
 sum_diff_array:
 S	D
-182	188
--74	-68
+255	255
+-1	-1
 
 Angolo 9: <
 sum_diff_array:
 S	D
-182	187
--74	-69
+186	194
+-70	-62
 
 Angolo 10: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	194
+-71	-62
 
 Angolo 11: <
 sum_diff_array:
 S	D
-184	188
--72	-68
+185	194
+-71	-62
 
 Angolo 12: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	193
+-71	-63
 
 Angolo 13: <
 sum_diff_array:
 S	D
-183	255
--73	-1
+185	255
+-71	-1
 
 Angolo 14: <
 sum_diff_array:
 S	D
-184	189
--72	-67
+186	193
+-70	-63
 
 Angolo 15: <
 sum_diff_array:
 S	D
-184	190
--72	-66
+185	194
+-71	-62
 
 Angolo 16: <
 sum_diff_array:
 S	D
-184	189
--72	-67
+185	193
+-71	-63
 
 Angolo 17: <
 sum_diff_array:
 S	D
-183	189
--73	-67
+186	193
+-70	-63
 
 Angolo 18: <
 sum_diff_array:
 S	D
-183	190
--73	-66
+186	193
+-70	-63
 
 Angolo 19: <
 sum_diff_array:
 S	D
-182	190
--74	-66
+185	194
+-71	-62
 
 Angolo 20: <
 sum_diff_array:
 S	D
-183	189
--73	-67
+184	193
+-72	-63
 
 Angolo 21: <
 sum_diff_array:
 S	D
-182	191
--74	-65
+185	194
+-71	-62
 
 Angolo 22: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	194
+-71	-62
 
 Angolo 23: <
 sum_diff_array:
 S	D
-181	190
--75	-66
+186	194
+-70	-62
 
 Angolo 24: <
 sum_diff_array:
 S	D
-179	190
--77	-66
+185	193
+-71	-63
 
 Angolo 25: <
 sum_diff_array:
 S	D
-180	191
--76	-65
+185	194
+-71	-62
 
 Angolo 26: <
 sum_diff_array:
 S	D
-178	191
--78	-65
+186	192
+-70	-64
 
 Angolo 27: <
 sum_diff_array:
 S	D
-178	189
--78	-67
+185	194
+-71	-62
 
 Angolo 28: <
+sum_diff_array:
+S	D
+185	193
+-71	-63
+
+Angolo 29: <
+sum_diff_array:
+S	D
+185	193
+-71	-63
+
+Angolo 30: <
+sum_diff_array:
+S	D
+186	195
+-70	-61
+
+Angolo 31: <
+sum_diff_array:
+S	D
+185	193
+-71	-63
+
+Angolo 32: <
+sum_diff_array:
+S	D
+186	193
+-70	-63
+
+Angolo 33: <
+sum_diff_array:
+S	D
+185	193
+-71	-63
+
+Angolo 34: <
+sum_diff_array:
+S	D
+184	192
+-72	-64
+
+Angolo 35: <
+sum_diff_array:
+S	D
+184	193
+-72	-63
+
+Angolo 36: <
 sum_diff_array:
 S	D
 255	255
 -1	-1
 
-Angolo 29: <
-sum_diff_array:
-S	D
-175	189
--81	-67
-
-Angolo 30: <
-sum_diff_array:
-S	D
-175	189
--81	-67
-
-Angolo 31: <
-sum_diff_array:
-S	D
-174	190
--82	-66
-
-Angolo 32: <
-sum_diff_array:
-S	D
-175	188
--81	-68
-
-Angolo 33: <
-sum_diff_array:
-S	D
-177	188
--79	-68
-
-Angolo 34: <
-sum_diff_array:
-S	D
-177	188
--79	-68
-
-Angolo 35: <
-sum_diff_array:
-S	D
-175	189
--81	-67
-
-Angolo 36: <
-sum_diff_array:
-S	D
-174	189
--82	-67
-
 Angolo 37: <
 sum_diff_array:
 S	D
-176	255
--80	-1
+185	194
+-71	-62
 
 Angolo 38: <
 sum_diff_array:
 S	D
-177	189
--79	-67
+185	194
+-71	-62
 
 Angolo 39: <
 sum_diff_array:
 S	D
-172	189
--84	-67
+185	193
+-71	-63
 
 Angolo 40: <
 sum_diff_array:
 S	D
-178	189
--78	-67
+185	195
+-71	-61
 
 Angolo 1: <
 sum_diff_array:
 S	D
-176	189
--80	-67
+185	193
+-71	-63
 
 Angolo 2: <
 sum_diff_array:
 S	D
-60	10
--196	-246
+185	193
+-71	-63
 
 Angolo 3: <
 sum_diff_array:
 S	D
-0	40
--256	-216
+185	194
+-71	-62
 
 Angolo 4: <
 sum_diff_array:
 S	D
-226	10
--30	-246
+185	193
+-71	-63
 
 Angolo 5: <
 sum_diff_array:
 S	D
-0	10
--256	-246
+185	193
+-71	-63
 
 Angolo 6: <
 sum_diff_array:
 S	D
-60	10
--196	-246
+186	194
+-70	-62
 
 Angolo 7: <
 sum_diff_array:
 S	D
-0	40
--256	-216
+186	193
+-70	-63
 
 Angolo 8: <
 sum_diff_array:
 S	D
-225	10
--31	-246
+185	193
+-71	-63
 
 Angolo 9: <
 sum_diff_array:
 S	D
-0	10
--256	-246
+255	255
+-1	-1
 
 Angolo 10: <
 sum_diff_array:
 S	D
-60	10
--196	-246
+255	255
+-1	-1
 
 Angolo 11: <
 sum_diff_array:
 S	D
-0	40
--256	-216
+255	255
+-1	-1
 
 Angolo 12: <
 sum_diff_array:
 S	D
-226	10
--30	-246
+186	194
+-70	-62
 
 Angolo 13: <
 sum_diff_array:
 S	D
-0	10
--256	-246
+255	255
+-1	-1
 
 Angolo 14: <
 sum_diff_array:
 S	D
-60	10
--196	-246
+255	255
+-1	-1
 
 Angolo 15: <
 sum_diff_array:
 S	D
-1	108
--255	-148
+255	255
+-1	-1
 
 Angolo 16: <
 sum_diff_array:
 S	D
-10	108
--246	-148
+185	193
+-71	-63
 
 Angolo 17: <
 sum_diff_array:
 S	D
-176	191
--80	-65
+186	194
+-70	-62
 
 Angolo 18: <
 sum_diff_array:
 S	D
-181	190
--75	-66
+185	193
+-71	-63
 
 Angolo 19: <
 sum_diff_array:
 S	D
-181	189
--75	-67
+186	193
+-70	-63
 
 Angolo 20: <
 sum_diff_array:
 S	D
-182	189
--74	-67
+185	193
+-71	-63
 
 Angolo 21: <
 sum_diff_array:
 S	D
-182	189
--74	-67
+185	194
+-71	-62
 
 Angolo 22: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+186	194
+-70	-62
 
 Angolo 23: <
 sum_diff_array:
 S	D
-183	190
--73	-66
+185	194
+-71	-62
 
 Angolo 24: <
 sum_diff_array:
 S	D
-182	189
--74	-67
+185	194
+-71	-62
 
 Angolo 25: <
 sum_diff_array:
 S	D
-181	188
--75	-68
+186	194
+-70	-62
 
 Angolo 26: <
+sum_diff_array:
+S	D
+186	194
+-70	-62
+
+Angolo 27: <
+sum_diff_array:
+S	D
+186	194
+-70	-62
+
+Angolo 28: <
+sum_diff_array:
+S	D
+184	193
+-72	-63
+
+Angolo 29: <
+sum_diff_array:
+S	D
+186	193
+-70	-63
+
+Angolo 30: <
+sum_diff_array:
+S	D
+186	193
+-70	-63
+
+Angolo 31: <
+sum_diff_array:
+S	D
+185	255
+-71	-1
+
+Angolo 32: <
+sum_diff_array:
+S	D
+185	193
+-71	-63
+
+Angolo 33: <
+sum_diff_array:
+S	D
+184	193
+-72	-63
+
+Angolo 34: <
 sum_diff_array:
 S	D
 255	255
 -1	-1
 
-Angolo 27: <
-sum_diff_array:
-S	D
-181	190
--75	-66
-
-Angolo 28: <
-sum_diff_array:
-S	D
-182	190
--74	-66
-
-Angolo 29: <
-sum_diff_array:
-S	D
-183	190
--73	-66
-
-Angolo 30: <
-sum_diff_array:
-S	D
-181	190
--75	-66
-
-Angolo 31: <
-sum_diff_array:
-S	D
-180	191
--76	-65
-
-Angolo 32: <
-sum_diff_array:
-S	D
-181	190
--75	-66
-
-Angolo 33: <
-sum_diff_array:
-S	D
-180	188
--76	-68
-
-Angolo 34: <
-sum_diff_array:
-S	D
-181	191
--75	-65
-
 Angolo 35: <
 sum_diff_array:
 S	D
-179	190
--77	-66
+185	195
+-71	-61
 
 Angolo 36: <
 sum_diff_array:
 S	D
-178	189
--78	-67
+184	194
+-72	-62
 
 Angolo 37: <
 sum_diff_array:
 S	D
-178	189
--78	-67
+185	196
+-71	-60
 
 Angolo 38: <
 sum_diff_array:
 S	D
-177	189
--79	-67
+185	196
+-71	-60
 
 Angolo 39: <
 sum_diff_array:
 S	D
-178	189
--78	-67
+183	194
+-73	-62
 
 Angolo 40: <
 sum_diff_array:
 S	D
-177	189
--79	-67
+185	194
+-71	-62
 
 Angolo 1: <
 sum_diff_array:
 S	D
-177	189
--79	-67
+184	255
+-72	-1
 
 Angolo 2: <
 sum_diff_array:
 S	D
-60	10
--196	-246
+255	255
+-1	-1
 
 Angolo 3: <
 sum_diff_array:
 S	D
-1	108
--255	-148
+185	194
+-71	-62
 
 Angolo 4: <
 sum_diff_array:
 S	D
-10	108
--246	-148
+185	195
+-71	-61
 
 Angolo 5: <
 sum_diff_array:
 S	D
-177	177
--79	-79
+185	193
+-71	-63
 
 Angolo 6: <
 sum_diff_array:
 S	D
-179	190
--77	-66
+186	193
+-70	-63
 
 Angolo 7: <
 sum_diff_array:
 S	D
-181	190
--75	-66
+185	194
+-71	-62
 
 Angolo 8: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	193
+-71	-63
 
 Angolo 9: <
 sum_diff_array:
 S	D
-181	188
--75	-68
+186	195
+-70	-61
 
 Angolo 10: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	193
+-71	-63
 
 Angolo 11: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	194
+-71	-62
 
 Angolo 12: <
 sum_diff_array:
 S	D
-181	190
--75	-66
+186	194
+-70	-62
 
 Angolo 13: <
 sum_diff_array:
 S	D
-181	188
--75	-68
+184	194
+-72	-62
 
 Angolo 14: <
 sum_diff_array:
 S	D
-182	190
--74	-66
+185	192
+-71	-64
 
 Angolo 15: <
 sum_diff_array:
 S	D
-182	190
--74	-66
+185	193
+-71	-63
 
 Angolo 16: <
 sum_diff_array:
 S	D
-255	255
--1	-1
+185	194
+-71	-62
 
 Angolo 17: <
 sum_diff_array:
 S	D
-182	189
--74	-67
+184	193
+-72	-63
 
 Angolo 18: <
 sum_diff_array:
 S	D
-182	189
--74	-67
+185	194
+-71	-62
 
 Angolo 19: <
-sum_diff_array:
-S	D
-181	189
--75	-67
-
-Angolo 20: <
-sum_diff_array:
-S	D
-181	190
--75	-66
-
-Angolo 21: <
-sum_diff_array:
-S	D
-181	191
--75	-65
-
-Angolo 22: <
-sum_diff_array:
-S	D
-181	190
--75	-66
-
-Angolo 23: <
-sum_diff_array:
-S	D
-180	189
--76	-67
-
-Angolo 24: <
-sum_diff_array:
-S	D
-179	189
--77	-67
-
-Angolo 25: <
-sum_diff_array:
-S	D
-179	190
--77	-66
-
-Angolo 26: <
-sum_diff_array:
-S	D
-180	190
--76	-66
-
-Angolo 27: <
-sum_diff_array:
-S	D
-180	190
--76	-66
-
-Angolo 28: <
-sum_diff_array:
-S	D
-180	190
--76	-66
-
-Angolo 29: <
-sum_diff_array:
-S	D
-179	190
--77	-66
-
-Angolo 30: <
-sum_diff_array:
-S	D
-179	191
--77	-65
-
-Angolo 31: <
-sum_diff_array:
-S	D
-181	191
--75	-65
-
-Angolo 32: <
-sum_diff_array:
-S	D
-180	189
--76	-67
-
-Angolo 33: <
-sum_diff_array:
-S	D
-179	190
--77	-66
-
-Angolo 34: <
-sum_diff_array:
-S	D
-180	189
--76	-67
-
-Angolo 35: <
-sum_diff_array:
-S	D
-181	189
--75	-67
-
-Angolo 36: <
-sum_diff_array:
-S	D
-180	189
--76	-67
-
-Angolo 37: <
-sum_diff_array:
-S	D
-182	189
--74	-67
-
-Angolo 38: <
-sum_diff_array:
-S	D
-180	189
--76	-67
-
-Angolo 39: <
 sum_diff_array:
 S	D
 255	255
 -1	-1
 
+Angolo 20: <
+sum_diff_array:
+S	D
+186	193
+-70	-63
+
+Angolo 21: <
+sum_diff_array:
+S	D
+185	196
+-71	-60
+
+Angolo 22: <
+sum_diff_array:
+S	D
+185	193
+-71	-63
+
+Angolo 23: <
+sum_diff_array:
+S	D
+185	194
+-71	-62
+
+Angolo 24: <
+sum_diff_array:
+S	D
+185	192
+-71	-64
+
+Angolo 25: <
+sum_diff_array:
+S	D
+185	255
+-71	-1
+
+Angolo 26: <
+sum_diff_array:
+S	D
+185	193
+-71	-63
+
+Angolo 27: <
+sum_diff_array:
+S	D
+184	194
+-72	-62
+
+Angolo 28: <
+sum_diff_array:
+S	D
+186	195
+-70	-61
+
+Angolo 29: <
+sum_diff_array:
+S	D
+185	194
+-71	-62
+
+Angolo 30: <
+sum_diff_array:
+S	D
+186	194
+-70	-62
+
+Angolo 31: <
+sum_diff_array:
+S	D
+186	193
+-70	-63
+
+Angolo 32: <
+sum_diff_array:
+S	D
+186	195
+-70	-61
+
+Angolo 33: <
+sum_diff_array:
+S	D
+184	195
+-72	-61
+
+Angolo 34: <
+sum_diff_array:
+S	D
+185	194
+-71	-62
+
+Angolo 35: <
+sum_diff_array:
+S	D
+186	255
+-70	-1
+
+Angolo 36: <
+sum_diff_array:
+S	D
+185	194
+-71	-62
+
+Angolo 37: <
+sum_diff_array:
+S	D
+185	192
+-71	-64
+
+Angolo 38: <
+sum_diff_array:
+S	D
+186	196
+-70	-60
+
+Angolo 39: <
+sum_diff_array:
+S	D
+186	195
+-70	-61
+
 Angolo 40: <
 sum_diff_array:
 S	D
-183	189
--73	-67
+187	192
+-69	-64
 
