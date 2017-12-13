@@ -65,7 +65,11 @@ int log_file_txt(intVector * ids,intVector * sums,intVector * diffs,int index,in
 	for (j=0; j<cols; j++) {
 		fprintf(logFile,"%d ",gsl_vector_int_get(diffs,j));
 	}
+#ifdef MATLAB_COMPATIBILITY
+	fprintf(logFile,"\n");
+#else
 	fprintf(logFile,"(%lf,%lf)\n",location.x,location.y);
+#endif
 	fclose(logFile);
 	return EXIT_SUCCESS;
 }

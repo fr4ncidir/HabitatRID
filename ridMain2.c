@@ -25,7 +25,6 @@ gcc -Wall -I/usr/local/include ridMain2.c RIDLib.c serial.c ../sepa-C-kpi/sepa_p
 #include <ctype.h>
 #include <string.h>
 #include <glib.h>
-#include <sys/time.h>
 #include "serial.h"
 #include "RIDLib.h"
 
@@ -271,8 +270,7 @@ int readAllAngles(int nAngles,size_t id_array_size) {
 	uint8_t *sum_diff_array;
 	char error_message[50];
 	int i,j,result;
-	struct timeval t1, t2;
-	double elapsedTime;
+	GTimer *timer;
 #ifdef VERBOSE_CALCULATION
 	FILE * verbose;
 	verbose = fopen("./readAllAnglesLog.txt","a");
@@ -289,7 +287,7 @@ int readAllAngles(int nAngles,size_t id_array_size) {
 	}
 	
 	fprintf(stderr,"Angle iterations");
-	gettimeofday(&t1, NULL);
+	timer = g_timer_new();
 	for (i=0; i<nAngles; i++) {
 		fprintf(stderr,".");
 		// writes to serial "<\n"
@@ -321,13 +319,12 @@ int readAllAngles(int nAngles,size_t id_array_size) {
 			gsl_matrix_int_set(diffVectors,j,i,sum_diff_array[2*j+1]-CENTRE_RESCALE);
 		}
 	}
-	gettimeofday(&t2, NULL);
-	elapsedTime = (t2.tv_sec - t1.tv_sec) * 1000.0;
-	elapsedTime += (t2.tv_usec - t1.tv_usec) / 1000.0;
+	g_timer_stop(timer);
 #ifdef VERBOSE_CALCULATION
 	fclose(verbose);
 #endif
-	fprintf(stderr,"completed in %lf ms\n",elapsedTime);
+	fprintf(stderr,"completed in %lf ms\n",g_timer_elapsed(timer,NULL)*1000);
+	g_timer_destroy(timer);
 	free(sum_diff_array);
 	return EXIT_SUCCESS;
 }
