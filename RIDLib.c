@@ -165,26 +165,19 @@ void printLocation(FILE * output_stream,coord xy) {
 }
 
 long sepaLocationUpdate(const char * SEPA_address,coord location) {
-	char posUid[20];
-	char ridUid[20];
+	char posUid[15];
 	char *bounded_sparql;
 	long result=-1;
 	if ((SEPA_address!=NULL) && (strcmp(SEPA_address,""))) {
-		// TODO query da riscrivere
-		// active only if [-uSEPA_ADDRESS] is present
-		sprintf(ridUid,"hbt:rid%d",location.id); //TODO must be checked
-		sprintf(posUid,"hbt:pos%d",location.id); //TODO must be checked
-		
-		bounded_sparql = (char *) malloc((400+8*strlen(posUid)+strlen(ridUid)+20)*sizeof(char));
-		
-		sprintf(bounded_sparql,PREFIX_RDF PREFIX_HBT "DELETE {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateY ?oldY} INSERT {%s rdf:type hbt:ID. %s hbt:hasPosition %s. %s rdf:type hbt:Position. %s hbt:hasCoordinateX '%lf'. %s hbt:hasCoordinateY '%lf'} WHERE {OPTIONAL {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateY ?oldY}}", 
-			posUid,posUid,				//DELETE {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateY ?oldY} 
-			ridUid,ridUid,posUid, 			//INSERT {%s rdf:type hbt:ID. %s hbt:hasPosition %s.
-			posUid,posUid,location.x,		//        %s rdf:type hbt:Position. %s hbt:hasCoordinateX '%lf'.
-			posUid,location.y,			//		  %s hbt:hasCoordinateY '%lf'}
-			posUid,posUid);				//WHERE {OPTIONAL {%s hbt:hasCoordinateX ?oldX. %s hbt:hasCoordinateX ?oldY}}
-		result = kpProduce(bounded_sparql,SEPA_address,NULL);
-		free(bounded_sparql);
+		// TODO ancora non è una WebThing
+		sprintf(posUid,"Pos_%d",location.id);
+		bounded_sparql = (char *) malloc((strlen(PREFIX_RDF PREFIX_HBT SPARQL_FORMAT)+5*strlen(posUid)+40)*sizeof(char));
+		if (bounded_sparql==NULL) g_error("Malloc error while binding SPARQL");
+		else {
+			sprintf(bounded_sparql,PREFIX_RDF PREFIX_HBT SPARQL_FORMAT,posUid,posUid,posUid,location.x,posUid,location.y,posUid,posUid);
+			result = kpProduce(bounded_sparql,SEPA_address,NULL);
+			free(bounded_sparql);
+		}
 	}
 	return result;
 }

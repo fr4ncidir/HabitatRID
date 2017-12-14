@@ -27,10 +27,16 @@
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_vector_int.h>
 #include <gsl/gsl_matrix_int.h>
-#include "../sepa-C-kpi/sepa_producer.h"
+#include "../SEPA-C/sepa_producer.h"
 
 #define PREFIX_RDF		"PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 #define PREFIX_HBT		"PREFIX hbt:<http://www.unibo.it/Habitat#> "
+#define SPARQL_FORMAT	"DELETE {%s hbt:hasCoordinateX ?oldX." \
+						"%s hbt:hasCoordinateY ?oldY}" \
+						"INSERT {%s hbt:hasCoordinateX '%lf'." \
+						"%s hbt:hasCoordinateY '%lf'}" \
+						"WHERE {OPTIONAL{%s hbt:hasCoordinateX ?oldX." \
+						"%s hbt:hasCoordinateY ?oldY}}" 
 #define N1_low			N_low[0]
 #define N2_low			N_low[1]
 #define N3_low			N_low[2]
