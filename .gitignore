@@ -9,3 +9,6 @@ SerialLib.doxyfile
 *.o
 *.pyc
 ridReader
+output.txt
+readAllAnglesLog.txt
+verbose.txt
