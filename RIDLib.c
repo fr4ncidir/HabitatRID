@@ -39,6 +39,9 @@ int log_file_txt(intVector * ids,intVector * sums,intVector * diffs,int index,in
 	time_t sysclock = time(NULL);
 	TimeStruct * date = localtime(&sysclock);
 	FILE * logFile;
+#ifdef MATLAB_COMPATIBILITY
+	FILE * positions;
+#endif
 	int j;
 
 	if (!strcmp(logFileName,"")) {
@@ -67,6 +70,13 @@ int log_file_txt(intVector * ids,intVector * sums,intVector * diffs,int index,in
 	}
 #ifdef MATLAB_COMPATIBILITY
 	fprintf(logFile,"\n");
+	positions = fopen("/var/www/html/posRID.txt","w");
+	if (positions==NULL) {
+		g_error("Error while opening in write mode /var/www/html/posRID.txt");
+		return EXIT_FAILURE;
+	}
+	fprintf(positions,"%lf,%lf",location.x,location.y);
+	fclose(positions);
 #else
 	fprintf(logFile,"(%lf,%lf)\n",location.x,location.y);
 #endif
