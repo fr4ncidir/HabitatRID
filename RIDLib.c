@@ -75,7 +75,7 @@ int log_file_txt(intVector * ids,intVector * sums,intVector * diffs,int index,in
 		g_error("Error while opening in write mode /var/www/html/posRID.txt");
 		return EXIT_FAILURE;
 	}
-	fprintf(positions,"%lf,%lf",location.x,location.y);
+	fprintf(positions,"%lf %lf",location.x,location.y);
 	fclose(positions);
 #else
 	fprintf(logFile,"(%lf,%lf)\n",location.x,location.y);
