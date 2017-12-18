@@ -325,6 +325,7 @@ int readAllAngles(int nAngles,size_t id_array_size) {
 #endif
 	fprintf(stderr,"completed in %lf ms\n",g_timer_elapsed(timer,NULL)*1000);
 	g_timer_destroy(timer);
+	//send_packet(ridSerial.serial_fd,reset_packet,std_packet_size,"Detect packet send failure");
 	free(sum_diff_array);
 	return EXIT_SUCCESS;
 }
