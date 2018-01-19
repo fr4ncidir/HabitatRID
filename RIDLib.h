@@ -55,8 +55,8 @@
 #define SUM_CORRECTION				-100
 #define DIFF_CORRECTION				100
 #define SEPA_UPDATE_BOUNDED			500
-#define MATLAB_COMPATIBILITY
-#define VERBOSE_CALCULATION
+//#define MATLAB_COMPATIBILITY
+//#define VERBOSE_CALCULATION
 
 
 #define RESET_COMMAND				'+'
@@ -85,8 +85,8 @@ typedef struct coordinates {
 	double x,y;
 } 						coord;
 
-int log_file_txt(intVector * ids,intVector * sums,intVector * diffs,int index,int cols,coord location,char * logFileName);
-coord locateFromData(intVector * sum,intVector * diff,int nAngles);
+int log_file_txt(intVector * ids,intVector * diffs,intVector * sums,int index,int cols,coord location,char * logFileName);
+coord locateFromData(intVector * diff,intVector * sum,int nAngles);
 double radiusFind(int i_ref2,intVector * sum);
 double radiusFormula(double A,double B,double C);
 double thetaFind(int i_ref);

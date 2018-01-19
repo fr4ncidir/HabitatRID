@@ -120,7 +120,7 @@ int read_nbyte(int file_descriptor,size_t fixed_lenght,void * buffer);
 int read_nbyte_packet(int file_descriptor,size_t fixed_length,void * buffer,uint8_t start);
 
 /**
- * @brief Reads the serial byte by byte, until it reaches max dimention of the buffer, or it reads the specified
+ * @brief Reads the serial byte by byte, until it reaches max dimension of the buffer, or it reads the specified
  * terminator.
  * @param file_descriptor: is the identifier for the serial port
  * @param max_dim: is the maximum size of the storage buffer

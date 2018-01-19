@@ -31,11 +31,11 @@
 
 const uint8_t request_packet[STD_PACKET_STRING_DIM] = {REQUEST_COMMAND,SCHWARZENEGGER,'\0'};
 const uint8_t reset_packet[STD_PACKET_STRING_DIM] = {RESET_COMMAND,SCHWARZENEGGER,'\0'};
-const uint8_t detect_packet[STD_PACKET_STRING_DIM] = {DETECT_COMMAND,SCHWARZENEGGER,'\0'};
+const uint8_t detect_packet[STD_PACKET_STRING_DIM] = {'>','\n','\0'};
 const size_t std_packet_size = STD_PACKET_DIM*sizeof(uint8_t);
 RidParams parameters;
 
-int log_file_txt(intVector * ids,intVector * sums,intVector * diffs,int index,int cols,coord location,char * logFileName) {
+int log_file_txt(intVector * ids,intVector * diffs,intVector * sums,int index,int cols,coord location,char * logFileName) {
 	time_t sysclock = time(NULL);
 	TimeStruct * date = localtime(&sysclock);
 	FILE * logFile;
@@ -84,7 +84,7 @@ int log_file_txt(intVector * ids,intVector * sums,intVector * diffs,int index,in
 	return EXIT_SUCCESS;
 }
 
-coord locateFromData(intVector * sum,intVector * diff,int nAngles) {
+coord locateFromData(intVector * diff,intVector * sum,int nAngles) {
 	intVector * mpr;
 	coord location;
 	double theta,radius;
@@ -102,7 +102,7 @@ coord locateFromData(intVector * sum,intVector * diff,int nAngles) {
 
 	// esegue anche il reverse dell'indice
 	maxIndexMPR = nAngles-1-gsl_vector_int_max_index(mpr);
-	theta = thetaFind(maxIndexMPR)*M_PI/180;
+	theta = (thetaFind(maxIndexMPR)-parameters.dTheta0+parameters.dDegrees)*M_PI/180;
 	radius = radiusFind(maxIndexMPR,sum);
 	
 #ifdef VERBOSE_CALCULATION
@@ -155,8 +155,7 @@ double radiusFormula(double A,double B,double C) {
 }
 
 double thetaFind(int i_ref) {
-	double i_ref_deg = parameters.dDegrees/2-parameters.dDegrees*i_ref/(parameters.ANGLE_ITERATIONS-1);
-	return i_ref_deg-parameters.dTheta0+parameters.dDegrees;
+	return parameters.dDegrees/2-parameters.dDegrees*i_ref/(parameters.ANGLE_ITERATIONS-1);
 }
 
 int vector_subst(intVector * vector,int oldVal,int newVal) {

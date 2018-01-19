@@ -19,6 +19,7 @@
  * MA 02110-1301, USA.
  * 
 gcc -Wall -I/usr/local/include ridMain2.c RIDLib.c serial.c ../SEPA-C/sepa_producer.c ../SEPA-C/sepa_utilities.c ../SEPA-C/jsmn.c -o ridReader -lgsl -lgslcblas -lm -lcurl `pkg-config --cflags --libs glib-2.0`
+* G_MESSAGES_DEBUG=all
  */
 
 #include <stdlib.h>
@@ -27,6 +28,8 @@ gcc -Wall -I/usr/local/include ridMain2.c RIDLib.c serial.c ../SEPA-C/sepa_produ
 #include <glib.h>
 #include "serial.h"
 #include "RIDLib.h"
+
+#define ALLOC_ID_MAX 		22 // numero_di_id+2*valori_id+terminatore    			(nel caso peggiore di numero_di_id=10)
 
 volatile int continuousRead = FALSE;
 intVector *idVector;
@@ -44,6 +47,15 @@ extern RidParams parameters;
 int ridExecution(const char * usb_address,int iterations);
 int readAllAngles(int nAngles,size_t id_array_size);
 void printUsage(const char * error_message);
+uint8_t id_read_result[ALLOC_ID_MAX];
+
+void printUnsignedArray(uint8_t * vector,int dim) {
+	int i;
+	for (i=0; i<dim; i++) {
+		printf("%u ",vector[i]);
+	}
+	printf("\n");
+}
 
 void interruptHandler(int signalCode) {
 	signal(signalCode,SIG_IGN);
@@ -162,16 +174,16 @@ int ridExecution(const char * usb_address,int iterations) {
 	// serial opening end
 		
 	// writes to serial "+\n": rid reset
-	if (send_packet(ridSerial.serial_fd,reset_packet,std_packet_size,"Reset packet send failure") == EXIT_FAILURE) {
-		close(ridSerial.serial_fd);
-		return EXIT_FAILURE;
-	}
-	g_message("Reset packet sent");
-	sleep(1);
+	//if (send_packet(ridSerial.serial_fd,reset_packet,1,"Reset packet send failure") == EXIT_FAILURE) {
+		//close(ridSerial.serial_fd);
+		//return EXIT_FAILURE;
+	//}
+	//g_message("Reset packet sent");
+	//sleep(1);
 	// rid reset end
 		
 	// writes to serial "<\n": start transmission request
-	if (send_packet(ridSerial.serial_fd,request_packet,std_packet_size,"Request id packet send failure") == EXIT_FAILURE) {
+	if (send_packet(ridSerial.serial_fd,request_packet,1,"Request id packet send failure") == EXIT_FAILURE) {
 		close(ridSerial.serial_fd);
 		return EXIT_FAILURE;
 	}
@@ -179,48 +191,63 @@ int ridExecution(const char * usb_address,int iterations) {
 	// end transmission request
 		
 	// reads from serial "<\n" request confirm and check
-	result = read_until_terminator(ridSerial.serial_fd,std_packet_size,request_confirm,SCHWARZENEGGER);
+	result = read_until_terminator(ridSerial.serial_fd,2,request_confirm,SCHWARZENEGGER);
 	if (result == ERROR) g_critical("request confirm command read_until_terminator failure");
 	else {
+		printf("Received %d bytes: ",result);
+		printUnsignedArray(request_confirm,std_packet_size);
 		protocol_error = strcmp((char*) request_packet,(char*) request_confirm);
 		if (protocol_error) g_critical("Received unexpected %s instead of %s\n",(char*) request_confirm,(char*) request_packet);
 	}
 	if ((result==ERROR) || (protocol_error)) {
-		send_packet(ridSerial.serial_fd,reset_packet,std_packet_size,"Reset packet send failure");
+		send_packet(ridSerial.serial_fd,reset_packet,1,"Reset packet send failure");
 		close(ridSerial.serial_fd);
 		return EXIT_FAILURE;
 	}
 	g_message("Confirmation received");
 	// read request confirm end
 		
-	// reads from serial the number of ids
-	result = read_nbyte(ridSerial.serial_fd,sizeof(uint8_t),&nID);
-	if ((result==EXIT_FAILURE) || (nID==WRONG_NID)) {
-		g_critical("nID number read_nbyte failure: result=%d, nID=%d",result,nID);
-		close(ridSerial.serial_fd);
-		return EXIT_FAILURE;
-	}
-	g_message("Number of id received: %d",nID);
-	// read number of id end
-		
-	// reads from serial the ids
-	id_array_size = (2*nID+1)*sizeof(uint8_t);
-	id_array = (uint8_t*) malloc(id_array_size);
-	// id_array is checked !=NULL in read_until_terminator
-	result = read_until_terminator(ridSerial.serial_fd,id_array_size,id_array,SCHWARZENEGGER);
+	result = read_until_terminator(ridSerial.serial_fd,ALLOC_ID_MAX,id_read_result,SCHWARZENEGGER);
 	if (result == ERROR) {
 		g_critical("id list command read_until_terminator failure");
-		free(id_array);
 		close(ridSerial.serial_fd);
 		return EXIT_FAILURE;
 	}
+	printf("Received %d bytes: ",result);
+	printUnsignedArray(id_read_result,GSL_MIN_INT(result,ALLOC_ID_MAX));
+	
+	g_warning("Number of id received: %u  --- ARE YOU SURE IT'S OK?",id_read_result[0]);
+	
+	nID = id_read_result[0];
+	
+	//// reads from serial the number of ids
+	//result = read_nbyte(ridSerial.serial_fd,sizeof(uint8_t),&nID);
+	//if ((result==EXIT_FAILURE) || (nID==WRONG_NID)) {
+		//g_critical("nID number read_nbyte failure: result=%d, nID=%d",result,nID);
+		//close(ridSerial.serial_fd);
+		//return EXIT_FAILURE;
+	//}
+	g_message("Number of id received: %d",nID);
+	//// read number of id end
+		
+	// reads from serial the ids
+	id_array_size = result-1;
+	id_array = id_read_result+1;
+	// id_array is checked !=NULL in read_until_terminator
+	//result = read_until_terminator(ridSerial.serial_fd,id_array_size,id_array,SCHWARZENEGGER);
+	//if (result == ERROR) {
+		//g_critical("id list command read_until_terminator failure");
+		//free(id_array);
+		//close(ridSerial.serial_fd);
+		//return EXIT_FAILURE;
+	//}
 	idVector = gsl_vector_int_alloc(nID);
 	j=0;
 	for (i=0; i<2*nID; i=i+2) {
 		gsl_vector_int_set(idVector,j,id_array[i]);
 		j++;
 	}
-	free(id_array);
+	//free(id_array);
 	g_debug("Id list received");
 	// read ids end
 		
@@ -243,10 +270,10 @@ int ridExecution(const char * usb_address,int iterations) {
 		for (j=0; j<nID; j++) {
 			gsl_matrix_int_get_row(rowOfSums,sumVectors,j);
 			gsl_matrix_int_get_row(rowOfDiffs,diffVectors,j);
-			last_location = locateFromData(rowOfSums,rowOfDiffs,parameters.ANGLE_ITERATIONS);
+			last_location = locateFromData(rowOfDiffs,rowOfSums,parameters.ANGLE_ITERATIONS);
 			last_location.id = gsl_vector_int_get(idVector,j);
 			printLocation(stdout,last_location);
-			log_file_txt(idVector,rowOfSums,rowOfDiffs,j,parameters.ANGLE_ITERATIONS,last_location,logFileNameTXT);
+			log_file_txt(idVector,rowOfDiffs,rowOfSums,j,parameters.ANGLE_ITERATIONS,last_location,logFileNameTXT);
 			sepaLocationUpdate(parameters.http_sepa_address,last_location);
 		}
 		
@@ -254,7 +281,7 @@ int ridExecution(const char * usb_address,int iterations) {
 		usleep(1000*(parameters.sample_time));
 	} while ((continuousRead) || (iterations>0));
 	
-	send_packet(ridSerial.serial_fd,reset_packet,std_packet_size,"Detect packet send failure");
+	send_packet(ridSerial.serial_fd,reset_packet,1,"Detect packet send failure");
 	http_client_free();
 	gsl_vector_int_free(rowOfSums);
 	gsl_vector_int_free(rowOfDiffs);
@@ -269,8 +296,9 @@ int readAllAngles(int nAngles,size_t id_array_size) {
 	// one-complete-read core function
 	uint8_t *sum_diff_array;
 	char error_message[50];
-	int i,j,result;
-	GTimer *timer;
+	int i,j,k,result;
+	uint8_t request_confirm[10];
+	//GTimer *timer;
 #ifdef VERBOSE_CALCULATION
 	FILE * verbose;
 	verbose = fopen("./readAllAnglesLog.txt","a");
@@ -287,15 +315,17 @@ int readAllAngles(int nAngles,size_t id_array_size) {
 	}
 	
 	fprintf(stderr,"Angle iterations");
-	timer = g_timer_new();
-	for (i=0; i<nAngles; i++) {
+	//timer = g_timer_new();
+	for (i=0; i<40; i++) {
 		fprintf(stderr,".");
 		// writes to serial "<\n"
-		sprintf(error_message,"Sending request packet '%u' for the %d-th angle failure",request_packet[0],i+1);
-#ifdef VERBOSE_CALCULATION		
-		fprintf(verbose,"Angolo %d: %s",i+1,request_packet);
-#endif
-		if (send_packet(ridSerial.serial_fd,request_packet,std_packet_size,error_message) == EXIT_FAILURE) {
+		sprintf(error_message,"Sending request packet '%u' for the %d-th angle failure",request_packet[0],i+1);	
+		printf("Angolo %d: %s       ",i+1,request_packet);
+		//if (i==3) {
+			//if (send_packet(ridSerial.serial_fd,detect_packet,1,"Detect packet send failure")==EXIT_FAILURE) printf("EXIT_FAILURE\n");
+			//break;
+		//}
+		if (send_packet(ridSerial.serial_fd,request_packet,1,error_message) == EXIT_FAILURE) {
 			free(sum_diff_array);
 			return EXIT_FAILURE;
 		}
@@ -307,25 +337,38 @@ int readAllAngles(int nAngles,size_t id_array_size) {
 			free(sum_diff_array);
 			return EXIT_FAILURE;
 		}
+		else {
+			printf("Received %d bytes: ",result);
+			printUnsignedArray(sum_diff_array,id_array_size);
+		}
 
 		// puts data in vectors
-		for (j=0; j<nID; j++) {
+		for (j=0; j<nID; j++) { // QUI C'è IL CASINO
 #ifdef VERBOSE_CALCULATION
 			fprintf(verbose,"sum_diff_array:\nS\tD\n");
 			fprintf(verbose,"%u\t%u\n",sum_diff_array[2*j],sum_diff_array[2*j+1]);
 			fprintf(verbose,"%d\t%d\n\n",sum_diff_array[2*j]-CENTRE_RESCALE,sum_diff_array[2*j+1]-CENTRE_RESCALE);
 #endif
-			gsl_matrix_int_set(sumVectors,j,i,sum_diff_array[2*j]-CENTRE_RESCALE);
-			gsl_matrix_int_set(diffVectors,j,i,sum_diff_array[2*j+1]-CENTRE_RESCALE);
+			gsl_matrix_int_set(diffVectors,j,i,sum_diff_array[2*j]-CENTRE_RESCALE);
+			gsl_matrix_int_set(sumVectors,j,i,sum_diff_array[2*j+1]-CENTRE_RESCALE);
+			//printf("diff=(%d)%d --- sum=(%d)%d\n",sum_diff_array[2*j],sum_diff_array[2*j]-CENTRE_RESCALE,sum_diff_array[2*j+1],sum_diff_array[2*j+1]-CENTRE_RESCALE);
 		}
+		sleep(1);
 	}
-	g_timer_stop(timer);
+	//g_timer_stop(timer);
 #ifdef VERBOSE_CALCULATION
 	fclose(verbose);
 #endif
-	fprintf(stderr,"completed in %lf ms\n",g_timer_elapsed(timer,NULL)*1000);
-	g_timer_destroy(timer);
-	//send_packet(ridSerial.serial_fd,reset_packet,std_packet_size,"Detect packet send failure");
+	//fprintf(stderr,"completed in %lf ms\n",g_timer_elapsed(timer,NULL)*1000);
+	//g_timer_destroy(timer);
+	if (send_packet(ridSerial.serial_fd,detect_packet,1,"Detect packet send failure")==EXIT_FAILURE) printf("EXIT_FAILURE\n");
+	result = read_until_terminator(ridSerial.serial_fd,2,request_confirm,SCHWARZENEGGER);
+	printf("result = %d --- request_confirm=",result); printUnsignedArray(request_confirm,result);
+	//if (send_packet(ridSerial.serial_fd,detect_packet,std_packet_size,"Detect packet send failure")==EXIT_FAILURE) printf("EXIT_FAILURE\n");
+	//result = read_until_terminator(ridSerial.serial_fd,2,request_confirm,SCHWARZENEGGER);
+	//printf("result = %d --- request_confirm=%s\n",result,request_confirm);
+	//result = read_until_terminator(ridSerial.serial_fd,2,request_confirm,SCHWARZENEGGER);
+	//printf("result = %d --- request_confirm=%s\n",result,request_confirm);
 	free(sum_diff_array);
 	return EXIT_SUCCESS;
 }
