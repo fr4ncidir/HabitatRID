@@ -19,14 +19,10 @@
  * MA 02110-1301, USA.
  * 
  */
- 
-#include <stdlib.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <errno.h>
+
 #include "serial.h"
 
-int open_serial(const char name[],SerialOptions * options) {
+int open_serial(const char name[],SerialOptions *options) {
 	int file_descriptor;
 	char message[50];
 	struct termios opt;
@@ -98,7 +94,7 @@ int open_serial(const char name[],SerialOptions * options) {
 	}
 }
 
-int read_nbyte(int file_descriptor,size_t fixed_lenght,void * buffer) {
+int read_nbyte(int file_descriptor,size_t fixed_lenght,void *buffer) {
 	int bytes_read;
 	size_t toBeRead = fixed_lenght;
 	uint8_t *rebuffer = buffer;
@@ -119,7 +115,7 @@ int read_nbyte(int file_descriptor,size_t fixed_lenght,void * buffer) {
 	return EXIT_SUCCESS;
 }
 
-int read_nbyte_packet(int file_descriptor,size_t fixed_lenght,void * buffer,uint8_t startByte) {
+int read_nbyte_packet(int file_descriptor,size_t fixed_lenght,void *buffer,uint8_t startByte) {
 	int startIndex=0,i;
 	uint8_t *rebuffer;
 	uint8_t *buffer_copy = buffer;
@@ -129,7 +125,7 @@ int read_nbyte_packet(int file_descriptor,size_t fixed_lenght,void * buffer,uint
 		return EXIT_FAILURE;
 	}
 
-	rebuffer = (uint8_t *) malloc(fixed_lenght*sizeof(uint8_t));
+	rebuffer = (uint8_t*) malloc(fixed_lenght*sizeof(uint8_t));
 	if (rebuffer==NULL) {
 		fprintf(stderr,"read_nbyte_packet: malloc error\n");
 		return EXIT_FAILURE;
@@ -162,7 +158,7 @@ int read_nbyte_packet(int file_descriptor,size_t fixed_lenght,void * buffer,uint
 	return EXIT_SUCCESS;
 }
 
-int read_until_terminator(int file_descriptor,size_t max_dim,void * buffer,uint8_t terminator) {
+int read_until_terminator(int file_descriptor,size_t max_dim,void *buffer,uint8_t terminator) {
 	uint8_t *rebuffer = buffer;
 	uint8_t bytebuffer;
 	int i=0,bytes_read;
@@ -174,7 +170,7 @@ int read_until_terminator(int file_descriptor,size_t max_dim,void * buffer,uint8
 	
 	do {
 		bytes_read = read(file_descriptor,&bytebuffer,1);
-		if ((bytes_read == ERROR)) {
+		if (bytes_read == ERROR) {
 			perror("read_until_terminator: Unable to read from the serial port - ");
 			return ERROR;
 		}
@@ -186,7 +182,7 @@ int read_until_terminator(int file_descriptor,size_t max_dim,void * buffer,uint8
 	return i;
 }
 
-int write_serial(int file_descriptor,size_t lenght,void * buffer) {
+int write_serial(int file_descriptor,size_t lenght,void *buffer) {
 	int bytes_sent=0,result;
 
 	while (bytes_sent<lenght) {
@@ -208,4 +204,11 @@ int send_packet(const int serial_descriptor,const uint8_t packet[],const size_t 
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
+}
+
+void printUnsignedArray(uint8_t *vector,int dim) {
+	int i;
+	for (i=0; i<dim; i++) {
+		printf("%u ",vector[i]);
+	}
 }

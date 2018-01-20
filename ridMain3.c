@@ -26,42 +26,19 @@ gcc -Wall -I/usr/local/include ridMain3.c RIDLib.c serial.c ../SEPA-C/sepa_produ
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-#include <glib.h>
-#include "serial.h"
 #include "RIDLib.h"
 
-#define ALLOC_ID_MAX 		22 // numero_di_id+2*valori_id+terminatore    
-#define ONE_BYTE	1
-#define TWO_BYTES	2
-#define THREE_BYTES	3
-#define FOUR_BYTES	4
-#define SIX_BYTES	6
-
-SerialOptions ridSerial;
 volatile int continuousRead = 0;
 int id_array_size;
-intVector *idVector;
-intMatrix *sumVectors;
-intMatrix *diffVectors;
+
 extern RidParams parameters;
+extern SerialOptions ridSerial;
+extern intVector *idVector;
+extern intMatrix *sumVectors;
+extern intMatrix *diffVectors;
 
-int ridExecution(const char * usb_address,int iterations);
-void printUsage(const char * error_message);
-int send_reset();
-int send_request();
-int receive_request_confirm();
-int receive_id_info();
-int angle_iterations();
-int send_detect();
-int receive_end_scan();
-
-
-void printUnsignedArray(uint8_t * vector,int dim) {
-	int i;
-	for (i=0; i<dim; i++) {
-		printf("%u ",(uint8_t) vector[i]);
-	}
-}
+int ridExecution(const char *usb_address,int iterations);
+void printUsage();
 
 void interruptHandler(int signalCode) {
 	signal(signalCode,SIG_IGN);
@@ -70,13 +47,13 @@ void interruptHandler(int signalCode) {
 	signal(signalCode,SIG_DFL);
 }
 
-int main(int argc, char ** argv) {
+int main(int argc, char **argv) {
 	char *usbportAddress=NULL;
 	int cmdlineOpt,force_missingOption=0,my_optopt,i,iterationNumber=0,execution_result=0;
 	uint8_t execution_code = 0;
 	
 #ifdef VERBOSE_CALCULATION
-	FILE * verbose;
+	FILE *verbose;
 	verbose = fopen("./readAllAnglesLog.txt","w");
 	fclose(verbose);
 #endif
@@ -85,7 +62,7 @@ int main(int argc, char ** argv) {
 	
 	opterr = 0;
 	if ((argc==1) || ((argc==2) && (!strcmp(argv[1],"help")))) {
-		printUsage(NULL);
+		printUsage();
 		return EXIT_SUCCESS;
 	}
 	
@@ -106,7 +83,7 @@ int main(int argc, char ** argv) {
 					if (!isdigit(optarg[i])) {
 						g_critical("%s is not an integer: -n argument must be an integer.\n",optarg);
 						free(usbportAddress);
-						printUsage(NULL);
+						printUsage();
 						return EXIT_FAILURE;
 					}
 				}
@@ -135,7 +112,8 @@ int main(int argc, char ** argv) {
 					else g_critical("Unknown option character \\x%x.",my_optopt);
 				}
 				free(usbportAddress);
-				printUsage("Wrong syntax!\n");
+				g_critical("Wrong syntax!\n");
+				printUsage();
 				return EXIT_FAILURE;
 		}
 	}
@@ -146,10 +124,12 @@ int main(int argc, char ** argv) {
 			break;
 		case 0x06:
 			g_debug("Requested infinite iterations.\n");
+			continuousRead = 1;
 			break;
 		default:
-			printUsage("Wrong syntax!\n");
 			g_error("Error 2 %04x!\n",execution_code);
+			g_critical("Wrong syntax!\n");
+			printUsage();
 			return EXIT_FAILURE;
 	}
 	g_debug("USB port address: %s\n",usbportAddress);
@@ -166,9 +146,8 @@ int main(int argc, char ** argv) {
 	return execution_result;
 }
 
-int ridExecution(const char * usb_address,int iterations) {
+int ridExecution(const char *usb_address,int iterations) {
 	int result,read_bytes,nID,j;
-	int continuousRead = !iterations;
 	uint8_t id_info_result[ALLOC_ID_MAX];
 	uint8_t *id_array;
 	intVector *rowOfSums,*rowOfDiffs;
@@ -222,7 +201,7 @@ int ridExecution(const char * usb_address,int iterations) {
 			g_critical("receive_id failure");
 			break;
 		}
-		nID = (int) id_info_result[0];
+		nID = (int) id_info_result[0]-48;
 		g_message("Received %d id-info",nID);
 		
 		if (nID>0) {
@@ -288,142 +267,8 @@ int ridExecution(const char * usb_address,int iterations) {
 	return EXIT_SUCCESS;
 }
 
-void printUsage(const char * error_message) {
-	if (error_message!=NULL) g_critical("%s",error_message);
-	execlp("cat","cat","./manpage.txt",NULL);
+void printUsage() {
+	execlp("less","less","./manpage.txt",NULL);
 	perror("Couldn't print manpage - ");
 	exit(EXIT_FAILURE);
-}
-
-int send_reset() {
-	char dato = '+';
-	return write_serial(ridSerial.serial_fd,ONE_BYTE,(void*) &dato);
-}
-
-int send_request() {
-	char dato = '<';
-	return write_serial(ridSerial.serial_fd,ONE_BYTE,(void*) &dato);
-}
-
-int receive_request_confirm() {
-	uint8_t response[TWO_BYTES];
-	int result;
-	result = read_nbyte(ridSerial.serial_fd,TWO_BYTES,(void*) response);
-	if (result!=EXIT_FAILURE) {
-		printUnsignedArray(response,TWO_BYTES);
-		printf("\n");
-	}
-	if ((response[0]!='<') || (response[1]!='\n')) {
-		g_critical("Received unexpected %c%c instead of <\\n\n",(char) response[0],(char) response[1]);
-		result = EXIT_FAILURE;
-	}
-	return result;
-}
-
-int receive_id_info(uint8_t *id_info_result,int *read_bytes){
-	int result;
-	result = read_until_terminator(ridSerial.serial_fd,ALLOC_ID_MAX,(void*) id_info_result,'\n');
-	if (result!=ERROR) {
-		*read_bytes = 4;
-		result = EXIT_SUCCESS;
-#ifdef VERBOSE_CALCULATION
-		printUnsignedArray(id_info_result,*read_bytes);
-		printf("\n");
-#endif
-	}
-	else result = EXIT_FAILURE;
-	return result;
-}
-
-int angle_iterations(int nID,int id_array_size,uint8_t *id_array) {
-	int i,j,result;
-	uint8_t *response;
-	GTimer *timer;
-	int response_dim = 2*nID+1;
-
-#ifdef VERBOSE_CALCULATION
-	FILE * verbose;
-	verbose = fopen("./readAllAnglesLog.txt","a");
-	if (verbose==NULL) {
-		g_error("Verbose file open failure");
-		return EXIT_FAILURE;
-	}
-#endif
-	idVector = gsl_vector_int_alloc(nID);
-	j=0;
-	for (i=0; i<2*nID; i=i+2) {
-		g_message("ID%d: %d",j,id_array[i]);
-		gsl_vector_int_set(idVector,j,id_array[i]);
-		j++;
-	}
-	
-	sumVectors = gsl_matrix_int_alloc(nID,parameters.ANGLE_ITERATIONS);
-	diffVectors = gsl_matrix_int_alloc(nID,parameters.ANGLE_ITERATIONS);
-	
-	response = (uint8_t *) malloc(response_dim*sizeof(uint8_t));
-	if (response==NULL) {
-		g_critical("Malloc error in angle_iterations");
-		return EXIT_FAILURE;
-	}
-	
-	g_debug("Starting Angle iterations");
-	timer = g_timer_new();
-	
-	for (i=0; i<parameters.ANGLE_ITERATIONS; i++) {
-		fprintf(stderr,".");
-		result = send_request();
-		if (result==EXIT_FAILURE) {
-			g_critical("send_request failure");
-			free(response);
-			return EXIT_FAILURE;
-		}
-		
-		result = read_nbyte(ridSerial.serial_fd,response_dim,(void*) response);
-		if (result == EXIT_FAILURE) {
-			g_critical("Reading sum-diff vector for %d-th angle failure",i+1);
-			free(response);
-			return EXIT_FAILURE;
-		}
-#ifdef VERBOSE_CALCULATION
-		if (result!=EXIT_FAILURE) {
-			printUnsignedArray(response,response_dim);
-			printf("\n");
-		}
-#endif
-		for (j=0; j<nID; j++) {
-#ifdef VERBOSE_CALCULATION
-			fprintf(verbose,"sum_diff_array:\nS\tD\n");
-			fprintf(verbose,"%u\t%u\n",response[2*j],response[2*j+1]);
-			fprintf(verbose,"%d\t%d\n\n",response[2*j]-CENTRE_RESCALE,response[2*j+1]-CENTRE_RESCALE);
-#endif
-			gsl_matrix_int_set(diffVectors,j,i,response[2*j]-CENTRE_RESCALE);
-			gsl_matrix_int_set(sumVectors,j,i,response[2*j+1]-CENTRE_RESCALE);
-		}
-	}
-	g_timer_stop(timer);
-	fprintf(stderr,"completed in %lf ms\n",g_timer_elapsed(timer,NULL)*1000);
-	g_timer_destroy(timer);
-#ifdef VERBOSE_CALCULATION
-	fclose(verbose);
-#endif
-	free(response);
-	return EXIT_SUCCESS;
-}
-
-int send_detect() {
-	char dato = '>';
-	return write_serial(ridSerial.serial_fd,ONE_BYTE,(void*) &dato);
-}
-
-int receive_end_scan() {
-	int result;
-	uint8_t response[SIX_BYTES];
-	result = read_nbyte(ridSerial.serial_fd,SIX_BYTES,(void*) response);
-#ifdef VERBOSE_CALCULATION
-	if (result!=EXIT_FAILURE) {
-		printUnsignedArray(response,SIX_BYTES);
-		printf("\n");
-	}
-#endif
-	return result;
 }

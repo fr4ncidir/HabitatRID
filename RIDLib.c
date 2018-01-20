@@ -26,14 +26,11 @@
 #include <time.h>
 #include "RIDLib.h"
 
-#define G_LOG_DOMAIN    "HabitatRID"
-#include <glib.h>
-
-const uint8_t request_packet[STD_PACKET_STRING_DIM] = {REQUEST_COMMAND,SCHWARZENEGGER,'\0'};
-const uint8_t reset_packet[STD_PACKET_STRING_DIM] = {RESET_COMMAND,SCHWARZENEGGER,'\0'};
-const uint8_t detect_packet[STD_PACKET_STRING_DIM] = {'>','\n','\0'};
-const size_t std_packet_size = STD_PACKET_DIM*sizeof(uint8_t);
 RidParams parameters;
+SerialOptions ridSerial;
+intVector *idVector;
+intMatrix *sumVectors;
+intMatrix *diffVectors;
 
 int log_file_txt(intVector * ids,intVector * diffs,intVector * sums,int index,int cols,coord location,char * logFileName) {
 	time_t sysclock = time(NULL);
@@ -321,4 +318,139 @@ int parametrize(const char * fParam) {
 	if (!strcmp(parameters.http_sepa_address,"")) g_warning("\nDetected empty SEPA address: will skip SEPA interaction!\n");
 	else g_debug("\nSEPA address: %s\n",parameters.http_sepa_address);
 	return EXIT_SUCCESS;
+}
+
+int send_reset() {
+	char dato = '+';
+	return write_serial(ridSerial.serial_fd,ONE_BYTE,(void*) &dato);
+}
+
+int send_request() {
+	char dato = '<';
+	return write_serial(ridSerial.serial_fd,ONE_BYTE,(void*) &dato);
+}
+
+int receive_request_confirm() {
+	uint8_t response[TWO_BYTES];
+	int result;
+	result = read_nbyte(ridSerial.serial_fd,TWO_BYTES,(void*) response);
+	if (result!=EXIT_FAILURE) {
+//#ifdef VERBOSE_CALCULATION
+		printUnsignedArray(response,TWO_BYTES);
+		printf("\n");
+//#endif
+		if ((response[0]!='<') || (response[1]!='\n')) {
+			g_critical("Received unexpected %c%c instead of <\\n\n",(char) response[0],(char) response[1]);
+			result = EXIT_FAILURE;
+		}
+	}
+	return result;
+}
+
+int receive_id_info(uint8_t *id_info_result,int *read_bytes){
+	int result;
+	result = read_until_terminator(ridSerial.serial_fd,ALLOC_ID_MAX,(void*) id_info_result,'\n');
+	if (result!=ERROR) {
+		*read_bytes = result;
+		result = EXIT_SUCCESS;
+#ifdef VERBOSE_CALCULATION
+		printUnsignedArray(id_info_result,*read_bytes);
+		printf("\n");
+#endif
+	}
+	else result = EXIT_FAILURE;
+	return result;
+}
+
+int angle_iterations(int nID,int id_array_size,uint8_t *id_array) {
+	int i,j,result;
+	uint8_t *response;
+	GTimer *timer;
+	int response_dim = 2*nID+1;
+
+#ifdef VERBOSE_CALCULATION
+	FILE * verbose;
+	verbose = fopen("./readAllAnglesLog.txt","a");
+	if (verbose==NULL) {
+		g_error("Verbose file open failure");
+		return EXIT_FAILURE;
+	}
+#endif
+	idVector = gsl_vector_int_alloc(nID);
+	j=0;
+	for (i=0; i<2*nID; i=i+2) {
+		g_message("ID%d: %d",j,id_array[i]);
+		gsl_vector_int_set(idVector,j,id_array[i]);
+		j++;
+	}
+	
+	sumVectors = gsl_matrix_int_alloc(nID,parameters.ANGLE_ITERATIONS);
+	diffVectors = gsl_matrix_int_alloc(nID,parameters.ANGLE_ITERATIONS);
+	
+	response = (uint8_t *) malloc(response_dim*sizeof(uint8_t));
+	if (response==NULL) {
+		g_critical("Malloc error in angle_iterations");
+		return EXIT_FAILURE;
+	}
+	
+	g_debug("Starting Angle iterations");
+	timer = g_timer_new();
+	
+	for (i=0; i<parameters.ANGLE_ITERATIONS; i++) {
+		fprintf(stderr,".");
+		result = send_request();
+		if (result==EXIT_FAILURE) {
+			g_critical("send_request failure");
+			free(response);
+			return EXIT_FAILURE;
+		}
+		
+		result = read_nbyte(ridSerial.serial_fd,response_dim,(void*) response);
+		if (result == EXIT_FAILURE) {
+			g_critical("Reading sum-diff vector for %d-th angle failure",i+1);
+			free(response);
+			return EXIT_FAILURE;
+		}
+#ifdef VERBOSE_CALCULATION
+		else {
+			printUnsignedArray(response,response_dim);
+			printf("\n");
+		}
+#endif
+		for (j=0; j<nID; j++) {
+#ifdef VERBOSE_CALCULATION
+			fprintf(verbose,"sum_diff_array:\nS\tD\n");
+			fprintf(verbose,"%u\t%u\n",response[2*j],response[2*j+1]);
+			fprintf(verbose,"%d\t%d\n\n",response[2*j]-CENTRE_RESCALE,response[2*j+1]-CENTRE_RESCALE);
+#endif
+			gsl_matrix_int_set(diffVectors,j,i,response[2*j]-CENTRE_RESCALE);
+			gsl_matrix_int_set(sumVectors,j,i,response[2*j+1]-CENTRE_RESCALE);
+		}
+	}
+	g_timer_stop(timer);
+	fprintf(stderr,"completed in %lf ms\n",g_timer_elapsed(timer,NULL)*1000);
+	g_timer_destroy(timer);
+#ifdef VERBOSE_CALCULATION
+	fclose(verbose);
+#endif
+	free(response);
+	return EXIT_SUCCESS;
+}
+
+int send_detect() {
+	char dato = '>';
+	return write_serial(ridSerial.serial_fd,ONE_BYTE,(void*) &dato);
+}
+
+int receive_end_scan() {
+	int result;
+	uint8_t response[SIX_BYTES];
+	result = read_nbyte(ridSerial.serial_fd,SIX_BYTES,(void*) response);
+#ifdef VERBOSE_CALCULATION
+	if (result!=EXIT_FAILURE) {
+		printUnsignedArray(response,SIX_BYTES);
+		printf("\n");
+	}
+#endif
+	return result;
 }

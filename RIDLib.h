@@ -27,7 +27,11 @@
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_vector_int.h>
 #include <gsl/gsl_matrix_int.h>
+#include "serial.h"
 #include "../SEPA-C/sepa_producer.h"
+
+#define G_LOG_DOMAIN    "HabitatRID"
+#include <glib.h>
 
 #define PREFIX_RDF		"PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 #define PREFIX_HBT		"PREFIX hbt:<http://www.unibo.it/Habitat#> "
@@ -58,14 +62,10 @@
 //#define MATLAB_COMPATIBILITY
 //#define VERBOSE_CALCULATION
 
-
-#define RESET_COMMAND				'+'
-#define REQUEST_COMMAND				'<'
-#define DETECT_COMMAND				'>'
-#define SCHWARZENEGGER				'\n' // line feed packet terminator
-#define STD_PACKET_DIM				2
-#define STD_PACKET_STRING_DIM			3
-#define WRONG_NID				255
+#define ALLOC_ID_MAX 				22 // numero_di_id+2*valori_id+terminatore    
+#define ONE_BYTE					1
+#define TWO_BYTES					2
+#define SIX_BYTES					6
 #define CENTRE_RESCALE				256
 
 typedef struct tm 				TimeStruct;
@@ -94,5 +94,12 @@ int vector_subst(intVector * vector,int oldVal,int newVal);
 void printLocation(FILE * output_stream,coord xy);
 long sepaLocationUpdate(const char * SEPA_address,coord location);
 int parametrize(const char * fParam);
+int send_reset();
+int send_request();
+int receive_request_confirm();
+int receive_id_info();
+int angle_iterations();
+int send_detect();
+int receive_end_scan();
 
 #endif /* RIDLIB_H_ */

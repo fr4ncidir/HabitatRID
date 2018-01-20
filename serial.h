@@ -33,7 +33,11 @@
 #ifndef SERIAL_H_
 #define SERIAL_H_
 
+#include <stdlib.h>
+#include <stdio.h>
 #include <unistd.h>
+#include <errno.h>
+#include <fcntl.h>
 #include <termios.h>
 #include <inttypes.h>
 
@@ -96,7 +100,7 @@ typedef struct serial_options {
  * @param options: pointer to a SerialOptions setup for the serial port; the file descriptor will be set in the same struct;
  * @return ERROR or EXIT_SUCCESS
  */
-int open_serial(const char name[],SerialOptions * options);
+int open_serial(const char name[],SerialOptions *options);
 
 /**
  * @brief Reads exactly a certain number of bytes from the serial port
@@ -105,7 +109,7 @@ int open_serial(const char name[],SerialOptions * options);
  * @param buffer: is the place to store the bytes read
  * @return EXIT_FAILURE or EXIT_SUCCESS
  */
-int read_nbyte(int file_descriptor,size_t fixed_lenght,void * buffer);
+int read_nbyte(int file_descriptor,size_t fixed_lenght,void *buffer);
 
 /**
  * @brief Reads a packet from serial port. The packet is identified with a single starting byte.
@@ -117,7 +121,7 @@ int read_nbyte(int file_descriptor,size_t fixed_lenght,void * buffer);
  * @param start: is the starting byte of the packet
  * @return EXIT_FAILURE, EXIT_SUCCESS or NO_PACKET
  */
-int read_nbyte_packet(int file_descriptor,size_t fixed_length,void * buffer,uint8_t start);
+int read_nbyte_packet(int file_descriptor,size_t fixed_length,void *buffer,uint8_t start);
 
 /**
  * @brief Reads the serial byte by byte, until it reaches max dimension of the buffer, or it reads the specified
@@ -128,7 +132,7 @@ int read_nbyte_packet(int file_descriptor,size_t fixed_length,void * buffer,uint
  * @param terminator: usually called Schwarzenegger, it's the stop-read byte
  * @return ERROR or the number of bytes read, terminator included
  */
-int read_until_terminator(int file_descriptor,size_t max_dim,void * buffer,uint8_t terminator);
+int read_until_terminator(int file_descriptor,size_t max_dim,void *buffer,uint8_t terminator);
 
 /**
  * @brief Writes to a serial port previously opened a precise number of bytes.
@@ -137,7 +141,7 @@ int read_until_terminator(int file_descriptor,size_t max_dim,void * buffer,uint8
  * @param buffer: is a pointer to the item to be sent out
  * @return EXIT_FAILURE or EXIT_SUCCESS
  */
-int write_serial(int file_descriptor,size_t length,void * buffer);
+int write_serial(int file_descriptor,size_t length,void *buffer);
 
 /**
  * @brief Sends an array of characters to a serial port. If it fails, it prints an error message
@@ -148,5 +152,12 @@ int write_serial(int file_descriptor,size_t length,void * buffer);
  * @return EXIT_SUCCESS or EXIT_FAILURE
  */
 int send_packet(const int serial_descriptor,const uint8_t packet[],const size_t dim,const char error_msg[]);
+
+/**
+ * @brief A debugging function useful as printf for uint8_t arrays
+ * @param vector: the uint8_t array
+ * @param dim: the dimension of the array
+ */
+void printUnsignedArray(uint8_t *vector,int dim);
 
 #endif /* SERIAL_H_ */
