@@ -204,7 +204,7 @@ int ridExecution(const char *usb_address,int iterations) {
 			g_critical("receive_id failure");
 			break;
 		}
-		nID = (int) id_info_result[0]-48;
+		nID = (int) id_info_result[0];
 		g_message("Received %d id-info",nID);
 		
 		if (nID>0) {
