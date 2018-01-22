@@ -170,13 +170,21 @@ int ridExecution(const char *usb_address,int iterations) {
 		return EXIT_FAILURE;
 	}
 	g_debug("Reset packet sent");
+	close(ridSerial.serial_fd);
 	sleep(1);
 	
 	rowOfSums = gsl_vector_int_alloc(parameters.ANGLE_ITERATIONS);
 	rowOfDiffs = gsl_vector_int_alloc(parameters.ANGLE_ITERATIONS);
 	
 	do {
-        printf("ContinuousRead = %d -- iterations=%d\n",continuousRead,iterations);
+		
+		
+		// serial opening
+		if (open_serial(usb_address,&ridSerial) == ERROR) return EXIT_FAILURE;
+		// serial opening end
+		
+		sleep(1);
+		
 		result = send_request();
 		if (result==EXIT_FAILURE) {
 			g_critical("send_request failure");
@@ -186,15 +194,14 @@ int ridExecution(const char *usb_address,int iterations) {
 		
 		result = receive_request_confirm();
 		if (result==EXIT_FAILURE) {
-			g_critical("receive_request failure");
 			sleep(1);
+			g_critical("receive_request failure");
 			result = send_reset();
 			if (result==EXIT_FAILURE) {
 				g_critical("send_reset failure");
 				return EXIT_FAILURE;
 			}
 			g_debug("Reset packet sent");
-			sleep(1);
 			continue;
 		}
 		g_debug("Confirmation packet received");
@@ -256,9 +263,7 @@ int ridExecution(const char *usb_address,int iterations) {
 				return EXIT_FAILURE;
 			}
 			g_debug("Reset packet sent");
-			sleep(1);
 		}
-		printf("ContinuousRead = %d -- iterations=%d\n",continuousRead,iterations);
 	} while ((continuousRead) || (iterations>0));
 	g_message("No more iterations");
 	

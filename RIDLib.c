@@ -397,6 +397,7 @@ int angle_iterations(int nID,int id_array_size,uint8_t *id_array) {
 	timer = g_timer_new();
 	
 	for (i=0; i<parameters.ANGLE_ITERATIONS; i++) {
+		//printf("ANGLE_ITERATIONS: %d\n",parameters.ANGLE_ITERATIONS);
 		fprintf(stderr,".");
 		result = send_request();
 		if (result==EXIT_FAILURE) {
@@ -446,11 +447,12 @@ int receive_end_scan() {
 	int result;
 	uint8_t response[SIX_BYTES];
 	result = read_nbyte(ridSerial.serial_fd,SIX_BYTES,(void*) response);
-#ifdef VERBOSE_CALCULATION
+//#ifdef VERBOSE_CALCULATION
+	printf("END_SCAN PACKET: ");
 	if (result!=EXIT_FAILURE) {
 		printUnsignedArray(response,SIX_BYTES);
 		printf("\n");
 	}
-#endif
+//#endif
 	return result;
 }

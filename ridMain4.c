@@ -35,13 +35,6 @@ int ridExecution(const char * usb_address,int iterations);
 int readAllAngles(int nAngles,size_t id_array_size);
 void printUsage(const char * error_message);
 
-void printUnsignedArray(char * vector,int dim) {
-	int i;
-	for (i=0; i<dim; i++) {
-		printf("%u ",(uint8_t) vector[i]);
-	}
-}
-
 int main(int argc, char ** argv) {
 	int execution_result=0;
 	
