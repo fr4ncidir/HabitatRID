@@ -120,8 +120,10 @@ int main(int argc, char **argv) {
 	
 	switch (execution_code) {
 		case 0x07:
-			g_debug("Requested %d iterations.\n",iterationNumber);
-			break;
+			if (iterationNumber) {
+                g_debug("Requested %d iterations.\n",iterationNumber);
+                break;
+            }
 		case 0x06:
 			g_debug("Requested infinite iterations.\n");
 			continuousRead = 1;
@@ -174,6 +176,7 @@ int ridExecution(const char *usb_address,int iterations) {
 	rowOfDiffs = gsl_vector_int_alloc(parameters.ANGLE_ITERATIONS);
 	
 	do {
+        printf("ContinuousRead = %d -- iterations=%d\n",continuousRead,iterations);
 		result = send_request();
 		if (result==EXIT_FAILURE) {
 			g_critical("send_request failure");
@@ -255,6 +258,7 @@ int ridExecution(const char *usb_address,int iterations) {
 			g_debug("Reset packet sent");
 			sleep(1);
 		}
+		printf("ContinuousRead = %d -- iterations=%d\n",continuousRead,iterations);
 	} while ((continuousRead) || (iterations>0));
 	g_message("No more iterations");
 	
