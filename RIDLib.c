@@ -434,6 +434,7 @@ int angle_iterations(int nID,int id_array_size,uint8_t *id_array) {
 #ifdef VERBOSE_CALCULATION
 	fclose(verbose);
 #endif
+	
 	free(response);
 	return EXIT_SUCCESS;
 }

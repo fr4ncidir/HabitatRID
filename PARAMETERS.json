@@ -3,9 +3,9 @@
 	"N1_low":2,
 	"N2_low":2,
 	"N3_low":2,
-	"Pr01_low":-63.0,
-	"Pr02_low":-61.0,
-	"Pr03_low":-63.0,
+	"Pr01_low":-45.0,
+	"Pr02_low":-45.0,
+	"Pr03_low":-45.0,
 	"N1_high":3 , 
 	"N2_high":3,
 "N3_high":3,
@@ -18,5 +18,5 @@
 	"Bottom_Left_Corner_Distance":6.05,
 "sepa_ip":"",
 	"ID_rid":1,
-	"loc_time":0
+	"loc_time":2000
 }

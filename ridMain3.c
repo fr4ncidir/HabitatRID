@@ -26,6 +26,7 @@ gcc -Wall -I/usr/local/include ridMain3.c RIDLib.c serial.c ../SEPA-C/sepa_produ
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <sys/ioctl.h>
 #include "RIDLib.h"
 
 volatile int continuousRead = 0;
@@ -149,7 +150,7 @@ int main(int argc, char **argv) {
 }
 
 int ridExecution(const char *usb_address,int iterations) {
-	int result,read_bytes,nID,j;
+	int result,read_bytes,nID,j,iter_done=0;
 	uint8_t id_info_result[ALLOC_ID_MAX];
 	uint8_t *id_array;
 	intVector *rowOfSums,*rowOfDiffs;
@@ -163,6 +164,9 @@ int ridExecution(const char *usb_address,int iterations) {
 	ridSerial.stopbits = ONE_STOP;
 	if (open_serial(usb_address,&ridSerial) == ERROR) return EXIT_FAILURE;
 	// serial opening end
+	
+	sleep(1);
+	ioctl(ridSerial.serial_fd, TCFLSH, 2); // flush both
 	
 	result = send_reset();
 	if (result==EXIT_FAILURE) {
@@ -184,6 +188,7 @@ int ridExecution(const char *usb_address,int iterations) {
 		// serial opening end
 		
 		sleep(1);
+		ioctl(ridSerial.serial_fd, TCFLSH, 2); // flush both
 		
 		result = send_request();
 		if (result==EXIT_FAILURE) {
@@ -194,7 +199,7 @@ int ridExecution(const char *usb_address,int iterations) {
 		
 		result = receive_request_confirm();
 		if (result==EXIT_FAILURE) {
-			sleep(1);
+			sleep(2);
 			g_critical("receive_request failure");
 			result = send_reset();
 			if (result==EXIT_FAILURE) {
@@ -231,6 +236,13 @@ int ridExecution(const char *usb_address,int iterations) {
 			}
 			g_debug("Detect packet sent");
 			
+				//do {
+					//result = read_until_terminator(ridSerial.serial_fd,100,(void*) prova,'\n');
+					//printf("RESULT = "); 
+					//printUnsignedArray(prova,result);
+					//printf("\n");
+				//} while (strstr((char*) prova,")")==NULL);
+			
 			result = receive_end_scan();
 			if (result==EXIT_FAILURE) {
 				g_critical("receive_end_scan failure");
@@ -256,16 +268,17 @@ int ridExecution(const char *usb_address,int iterations) {
 				g_message("%d iterations remaining",iterations);
 			}
 		}
-		else {
+		//else {
 			result = send_reset();
 			if (result==EXIT_FAILURE) {
 				g_critical("send_reset failure");
 				return EXIT_FAILURE;
 			}
 			g_debug("Reset packet sent");
-		}
+		//}
+		iter_done++;
 	} while ((continuousRead) || (iterations>0));
-	g_message("No more iterations");
+	g_message("Done %d iterations",iter_done);
 	
 	gsl_vector_int_free(idVector);
 	gsl_vector_int_free(rowOfSums);

@@ -18,6 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  * 
+gcc -Wall -I/usr/local/include ridMain4.c RIDLib.c serial.c ../SEPA-C/sepa_producer.c ../SEPA-C/sepa_utilities.c ../SEPA-C/jsmn.c -o ridReader -lgsl -lgslcblas -lm -lcurl `pkg-config --cflags --libs glib-2.0`
 * G_MESSAGES_DEBUG=all
  */
 
@@ -25,8 +26,8 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-#include <glib.h>
 #include "serial.h"
+#include "RIDLib.h"
 
 
 SerialOptions ridSerial;
@@ -66,23 +67,23 @@ int ridExecution(const char * usb_address,int iterations) {
 	dato = '<';
 	write_serial(ridSerial.serial_fd,1,(void*) &dato);
 	read_nbyte(ridSerial.serial_fd,2,(void*) response);
-	printUnsignedArray(response,2);
+	printUnsignedArray((uint8_t*)response,2);
 	printf("\n");
 	read_nbyte(ridSerial.serial_fd,4,(void*) response);
-	printUnsignedArray(response,4);
+	printUnsignedArray((uint8_t*)response,4);
 	printf("\n");
 	
 	for (i=0; i<40; i++) {
 		write_serial(ridSerial.serial_fd,1,(void*) &dato);
 		read_nbyte(ridSerial.serial_fd,3,(void*) response);
-		printUnsignedArray(response,3);
+		printUnsignedArray((uint8_t*)response,3);
 		printf("\n");
 	}
 	
 	dato = '>';
 	write_serial(ridSerial.serial_fd,1,(void*) &dato);
 	read_nbyte(ridSerial.serial_fd,3,(void*) response);
-	printUnsignedArray(response,3);
+	printUnsignedArray((uint8_t*)response,3);
 	printf("\n");
 	close(ridSerial.serial_fd);
 	return EXIT_SUCCESS;

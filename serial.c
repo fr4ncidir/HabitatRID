@@ -26,6 +26,8 @@ int open_serial(const char name[],SerialOptions *options) {
 	int file_descriptor;
 	char message[50];
 	struct termios opt;
+	
+	memset (&opt, 0, sizeof(struct termios));
 
 	if (options==NULL) {
 		fprintf(stderr,"open_serial: options parameter is NULL\n");
@@ -84,6 +86,13 @@ int open_serial(const char name[],SerialOptions *options) {
 		else opt.c_cflag |= CSTOPB;
 
 		opt.c_cflag |= (CLOCAL | CREAD | options->dataBits);
+		opt.c_cflag &= ~CRTSCTS;
+		
+		opt.c_iflag &= ~IGNBRK;         // disable break processing
+        opt.c_lflag = 0;                // no signaling chars, no echo,
+                                        // no canonical processing
+        opt.c_oflag = 0;                // no remapping, no delays
+        opt.c_cc[VMIN]  = 1;            // read blocks
 
 		/*
 		 * Update options

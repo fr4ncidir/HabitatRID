@@ -59,7 +59,7 @@
 #define SUM_CORRECTION				-100
 #define DIFF_CORRECTION				100
 #define SEPA_UPDATE_BOUNDED			500
-//#define MATLAB_COMPATIBILITY
+#define MATLAB_COMPATIBILITY
 //#define VERBOSE_CALCULATION
 
 #define ALLOC_ID_MAX 				22 // numero_di_id+2*valori_id+terminatore    
