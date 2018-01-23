@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  * 
-gcc -Wall -I/usr/local/include ridMain3.c RIDLib.c serial.c ../SEPA-C/sepa_producer.c ../SEPA-C/sepa_utilities.c ../SEPA-C/jsmn.c -o ridReader -lgsl -lgslcblas -lm -lcurl `pkg-config --cflags --libs glib-2.0`
+gcc -Wall -I/usr/local/include ridMain.c RIDLib.c serial.c ../SEPA-C/sepa_producer.c ../SEPA-C/sepa_utilities.c ../SEPA-C/jsmn.c -o ridReader -lgsl -lgslcblas -lm -lcurl `pkg-config --cflags --libs glib-2.0`
  * G_MESSAGES_DEBUG=all
  */
 
