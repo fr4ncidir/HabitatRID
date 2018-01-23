@@ -215,9 +215,9 @@ int send_packet(const int serial_descriptor,const uint8_t packet[],const size_t 
 	return EXIT_SUCCESS;
 }
 
-void printUnsignedArray(uint8_t *vector,int dim) {
+void printUnsignedArray(FILE *outstream,uint8_t *vector,int dim) {
 	int i;
 	for (i=0; i<dim; i++) {
-		printf("%u ",vector[i]);
+		fprintf(outstream,"%u ",vector[i]);
 	}
 }

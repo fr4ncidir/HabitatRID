@@ -159,6 +159,6 @@ int send_packet(const int serial_descriptor,const uint8_t packet[],const size_t 
  * @param vector: the uint8_t array
  * @param dim: the dimension of the array
  */
-void printUnsignedArray(uint8_t *vector,int dim);
+void printUnsignedArray(FILE *outstream,uint8_t *vector,int dim);
 
 #endif /* SERIAL_H_ */

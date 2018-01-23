@@ -335,10 +335,10 @@ int receive_request_confirm() {
 	int result;
 	result = read_nbyte(ridSerial.serial_fd,TWO_BYTES,(void*) response);
 	if (result!=EXIT_FAILURE) {
-//#ifdef VERBOSE_CALCULATION
+#ifdef VERBOSE_CALCULATION
 		printUnsignedArray(response,TWO_BYTES);
 		printf("\n");
-//#endif
+#endif
 		if ((response[0]!='<') || (response[1]!='\n')) {
 			g_critical("Received unexpected %c%c instead of <\\n\n",(char) response[0],(char) response[1]);
 			result = EXIT_FAILURE;
@@ -397,7 +397,6 @@ int angle_iterations(int nID,int id_array_size,uint8_t *id_array) {
 	timer = g_timer_new();
 	
 	for (i=0; i<parameters.ANGLE_ITERATIONS; i++) {
-		//printf("ANGLE_ITERATIONS: %d\n",parameters.ANGLE_ITERATIONS);
 		fprintf(stderr,".");
 		result = send_request();
 		if (result==EXIT_FAILURE) {
@@ -448,12 +447,13 @@ int receive_end_scan() {
 	int result;
 	uint8_t response[SIX_BYTES];
 	result = read_nbyte(ridSerial.serial_fd,SIX_BYTES,(void*) response);
-//#ifdef VERBOSE_CALCULATION
-	printf("END_SCAN PACKET: ");
-	if (result!=EXIT_FAILURE) {
-		printUnsignedArray(response,SIX_BYTES);
-		printf("\n");
+	if ((response[0]!=40) || (response[1]!=10) || (response[3]!=10) || (response[5]!=10)) {
+		fprintf(stderr,"END_SCAN PACKET: ");
+		if (result!=EXIT_FAILURE) {
+			printUnsignedArray(stderr,response,SIX_BYTES);
+			printf("\n");
+		}
 	}
-//#endif
+	else g_message("Time1: %u;\t Time2: %u",response[2],response[4]);
 	return result;
 }
