@@ -170,21 +170,22 @@ void printLocation(FILE * output_stream,coord xy) {
 	fprintf(output_stream,"Location of id %d: (x,y)=(%lf,%lf)\n",xy.id,xy.x,xy.y);
 }
 
-long sepaLocationUpdate(const char * SEPA_address,coord location) {
-	char posUid[15];
+long sepaLocationUpdate(const char * SEPA_address,int rid_id,coord location) {
+	char temp[40];
 	char *bounded_sparql;
 	long result=-1;
 	if ((SEPA_address!=NULL) && (strcmp(SEPA_address,""))) {
-		// TODO ancora non è una WebThing
-		sprintf(posUid,"Pos_%d",location.id);
-		bounded_sparql = (char *) malloc((strlen(PREFIX_RDF PREFIX_HBT SPARQL_FORMAT)+5*strlen(posUid)+40)*sizeof(char));
+		sprintf(temp,"%d%d%lf%lf",rid_id,location.id,location.x,location.y);
+		bounded_sparql = (char *) malloc((strlen(PREFIX_HBT SPARQL_FORMAT)+strlen(temp)+10)*sizeof(char));
 		if (bounded_sparql==NULL) g_error("Malloc error while binding SPARQL");
 		else {
-			sprintf(bounded_sparql,PREFIX_RDF PREFIX_HBT SPARQL_FORMAT,posUid,posUid,posUid,location.x,posUid,location.y,posUid,posUid);
+			sprintf(bounded_sparql,PREFIX_HBT SPARQL_FORMAT,rid_id,location.id,location.x,location.y);
+			g_debug("Update produced:\n%s\n",bounded_sparql);
 			result = kpProduce(bounded_sparql,SEPA_address,NULL);
 			free(bounded_sparql);
 		}
 	}
+	else g_warning("Empty sepa address! Skip update...");
 	return result;
 }
 

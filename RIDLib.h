@@ -35,12 +35,14 @@
 
 #define PREFIX_RDF		"PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 #define PREFIX_HBT		"PREFIX hbt:<http://www.unibo.it/Habitat#> "
-#define SPARQL_FORMAT	"DELETE {%s hbt:hasCoordinateX ?oldX." \
-						"%s hbt:hasCoordinateY ?oldY}" \
-						"INSERT {%s hbt:hasCoordinateX '%lf'." \
-						"%s hbt:hasCoordinateY '%lf'}" \
-						"WHERE {OPTIONAL{%s hbt:hasCoordinateX ?oldX." \
-						"%s hbt:hasCoordinateY ?oldY}}" 
+#define SPARQL_FORMAT	"INSERT { ?idEvent rdf:type hbt:PositionEvent ; " \
+						"hbt:timestamp ?timestamp ; " \
+						"hbt:idReader '%d' ; " \
+						"hbt:idActiveTag '%d' ; " \
+						"hbt:posX '%lf' ; " \
+						"hbt:posY '%lf'} WHERE { " \
+						"BIND(IRI(CONCAT(\"http://it.unibo/habitat#PositionEvent-\",STRUUID())) AS ?idEvent) " \
+						"BIND(now() AS ?timestamp)}"
 #define N1_low			N_low[0]
 #define N2_low			N_low[1]
 #define N3_low			N_low[2]
@@ -92,7 +94,7 @@ double radiusFormula(double A,double B,double C);
 double thetaFind(int i_ref);
 int vector_subst(intVector * vector,int oldVal,int newVal);
 void printLocation(FILE * output_stream,coord xy);
-long sepaLocationUpdate(const char * SEPA_address,coord location);
+long sepaLocationUpdate(const char * SEPA_address,int tag_id,coord location);
 int parametrize(const char * fParam);
 int send_reset();
 int send_request();

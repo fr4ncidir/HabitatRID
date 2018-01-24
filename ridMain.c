@@ -122,9 +122,9 @@ int main(int argc, char **argv) {
 	switch (execution_code) {
 		case 0x07:
 			if (iterationNumber) {
-                g_debug("Requested %d iterations.\n",iterationNumber);
-                break;
-            }
+			g_debug("Requested %d iterations.\n",iterationNumber);
+			break;
+		}
 		case 0x06:
 			g_debug("Requested infinite iterations.\n");
 			continuousRead = 1;
@@ -256,7 +256,7 @@ int ridExecution(const char *usb_address,int iterations) {
 				last_location.id = gsl_vector_int_get(idVector,j);
 				printLocation(stdout,last_location);
 				log_file_txt(idVector,rowOfDiffs,rowOfSums,j,parameters.ANGLE_ITERATIONS,last_location,logFileNameTXT);
-				//sepaLocationUpdate(parameters.http_sepa_address,last_location);
+				sepaLocationUpdate(parameters.http_sepa_address,parameters.rid_identifier,last_location);
 				g_debug("Location calculation ended for ID%d",j);
 			}
 			
