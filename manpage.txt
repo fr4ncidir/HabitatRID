@@ -9,11 +9,34 @@ OPTIONS DESCRIPTION:
 		written in the form -n45, for example, identifies the number of iterations to be done.
 		If absent, we consider it equivalent to -n0, which means "infinite iterations".
 -uUSB_PORT
-	Must be the address in /dev/ folder to the USB device.
+	Must be the address in /dev/ folder to the USB device. For instance /dev/ttyUSB0
 -fPARAMETRIZATION_FILE
-	-f./myparams.txt
+	-f./myparams.json
 		Specifies the location of the parametrization file. This parameter is compulsory.
-		In the param file you must specify the sample time in milliseconds.
+		The file is made as follows:
+		
+{
+	"radius_threshold":1000,			Int number, threshold for N-Pro0 high/low params choice
+	"N1_low":2,							[N1|N2|N3]_[low|high] path loss exponent for the three calibration zones
+	"N2_low":2,
+	"N3_low":2,
+	"Pr01_low":-45.0,					Pr0[1|2|3]_[low|high] RSSI @ reference distance for the three calibration zones
+	"Pr02_low":-45.0,
+	"Pr03_low":-45.0,
+	"N1_high":3, 
+	"N2_high":3,
+    "N3_high":3,
+	"Pr01_high":-74.0,
+	"Pr02_high":-72.0,
+    "Pr03_high":-74.0,
+	"delta_Degrees":90,					Angular span of the reader
+	"delta_Theta0":0,					Angular offset of the reader (positive values clockwise, negative counterclockwise)
+    "Angle_Iterations":40,				Number of angular scan iterations (don't you dare!)
+	"Bottom_Left_Corner_Distance":2.45,	Calibration related to RID position in the room
+    "sepa_ip":"",						http://www.sepa.it:8000/query, for instance
+	"ID_rid":1,							Unique id of the reader in use
+	"loc_time":1000						ms pause after each scan
+}
 	
 Exit status:
 	0 if exit success
@@ -22,4 +45,4 @@ Exit status:
 AUTHOR
 	Written by Francesco Antoniazzi
 	<francesco.antoniazzi@unibo.it>
-#Last modified on 20.07.2017
+#Last modified on 31/01/2018
