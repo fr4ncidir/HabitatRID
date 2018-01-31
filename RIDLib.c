@@ -72,7 +72,7 @@ int log_file_txt(intVector * ids,intVector * diffs,intVector * sums,int index,in
 		g_error("Error while opening in write mode /var/www/html/posRID.txt");
 		return EXIT_FAILURE;
 	}
-	fprintf(positions,"%lf %lf",location.x,location.y);
+	fprintf(positions,"%d %lf %lf",location.id,location.x,location.y);
 	fclose(positions);
 #else
 	fprintf(logFile,"(%lf,%lf)\n",location.x,location.y);
@@ -92,6 +92,11 @@ coord locateFromData(intVector * diff,intVector * sum,int nAngles) {
 
 	vector_subst(sum,-1,SUM_CORRECTION);
 	vector_subst(diff,-1,DIFF_CORRECTION);
+	
+	/*
+	g_warning("Difference vector element 0 set to 100");
+	gsl_vector_int_set(diff,0,100);
+	*/
 
 	mpr = gsl_vector_int_alloc(nAngles);
 	gsl_vector_int_memcpy(mpr,sum);
@@ -173,15 +178,18 @@ void printLocation(FILE * output_stream,coord xy) {
 long sepaLocationUpdate(const char * SEPA_address,int rid_id,coord location) {
 	char temp[40];
 	char *bounded_sparql;
-	long result=-1;
+	long x,y,result=-1;
 	if ((SEPA_address!=NULL) && (strcmp(SEPA_address,""))) {
-		sprintf(temp,"%d%d%lf%lf",rid_id,location.id,location.x,location.y);
-		bounded_sparql = (char *) malloc((strlen(PREFIX_HBT SPARQL_FORMAT)+strlen(temp)+10)*sizeof(char));
+		x = lround(location.x*100);
+		y = lround(location.y*100);
+		sprintf(temp,"%d%d%ld%ld",rid_id,location.id,x,y);
+		bounded_sparql = (char *) malloc((strlen(PREFIX_RDF PREFIX_HBT SPARQL_FORMAT)+strlen(temp)+10)*sizeof(char));
 		if (bounded_sparql==NULL) g_error("Malloc error while binding SPARQL");
 		else {
-			sprintf(bounded_sparql,PREFIX_HBT SPARQL_FORMAT,rid_id,location.id,location.x,location.y);
+			sprintf(bounded_sparql,PREFIX_RDF PREFIX_HBT SPARQL_FORMAT,rid_id,location.id,x,y);
 			g_debug("Update produced:\n%s\n",bounded_sparql);
 			result = kpProduce(bounded_sparql,SEPA_address,NULL);
+			if (result!=200) g_message("Update http result = %ld\n",result);
 			free(bounded_sparql);
 		}
 	}

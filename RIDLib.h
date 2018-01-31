@@ -39,9 +39,9 @@
 						"hbt:timestamp ?timestamp ; " \
 						"hbt:idReader '%d' ; " \
 						"hbt:idActiveTag '%d' ; " \
-						"hbt:posX '%lf' ; " \
-						"hbt:posY '%lf'} WHERE { " \
-						"BIND(IRI(CONCAT(\"http://it.unibo/habitat#PositionEvent-\",STRUUID())) AS ?idEvent) " \
+						"hbt:posX '%ld' ; " \
+						"hbt:posY '%ld'} WHERE { " \
+						"BIND(IRI(CONCAT('http://it.unibo/habitat#PositionEvent-',STRUUID())) AS ?idEvent) " \
 						"BIND(now() AS ?timestamp)}"
 #define N1_low			N_low[0]
 #define N2_low			N_low[1]

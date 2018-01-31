@@ -1,51 +1,35 @@
-USAGE:
+# HABITAT
+Remote RID with Linux Debian OS for [Habitat Project](www.habitatproject.info)
 
-ridScript.sh setta il sistema per il funzionamento di ridReader e/o avvia la simulazione del reader.
+### Installing
+Prerequisites:
+```
+sudo apt-get install figlet cmake libssl-dev libcurl4-gnutls-dev libglib2.0-dev libgsl0-dev socat
+```
+Install [LibWebsockets](https://github.com/warmcat/libwebsockets):
+```
+cd ./libwebsockets
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+sudo ldconfig
+```
+Clone this repository
+Clone [SEPA-C](https://github.com/arces-wot/SEPA-C)
+Run [SEPA](https://github.com/arces-wot/SEPA)
 
-$ ridScript.sh help 
-		mostra il file di aiuto
-		
-$ ridScript.sh setup
-		installa i pacchetti essenziali (lgsl e lcurl, RPi.GPIO)
-		
-$ ridScript.sh simulate <file di setup>
-		simula il RID con le imposizioni definite nel file di configurazione
-		
-$ ridScript.sh compile <indirizzo della porta usb>
-		compila i file .c in ridReader
-		
-$ ridScript.sh run
-		mostra le istruzioni per eseguire il run di ridReader
+## Run the code
+To compile:
+```
+eval $(cat ridMain.c | grep gcc)
+```
+See the manpage.txt to know how to run the software.
 
-Per informazioni su ridReader, fai
-$ ./ridReader help
+## Contributing
+For SEPA-C apis, see [SEPA](https://github.com/arces-wot/SEPA) and [SEPA-C](https://github.com/arces-wot/SEPA-C)
 
-Per informazioni su ridSimulation.py, fai
-$ python ridSimulation.py help
-
-SIMULATION FILE INPUT FORMAT (JSON):
-{
-	"sepa_ip":"192.168.1.52",
-	"sepa_update_port":8000,
-	"simulation":"file", 		{"random"}
-	"type":"button", 			{"timer"}
-	"timing":10,	 			{(ms) ignored if type is "button"}
-	"iterations":7,
-	"x_topleft":15,				{we assume x_btmright=0}
-	"y_topleft":10,				{we assume y_btmright=0}
-	"ridUid":"137",				{it's a string!}
-	"positionId":"",			{another string!}
-	"locations": [				{ignored if simulation if "random"}
-		{
-			"x":3.5,
-			"y":1.9
-		},
-		{
-			"x":6.2,
-			"y":7.1
-		}
-	]
-}
-
-Autore: Francesco Antoniazzi <francesco.antoniazzi@unibo.it>
-Ultima modifica il 21.03.2017
+## Authors
+* **Francesco Antoniazzi** - *Coding* - [fr4ncidir](https://github.com/fr4ncidir)
+* **Giacomo Paolini** - *Supporter*
