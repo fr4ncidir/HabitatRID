@@ -32,7 +32,7 @@ intVector *idVector;
 intMatrix *sumVectors;
 intMatrix *diffVectors;
 
-int log_file_txt(intVector * ids,intVector * diffs,intVector * sums,int index,int cols,coord location,char * logFileName) {
+int log_file_txt(intVector * ids,intVector * diffs,intVector * sums,int index,int nID,int cols,coord location,char * logFileName) {
 	time_t sysclock = time(NULL);
 	TimeStruct * date = localtime(&sysclock);
 	FILE * logFile;
@@ -67,7 +67,8 @@ int log_file_txt(intVector * ids,intVector * diffs,intVector * sums,int index,in
 	}
 #ifdef MATLAB_COMPATIBILITY
 	fprintf(logFile,"\n");
-	positions = fopen("/var/www/html/posRID.txt","w");
+	if (index==0) positions = fopen("/var/www/html/posRID.txt","w");
+	else positions = fopen("/var/www/html/posRID.txt","a");
 	if (positions==NULL) {
 		g_error("Error while opening in write mode /var/www/html/posRID.txt");
 		return EXIT_FAILURE;
@@ -75,7 +76,7 @@ int log_file_txt(intVector * ids,intVector * diffs,intVector * sums,int index,in
 	fprintf(positions,"%d %lf %lf",location.id,location.x,location.y);
 	fclose(positions);
 #else
-	fprintf(logFile,"(%lf,%lf)\n",location.x,location.y);
+	fprintf(logFile,"(%d,%lf,%lf)\n",location.id,location.x,location.y);
 #endif
 	fclose(logFile);
 	return EXIT_SUCCESS;
@@ -169,10 +170,6 @@ int vector_subst(intVector * vector,int oldVal,int newVal) {
 		}
 	}
 	return substitutions;
-}
-
-void printLocation(FILE * output_stream,coord xy) {
-	fprintf(output_stream,"Location of id %d: (x,y)=(%lf,%lf)\n",xy.id,xy.x,xy.y);
 }
 
 long sepaLocationUpdate(const char * SEPA_address,int rid_id,coord location) {

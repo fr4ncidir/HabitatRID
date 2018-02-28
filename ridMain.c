@@ -249,8 +249,8 @@ int ridExecution(const char *usb_address,int iterations) {
 				gsl_matrix_int_get_row(rowOfDiffs,diffVectors,j);
 				last_location = locateFromData(rowOfDiffs,rowOfSums,parameters.ANGLE_ITERATIONS);
 				last_location.id = gsl_vector_int_get(idVector,j);
-				printLocation(stdout,last_location);
-				log_file_txt(idVector,rowOfDiffs,rowOfSums,j,parameters.ANGLE_ITERATIONS,last_location,logFileNameTXT);
+				printf("Location of id %d: (x,y)=(%lf,%lf)\n",last_location.id,last_location.x,last_location.y);
+				log_file_txt(idVector,rowOfDiffs,rowOfSums,j,nID,parameters.ANGLE_ITERATIONS,last_location,logFileNameTXT);
 				sepaLocationUpdate(parameters.http_sepa_address,parameters.rid_identifier,last_location);
 				g_debug("Location calculation ended for ID%d",j);
 			}
