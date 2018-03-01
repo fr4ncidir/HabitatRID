@@ -93,7 +93,6 @@ double radiusFind(int i_ref2,intVector * sum);
 double radiusFormula(double A,double B,double C);
 double thetaFind(int i_ref);
 int vector_subst(intVector * vector,int oldVal,int newVal);
-void printLocation(FILE * output_stream,coord xy);
 long sepaLocationUpdate(const char * SEPA_address,int tag_id,coord location);
 int parametrize(const char * fParam);
 int send_reset();
