@@ -34,7 +34,7 @@
 #include <glib.h>
 
 #define PREFIX_RDF		"PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-#define PREFIX_HBT		"PREFIX hbt:<http://www.unibo.it/Habitat#> "
+#define PREFIX_HBT		"PREFIX hbt:<http://it.unibo/habitat#> "
 #define SPARQL_FORMAT	"INSERT { ?idEvent rdf:type hbt:PositionEvent ; " \
 						"hbt:timestamp ?timestamp ; " \
 						"hbt:idReader '%d' ; " \
@@ -58,8 +58,8 @@
 #define RANGE1			11
 #define RANGE2			31
 
-#define SUM_CORRECTION				-100
-#define DIFF_CORRECTION				100
+#define SUM_CORRECTION				100
+#define DIFF_CORRECTION				-100
 #define SEPA_UPDATE_BOUNDED			500
 #define MATLAB_COMPATIBILITY
 //#define VERBOSE_CALCULATION

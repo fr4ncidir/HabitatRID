@@ -174,14 +174,14 @@ int ridExecution(const char *usb_address,int iterations) {
 		return EXIT_FAILURE;
 	}
 	g_debug("Reset packet sent");
-	close(ridSerial.serial_fd);
+	//close(ridSerial.serial_fd);
 	
 	rowOfSums = gsl_vector_int_alloc(parameters.ANGLE_ITERATIONS);
 	rowOfDiffs = gsl_vector_int_alloc(parameters.ANGLE_ITERATIONS);
 	
 	do {
 		// serial reopening
-		if (open_serial(usb_address,&ridSerial) == ERROR) return EXIT_FAILURE;
+		//if (open_serial(usb_address,&ridSerial) == ERROR) return EXIT_FAILURE;
 		// serial opening end
 		
 		sleep(1);

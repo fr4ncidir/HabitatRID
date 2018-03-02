@@ -93,19 +93,18 @@ coord locateFromData(intVector * diff,intVector * sum,int nAngles) {
 	vector_subst(sum,-1,SUM_CORRECTION);
 	vector_subst(diff,-1,DIFF_CORRECTION);
 	
-	/*
-	g_warning("Difference vector element 0 set to 100");
-	gsl_vector_int_set(diff,0,100);
-	*/
+	
+	//g_warning("Difference vector element 0 set to 100");
+	//gsl_vector_int_set(diff,0,100);
 
 	mpr = gsl_vector_int_alloc(nAngles);
-	gsl_vector_int_memcpy(mpr,sum);
-	gsl_vector_int_sub(mpr,diff);
+	gsl_vector_int_memcpy(mpr,diff);
+	gsl_vector_int_sub(mpr,sum);
 
-	// esegue anche il reverse dell'indice
+	// esegue anchgsl_vector_int_max_index(mpr);
 	maxIndexMPR = nAngles-1-gsl_vector_int_max_index(mpr);
 	theta = (thetaFind(maxIndexMPR)-parameters.dTheta0+parameters.dDegrees)*M_PI/180;
-	radius = radiusFind(maxIndexMPR,sum);
+	radius = radiusFind(maxIndexMPR,diff);
 	
 #ifdef VERBOSE_CALCULATION
 	verbose = fopen("./verbose.txt","a");
@@ -125,10 +124,10 @@ coord locateFromData(intVector * diff,intVector * sum,int nAngles) {
 	return location;
 }
 
-double radiusFind(int i_ref2,intVector * sum) {
+double radiusFind(int i_ref2,intVector * diff) {
 	int power;
 	double radius;
-	power = gsl_vector_int_max(sum);
+	power = gsl_vector_int_max(diff);
 	if (i_ref2<RANGE1) {
 		radius = radiusFormula(power,parameters.Pr01_low,parameters.N1_low);
 		if (radius>parameters.RADIUS_TH) {
@@ -206,6 +205,7 @@ int parametrize(const char * fParam) {
 	int i=0,jDim=300,n_field,jstok_dim,completed=0;
 	
 	json = fopen(fParam,"r");
+
 	if (json==NULL) {
 		g_critical("Error while opening %s.\n",fParam);
 		return EXIT_FAILURE;
