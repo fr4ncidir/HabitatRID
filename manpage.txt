@@ -33,7 +33,7 @@ OPTIONS DESCRIPTION:
 	"delta_Theta0":0,					Angular offset of the reader (positive values clockwise, negative counterclockwise)
     "Angle_Iterations":40,				Number of angular scan iterations (don't you dare!)
 	"Bottom_Left_Corner_Distance":2.45,	Calibration related to RID position in the room
-    "sepa_ip":"",						http://www.sepa.it:8000/query, for instance
+    "sepa_ip":"",						http://www.sepa.it:8000/update, for instance
 	"ID_rid":1,							Unique id of the reader in use
 	"loc_time":1000						ms pause after each scan
 }
