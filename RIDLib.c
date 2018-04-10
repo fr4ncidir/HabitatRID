@@ -125,18 +125,18 @@ coord locateFromData(intVector * diff,intVector * sum,int nAngles) {
 	return location;
 }
 
-double radiusFind(int i_ref2,intVector * diff) {
+double radiusFind(int i_ref2,intVector * sum) {
 	int power;
 	double radius;
-	power = gsl_vector_int_max(diff);
-	if (i_ref2<RANGE1) {
+	power = gsl_vector_int_max(sum);
+	if (i_ref2<RANGE1_1D) {
 		radius = radiusFormula(power,parameters.Pr01_low,parameters.N1_low);
 		if (radius>parameters.RADIUS_TH) {
 			return radiusFormula(power,parameters.Pr01_high,parameters.N1_high);
 		}
 	}
 	else {
-		if (i_ref2<RANGE2) {
+		if (i_ref2<RANGE2_1D) {
 			radius = radiusFormula(power,parameters.Pr02_low,parameters.N2_low);
 			if (radius>parameters.RADIUS_TH) {
 				return radiusFormula(power,parameters.Pr02_high,parameters.N2_high);
@@ -150,6 +150,16 @@ double radiusFind(int i_ref2,intVector * diff) {
 		}
 	}
 	return radius;
+}
+
+double radiusFind_2D(int i_ref2,intVector * sum) {
+	int power;
+	power = gsl_vector_int_max(sum);
+	if (i_ref2<RANGE1_2D) return radiusFormula(power,parameters.Pr01_ver,parameters.N1_ver);
+	else {
+		if (i_ref2<RANGE2_2D) return radiusFormula(power,parameters.Pr02_ver,parameters.N2_ver);
+		else return radiusFormula(power,parameters.Pr03_ver,parameters.N3_ver);
+	}
 }
 
 double radiusFormula(double A,double B,double C) {
@@ -199,7 +209,7 @@ int parametrize(const char * fParam) {
 	jsmntok_t *jstokens;
 	char c;
 	char *jsonString,*js_buffer=NULL,*js_data=NULL,id_field[7];
-	int i=0,jDim=300,n_field,jstok_dim,completed=0;
+	int i=0,jDim=300,n_field,jstok_dim,completed=0,json_item_ctrl=PARAM_JSON_ITEMS_1D;
 	
 	json = fopen(fParam,"r");
 
@@ -234,6 +244,7 @@ int parametrize(const char * fParam) {
 		free(jsonString);
 		return EXIT_FAILURE;
 	}
+	// TODO dimension check over json dimension got by jsmn
 	
 	jstokens = (jsmntok_t *) malloc(jstok_dim*sizeof(jsmntok_t));
 	if (jstokens==NULL) {
@@ -243,7 +254,7 @@ int parametrize(const char * fParam) {
 	}
 	jsmn_init(&parser);
 	jsmn_parse(&parser, jsonString, strlen(jsonString), jstokens, jstok_dim);
-	for (i=0; (i<jstok_dim-1) && (completed<20); i++) {
+	for (i=0; (i<jstok_dim-1) && (completed<json_item_ctrl); i++) {
 		if (jstokens[i].type==JSMN_STRING) {
 			getJsonItem(jsonString,jstokens[i],&js_buffer);
 			getJsonItem(jsonString,jstokens[i+1],&js_data);
@@ -267,11 +278,21 @@ int parametrize(const char * fParam) {
 				completed++;
 				continue;
 			}
-			if (js_buffer[0]=='r') { // radius_threshold
+			if (!strcmp(js_buffer,"radius_threshold")) { // radius_threshold
 				sscanf(js_data,"%lf",&(parameters.RADIUS_TH));
 				completed++;
 				continue;
-			}	
+			}
+			if (!strcmp(js_buffer,"row")) {
+				sscanf(js_data,"%u",&(parameters.row));
+				completed++;
+				continue;
+			}
+			if (js_buffer[0]=='c') {
+				sscanf(js_data,"%u",&(parameters.col));
+				completed++;
+				continue;
+			}
 			if (js_buffer[0]=='A') {
 				sscanf(js_data,"%d",&(parameters.ANGLE_ITERATIONS));
 				completed++;
@@ -295,14 +316,26 @@ int parametrize(const char * fParam) {
 			if (js_buffer[0]=='N') { // N parameters
 				sscanf(js_buffer,"N%d_%s",&n_field,id_field);
 				if (!strcmp(id_field,"low")) sscanf(js_data,"%lf",&(parameters.N_low[n_field-1]));
-				else sscanf(js_data,"%lf",&(parameters.N_high[n_field-1]));
+				else {
+					if (!strcmp(id_field,"high")) sscanf(js_data,"%lf",&(parameters.N_high[n_field-1]));
+					else {
+						json_item_ctrl = PARAM_JSON_ITEMS_2D;
+						sscanf(js_data,"%lf",&(parameters.N_ver[n_field-1]));
+					}
+				}
 				completed++;
 				continue;
 			}
 			if (js_buffer[0]=='P') { // P parameters
 				sscanf(js_buffer,"Pr0%d_%s",&n_field,id_field);
 				if (!strcmp(id_field,"low")) sscanf(js_data,"%lf",&(parameters.Pr0_low[n_field-1]));
-				else sscanf(js_data,"%lf",&(parameters.Pr0_high[n_field-1]));
+				else {
+					if (!strcmp(id_field,"high")) sscanf(js_data,"%lf",&(parameters.Pr0_high[n_field-1]));
+					else {
+						json_item_ctrl = PARAM_JSON_ITEMS_2D;
+						sscanf(js_data,"%lf",&(parameters.Pr0_ver[n_field-1]));
+					}
+				}
 				completed++;
 			}	
 		}
@@ -310,14 +343,19 @@ int parametrize(const char * fParam) {
 	free(jstokens);
 	free(jsonString);
 	free(js_data);
-	if (completed!=20) {
-		g_error("ERROR! Parameter json not complete! (%d/20)\n",completed);
+	if (completed!=json_item_ctrl) {
+		g_error("ERROR! Parameter json not complete! (%d/%d)\n",completed,json_item_ctrl);
 		return EXIT_FAILURE;
 	}
 	g_debug("\nN_low: %lf %lf %lf\n",parameters.N1_low,parameters.N2_low,parameters.N3_low);
 	g_debug("\nN_high: %lf %lf %lf\n",parameters.N1_high,parameters.N2_high,parameters.N3_high);
 	g_debug("\nPr_low: %lf %lf %lf\n",parameters.Pr01_low,parameters.Pr02_low,parameters.Pr03_low);
 	g_debug("\nPr_high: %lf %lf %lf\n",parameters.Pr01_high,parameters.Pr02_high,parameters.Pr03_high);
+	if (json_item_ctrl==PARAM_JSON_ITEMS_2D) {
+		g_debug("\nN_ver: %lf %lf %lf\n",parameters.N1_ver,parameters.N2_ver,parameters.N3_ver);
+		g_debug("\nPr_ver: %lf %lf %lf\n",parameters.Pr01_ver,parameters.Pr02_ver,parameters.Pr03_ver);
+	}
+	
 	g_debug("\ndDegrees: %d\ndTheta: %d\nAngle iterations: %d\nBtm_left_corner: %lf\n",parameters.dDegrees,parameters.dTheta0,parameters.ANGLE_ITERATIONS,parameters.BOTTOM_LEFT_CORNER_DISTANCE);
 	g_debug("\nSample time: %d\nRID_id=%d\nRadius threshold: %lf\n",parameters.sample_time,parameters.rid_identifier,parameters.RADIUS_TH);
 	

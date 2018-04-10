@@ -55,8 +55,19 @@
 #define Pr01_high		Pr0_high[0]
 #define	Pr02_high		Pr0_high[1]
 #define Pr03_high		Pr0_high[2]
-#define RANGE1			11
-#define RANGE2			31
+#define N1_ver			N_ver[0]
+#define N2_ver			N_ver[1]
+#define N3_ver			N_ver[2]
+#define Pr01_ver		Pr0_ver[0]
+#define	Pr02_ver		Pr0_ver[1]
+#define Pr03_ver		Pr0_ver[2]
+#define RANGE1_1D		11
+#define RANGE2_1D		31
+#define RANGE1_2D		18
+#define RANGE2_2D		47	
+
+#define PARAM_JSON_ITEMS_1D			20
+#define PARAM_JSON_ITEMS_2D			28
 
 #define SUM_CORRECTION				100
 #define DIFF_CORRECTION				-100
@@ -75,8 +86,9 @@ typedef gsl_vector_int 				intVector;
 typedef gsl_matrix_int 				intMatrix;
 typedef struct rid_parameters {
 	double RADIUS_TH;
-	double N_low[3],N_high[3];
-	double Pr0_low[3],Pr0_high[3];
+	double N_low[3],N_high[3],N_ver[3];
+	double Pr0_low[3],Pr0_high[3],Pr0_ver[3];
+	uint8_t row,col;
 	int dDegrees,dTheta0,ANGLE_ITERATIONS;
 	double BOTTOM_LEFT_CORNER_DISTANCE;
 	int rid_identifier,sample_time;
@@ -90,6 +102,7 @@ typedef struct coordinates {
 int log_file_txt(intVector * ids,intVector * diffs,intVector * sums,int index,int nID,int cols,coord location,char * logFileName);
 coord locateFromData(intVector * diff,intVector * sum,int nAngles);
 double radiusFind(int i_ref2,intVector * sum);
+double radiusFind_2D(int i_ref2,intVector * sum);
 double radiusFormula(double A,double B,double C);
 double thetaFind(int i_ref);
 int vector_subst(intVector * vector,int oldVal,int newVal);
