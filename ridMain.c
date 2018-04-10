@@ -196,7 +196,7 @@ int ridExecution(const char *usb_address,int iterations) {
 		g_debug("Request packet sent");
 		
 		// must receive "<\n"
-		result = receive_request_confirm();
+		result = receive_request_confirm('<');
 		if (result==EXIT_FAILURE) {
 			sleep(1);
 			g_critical("receive_request failure");

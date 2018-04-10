@@ -67,10 +67,10 @@
 #define RANGE2_2D		47	
 
 #define PARAM_JSON_ITEMS_1D			20
-#define PARAM_JSON_ITEMS_2D			28
+#define PARAM_JSON_ITEMS_2D			30
 
-#define SUM_CORRECTION				100
-#define DIFF_CORRECTION				-100
+#define SUM_CORRECTION				-100
+#define DIFF_CORRECTION				100
 #define SEPA_UPDATE_BOUNDED			500
 #define MATLAB_COMPATIBILITY
 //#define VERBOSE_CALCULATION
@@ -90,17 +90,18 @@ typedef struct rid_parameters {
 	double Pr0_low[3],Pr0_high[3],Pr0_ver[3];
 	uint8_t row,col;
 	int dDegrees,dTheta0,ANGLE_ITERATIONS;
-	double BOTTOM_LEFT_CORNER_DISTANCE;
+	double BOTTOM_LEFT_CORNER_DISTANCE,HEIGHT_RID,TILT_RID;
 	int rid_identifier,sample_time;
 	char *http_sepa_address;
 } 						RidParams,*pRidParams;
 typedef struct coordinates {
 	int id;
-	double x,y;
+	double x,y,h;
 } 						coord;
 
 int log_file_txt(intVector * ids,intVector * diffs,intVector * sums,int index,int nID,int cols,coord location,char * logFileName);
-coord locateFromData(intVector * diff,intVector * sum,int nAngles);
+coord locateFromData_XY(intVector * diff,intVector * sum,int nAngles);
+coord locateFromData_H(intVector * diff,intVector * sum,int nAngles);
 double radiusFind(int i_ref2,intVector * sum);
 double radiusFind_2D(int i_ref2,intVector * sum);
 double radiusFormula(double A,double B,double C);
@@ -110,7 +111,9 @@ long sepaLocationUpdate(const char * SEPA_address,int tag_id,coord location);
 int parametrize(const char * fParam);
 int send_reset();
 int send_request();
-int receive_request_confirm();
+int send_request_R();
+int send_request_C();
+int receive_request_confirm(char confirm_check);
 int receive_id_info();
 int angle_iterations();
 int send_detect();

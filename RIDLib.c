@@ -31,6 +31,7 @@ SerialOptions ridSerial;
 intVector *idVector;
 intMatrix *sumVectors;
 intMatrix *diffVectors;
+int json_item_ctrl=PARAM_JSON_ITEMS_1D;
 
 int log_file_txt(intVector * ids,intVector * diffs,intVector * sums,int index,int nID,int cols,coord location,char * logFileName) {
 	time_t sysclock = time(NULL);
@@ -73,16 +74,16 @@ int log_file_txt(intVector * ids,intVector * diffs,intVector * sums,int index,in
 		g_error("Error while opening in write mode /var/www/html/posRID.txt");
 		return EXIT_FAILURE;
 	}
-	fprintf(positions,"%d %lf %lf ",location.id,location.x,location.y);
+	fprintf(positions,"%d %lf %lf %lf ",location.id,location.x,location.y,location.h);
 	fclose(positions);
 #else
-	fprintf(logFile,"(%d,%lf,%lf)\n",location.id,location.x,location.y);
+	fprintf(logFile,"(%d,%lf,%lf,%lf)\n",location.id,location.x,location.y,location.h);
 #endif
 	fclose(logFile);
 	return EXIT_SUCCESS;
 }
 
-coord locateFromData(intVector * diff,intVector * sum,int nAngles) {
+coord locateFromData_XY(intVector * diff,intVector * sum,int nAngles) {
 	intVector * mpr;
 	coord location;
 	double theta,radius;
@@ -93,19 +94,20 @@ coord locateFromData(intVector * diff,intVector * sum,int nAngles) {
 
 	vector_subst(sum,-1,SUM_CORRECTION);
 	vector_subst(diff,-1,DIFF_CORRECTION);
-	
-	
+		
 	//g_warning("Difference vector element 0 set to 100");
 	//gsl_vector_int_set(diff,0,100);
 
 	mpr = gsl_vector_int_alloc(nAngles);
-	gsl_vector_int_memcpy(mpr,diff);
-	gsl_vector_int_sub(mpr,sum);
+	gsl_vector_int_memcpy(mpr,sum);
+	gsl_vector_int_sub(mpr,diff);
 
 	// esegue anchgsl_vector_int_max_index(mpr);
 	maxIndexMPR = nAngles-1-gsl_vector_int_max_index(mpr);
 	theta = (thetaFind(maxIndexMPR)-parameters.dTheta0+parameters.dDegrees)*M_PI/180;
-	radius = radiusFind(maxIndexMPR,diff);
+	
+	if (json_item_ctrl=PARAM_JSON_ITEMS_1D) radius = radiusFind(maxIndexMPR,sum);
+	else radius = radiusFind_2D(maxIndexMPR,sum);
 	
 #ifdef VERBOSE_CALCULATION
 	verbose = fopen("./verbose.txt","a");
@@ -120,6 +122,50 @@ coord locateFromData(intVector * diff,intVector * sum,int nAngles) {
 	g_debug("Radius=%lf - Theta=%lf",radius,theta);
 	location.x = radius*cos(theta)+parameters.BOTTOM_LEFT_CORNER_DISTANCE;
 	location.y = radius*sin(theta);
+	location.h = 0;
+
+	gsl_vector_int_free(mpr);
+	return location;
+}
+
+coord locateFromData_H(intVector * diff,intVector * sum,int nAngles,coord xy_location) {
+	intVector * mpr;
+	coord location;
+	double theta,radius;
+	int maxIndexMPR;
+#ifdef VERBOSE_CALCULATION
+	FILE * verbose;
+#endif
+
+	vector_subst(sum,-1,SUM_CORRECTION);
+	vector_subst(diff,-1,DIFF_CORRECTION);
+		
+	//g_warning("Difference vector element 0 set to 100");
+	//gsl_vector_int_set(diff,0,100);
+
+	mpr = gsl_vector_int_alloc(nAngles);
+	gsl_vector_int_memcpy(mpr,sum);
+	gsl_vector_int_sub(mpr,diff);
+
+	// esegue anchgsl_vector_int_max_index(mpr);
+	maxIndexMPR = nAngles-1-gsl_vector_int_max_index(mpr);
+	theta = (thetaFind(maxIndexMPR)-parameters.TILT_RID+parameters.dDegrees)*M_PI/180;
+	
+	radius = radiusFind_2D(maxIndexMPR,sum);
+	
+#ifdef VERBOSE_CALCULATION
+	verbose = fopen("./verbose.txt","a");
+	fprintf(verbose,"Debug: sum vector:\n");
+	gsl_vector_int_fprintf(verbose,sum,"%d");
+	fprintf(verbose,"Debug: diff vector:\n");
+	gsl_vector_int_fprintf(verbose,diff,"%d");
+	fprintf(verbose,"Debug: mpr vector:\n");
+	gsl_vector_int_fprintf(verbose,mpr,"%d");
+	fclose(verbose);
+#endif
+	g_debug("Radius=%lf - Theta=%lf",radius,theta);
+	location = xy_location;
+	location.h = radius*cos(theta)+parameters.HEIGHT_RID;
 
 	gsl_vector_int_free(mpr);
 	return location;
@@ -209,7 +255,7 @@ int parametrize(const char * fParam) {
 	jsmntok_t *jstokens;
 	char c;
 	char *jsonString,*js_buffer=NULL,*js_data=NULL,id_field[7];
-	int i=0,jDim=300,n_field,jstok_dim,completed=0,json_item_ctrl=PARAM_JSON_ITEMS_1D;
+	int i=0,jDim=300,n_field,jstok_dim,completed=0;
 	
 	json = fopen(fParam,"r");
 
@@ -283,13 +329,15 @@ int parametrize(const char * fParam) {
 				completed++;
 				continue;
 			}
-			if (!strcmp(js_buffer,"row")) {
+			if (!strcmp(js_buffer,"row")) { // row (2D)
 				sscanf(js_data,"%u",&(parameters.row));
+				json_item_ctrl = PARAM_JSON_ITEMS_2D;
 				completed++;
 				continue;
 			}
-			if (js_buffer[0]=='c') {
+			if (js_buffer[0]=='c') { // col (2D)
 				sscanf(js_data,"%u",&(parameters.col));
+				json_item_ctrl = PARAM_JSON_ITEMS_2D;
 				completed++;
 				continue;
 			}
@@ -313,12 +361,25 @@ int parametrize(const char * fParam) {
 				completed++;
 				continue;
 			}
+			if (js_buffer[0]='H') { // HEIGHT_RID (2D)
+				sscanf(js_data,"%lf",&(parameters.HEIGHT_RID));
+				json_item_ctrl = PARAM_JSON_ITEMS_2D;
+				completed++;
+				continue;
+			}
+			if (js_buffer[0]='T') { // TILT_RID (2D)
+				sscanf(js_data,"%lf",&(parameters.TILT_RID));
+				json_item_ctrl = PARAM_JSON_ITEMS_2D;
+				completed++;
+				continue;
+			}
 			if (js_buffer[0]=='N') { // N parameters
 				sscanf(js_buffer,"N%d_%s",&n_field,id_field);
 				if (!strcmp(id_field,"low")) sscanf(js_data,"%lf",&(parameters.N_low[n_field-1]));
 				else {
 					if (!strcmp(id_field,"high")) sscanf(js_data,"%lf",&(parameters.N_high[n_field-1]));
 					else {
+						// ver (2D)
 						json_item_ctrl = PARAM_JSON_ITEMS_2D;
 						sscanf(js_data,"%lf",&(parameters.N_ver[n_field-1]));
 					}
@@ -332,6 +393,7 @@ int parametrize(const char * fParam) {
 				else {
 					if (!strcmp(id_field,"high")) sscanf(js_data,"%lf",&(parameters.Pr0_high[n_field-1]));
 					else {
+						// ver (2D)
 						json_item_ctrl = PARAM_JSON_ITEMS_2D;
 						sscanf(js_data,"%lf",&(parameters.Pr0_ver[n_field-1]));
 					}
@@ -374,7 +436,17 @@ int send_request() {
 	return write_serial(ridSerial.serial_fd,ONE_BYTE,(void*) &dato);
 }
 
-int receive_request_confirm() {
+int send_request_R() {
+	char dato = 'R';
+	return write_serial(ridSerial.serial_fd,ONE_BYTE,(void*) &dato);
+}
+
+int send_request_C() {
+	char dato = 'C';
+	return write_serial(ridSerial.serial_fd,ONE_BYTE,(void*) &dato);
+}
+
+int receive_request_confirm(char confirm_check) {
 	uint8_t response[TWO_BYTES];
 	int result;
 	result = read_nbyte(ridSerial.serial_fd,TWO_BYTES,(void*) response);
@@ -383,8 +455,8 @@ int receive_request_confirm() {
 		printUnsignedArray(response,TWO_BYTES);
 		printf("\n");
 #endif
-		if ((response[0]!='<') || (response[1]!='\n')) {
-			g_critical("Received unexpected %c%c instead of <\\n\n",(char) response[0],(char) response[1]);
+		if ((response[0]!=confirm_check) || (response[1]!='\n')) {
+			g_critical("Received unexpected %c%c instead of %c\\n\n",(char) response[0],(char) response[1],confirm_check);
 			result = EXIT_FAILURE;
 		}
 	}
@@ -399,6 +471,21 @@ int receive_id_info(uint8_t *id_info_result,int *read_bytes){
 		result = EXIT_SUCCESS;
 #ifdef VERBOSE_CALCULATION
 		printUnsignedArray(id_info_result,*read_bytes);
+		printf("\n");
+#endif
+	}
+	else result = EXIT_FAILURE;
+	return result;
+}
+
+int scan_results(uint8_t *scan,int *read_bytes,int id_num){
+	int result;
+	result = read_until_terminator(ridSerial.serial_fd,4*id_num+2,(void*) scan,'\n');
+	if (result!=ERROR) {
+		*read_bytes = result;
+		result = EXIT_SUCCESS;
+#ifdef VERBOSE_CALCULATION
+		printUnsignedArray(scan,*read_bytes);
 		printf("\n");
 #endif
 	}
@@ -467,8 +554,8 @@ int angle_iterations(int nID,int id_array_size,uint8_t *id_array) {
 			fprintf(verbose,"%u\t%u\n",response[2*j],response[2*j+1]);
 			fprintf(verbose,"%d\t%d\n\n",response[2*j]-CENTRE_RESCALE,response[2*j+1]-CENTRE_RESCALE);
 #endif
-			gsl_matrix_int_set(diffVectors,j,i,response[2*j]-CENTRE_RESCALE);
-			gsl_matrix_int_set(sumVectors,j,i,response[2*j+1]-CENTRE_RESCALE);
+			gsl_matrix_int_set(sumVectors,j,i,response[2*j]-CENTRE_RESCALE);
+			gsl_matrix_int_set(diffVectors,j,i,response[2*j+1]-CENTRE_RESCALE);
 		}
 	}
 	g_timer_stop(timer);

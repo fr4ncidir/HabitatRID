@@ -29,6 +29,8 @@ gcc -Wall -I/usr/local/include ridMain2D.c RIDLib.c serial.c ../SEPA-C/sepa_prod
 #include <sys/ioctl.h>
 #include "RIDLib.h"
 
+// TODO use glib assert
+
 volatile int continuousRead = 0;
 int id_array_size;
 
@@ -152,8 +154,8 @@ int main(int argc, char **argv) {
 int ridExecution(const char *usb_address,int iterations) {
 	int result,read_bytes,nID,j,iter_done=0;
 	uint8_t id_info_result[ALLOC_ID_MAX];
-	uint8_t *id_array;
-	intVector *rowOfSums,*rowOfDiffs;
+	uint8_t *id_array,*h_scan,*v_scan;
+	intVector *rowOfSums,*rowOfDiffs,*rowOfDiffs_v;
 	coord last_location;
 	char logFileNameTXT[100]="";
 	
@@ -174,43 +176,55 @@ int ridExecution(const char *usb_address,int iterations) {
 		return EXIT_FAILURE;
 	}
 	g_debug("Reset packet sent");
-	//close(ridSerial.serial_fd);
-	
-	rowOfSums = gsl_vector_int_alloc(parameters.ANGLE_ITERATIONS);
-	rowOfDiffs = gsl_vector_int_alloc(parameters.ANGLE_ITERATIONS);
 	
 	do {
-		// serial reopening
-		//if (open_serial(usb_address,&ridSerial) == ERROR) return EXIT_FAILURE;
-		// serial opening end
 		
 		sleep(1);
 		ioctl(ridSerial.serial_fd, TCFLSH, 2); // flush both
 		
-		// sending '<'
-		result = send_request();
+		// sending 'R'
+		result = send_request_R();
 		if (result==EXIT_FAILURE) {
 			g_critical("send_request failure");
 			break;
 		}
-		g_debug("Request packet sent");
+		g_debug("R packet sent");
 		
-		// must receive "<\n"
-		result = receive_request_confirm();
+		// must receive "R\n"
+		result = receive_request_confirm('R');
 		if (result==EXIT_FAILURE) {
 			sleep(1);
-			g_critical("receive_request failure");
-			result = send_reset();
-			if (result==EXIT_FAILURE) {
-				g_critical("send_reset failure");
-				return EXIT_FAILURE;
-			}
-			g_debug("Reset packet sent");
-			continue;
+			g_critical("receive_request_confirm failure");
+			return EXIT_FAILURE;
+		}
+		g_debug("R confirmation packet received");
+		
+		// sending row number
+		result = write_serial(ridSerial.serial_fd,ONE_BYTE,(void*) &(parameters.row));
+		if (result==EXIT_FAILURE) {
+			g_critical("Error in sending row number");
+			break;
+		}
+		g_debug("Row number %u sent",parameters.row);
+		
+		// must receive back the same row number and '\n'
+		result = receive_request_confirm((char) parameters.row);
+		if (result==EXIT_FAILURE) {
+			sleep(1);
+			g_critical("receive_request_confirm failure");
+			return EXIT_FAILURE;
 		}
 		g_debug("Confirmation packet received");
 		
-		// #id id_code_1 id_code_1 id_code_2 id_code_2 ...
+		// sending again 'R'
+		result = send_request_R();
+		if (result==EXIT_FAILURE) {
+			g_critical("send_request failure");
+			break;
+		}
+		g_debug("R packet sent");
+		
+		// #id id_code_1 id_code_2 ...
 		result = receive_id_info(id_info_result,&read_bytes);
 		if (result==EXIT_FAILURE) {
 			g_critical("receive_id failure");
@@ -224,37 +238,126 @@ int ridExecution(const char *usb_address,int iterations) {
 			id_array_size = read_bytes-1;
 			id_array = id_info_result+1;
 			
-			// 40 angles iterations
-			result = angle_iterations(nID,id_array_size,id_array);
+			idVector = gsl_vector_int_alloc(nID);
+			for (i=0; i<nID; i++) {
+				g_message("ID%d: %d",i,id_array[i]);
+				gsl_vector_int_set(idVector,i,id_array[i]);
+			}
+			
+			// sending again 'R'
+			result = send_request_R();
 			if (result==EXIT_FAILURE) {
-				g_critical("angle_iterations failure");
+				g_critical("send_request failure");
 				break;
 			}
-			g_debug("Angle iterations ended");
+			g_debug("R packet sent");
 			
-			// send '>'
-			result = send_detect();
-			if (result==EXIT_FAILURE) {
-				g_critical("send_detect failure");
-				break;
+			// read horizontal scan result
+			h_scan = (uint8_t*) malloc((4*nID+2)*sizeof(uint8_t));
+			if (h_scan==NULL) {
+				g_critical("malloc error in h_scan");
+				return EXIT_FAILURE;
 			}
-			g_debug("Detect packet sent");
+			result = scan_results(h_scan,&read_bytes,nID);
 			
-			// must receive 40 10 time1 10 time2 10			
-			result = receive_end_scan();
-			if (result==EXIT_FAILURE) {
-				g_critical("receive_end_scan failure");
-				break;
+			sumVectors = gsl_matrix_int_alloc(nID,parameters.ANGLE_ITERATIONS);
+			diffVectors = gsl_matrix_int_alloc(nID,parameters.ANGLE_ITERATIONS);
+			for (j=0; j<nID; j++) {
+				for (i=0; i<parameters.ANGLE_ITERATIONS; i++) {
+					gsl_matrix_int_set(sumVectors,j,i,h_scan[4*(nID*i+j)]);
+					gsl_matrix_int_set(diffVectors,j,i,h_scan[4*(nID*i+j)+1]);
+				}
 			}
-			g_message("End scan reached - iterations %d",iterations);
 			
-			g_debug("Location calculation started");
+			g_debug("x-y location calculation started");
 			for (j=0; j<nID; j++) {
 				gsl_matrix_int_get_row(rowOfSums,sumVectors,j);
 				gsl_matrix_int_get_row(rowOfDiffs,diffVectors,j);
-				last_location = locateFromData(rowOfDiffs,rowOfSums,parameters.ANGLE_ITERATIONS);
+				last_location = locateFromData_XY(rowOfDiffs,rowOfSums,parameters.ANGLE_ITERATIONS);
 				last_location.id = gsl_vector_int_get(idVector,j);
-				printf("Location of id %d: (x,y)=(%lf,%lf)\n",last_location.id,last_location.x,last_location.y);
+				g_debug("x-y location calculation ended for ID%d",j);
+			}
+			
+			// sending 'C'
+			result = send_request_C();
+			if (result==EXIT_FAILURE) {
+				g_critical("send_request failure");
+				break;
+			}
+			g_debug("C packet sent");
+			
+			// must receive "C\n"
+			result = receive_request_confirm('C');
+			if (result==EXIT_FAILURE) {
+				sleep(1);
+				g_critical("receive_request_confirm failure");
+				return EXIT_FAILURE;
+			}
+			g_debug("C confirmation packet received");
+			
+			// sending col number
+			result = write_serial(ridSerial.serial_fd,ONE_BYTE,(void*) &(parameters.col));
+			if (result==EXIT_FAILURE) {
+				g_critical("Error in sending row number");
+				break;
+			}
+			g_debug("Col number %u sent",parameters.col);
+			
+			// must receive back the same col number and '\n'
+			result = receive_request_confirm((char) parameters.col);
+			if (result==EXIT_FAILURE) {
+				sleep(1);
+				g_critical("receive_request_confirm failure");
+				return EXIT_FAILURE;
+			}
+			g_debug("Confirmation packet received");
+			
+			// sending again 'C'
+			result = send_request_C();
+			if (result==EXIT_FAILURE) {
+				g_critical("send_request failure");
+				break;
+			}
+			g_debug("C packet sent");
+			
+			// #id id_code_1 id_code_2 ...
+			result = receive_id_info(id_info_result,&read_bytes);
+			if (result==EXIT_FAILURE) {
+				g_critical("receive_id failure");
+				break;
+			}
+				
+			// sending again 'C'
+			result = send_request_C();
+			if (result==EXIT_FAILURE) {
+				g_critical("send_request failure");
+				break;
+			}
+			g_debug("R packet sent");
+				
+			// read vertical scan result
+			v_scan = (uint8_t*) malloc((4*nID+2)*sizeof(uint8_t));
+			if (v_scan==NULL) {
+				g_critical("malloc error in v_scan");
+				return EXIT_FAILURE;
+			}
+			result = scan_results(v_scan,&read_bytes,nID);
+				
+			sumVectors = gsl_matrix_int_alloc(nID,parameters.ANGLE_ITERATIONS);
+			diffVectors = gsl_matrix_int_alloc(nID,parameters.ANGLE_ITERATIONS);
+			for (j=0; j<nID; j++) {
+				for (i=0; i<parameters.ANGLE_ITERATIONS; i++) {
+					gsl_matrix_int_set(sumVectors,j,i,h_scan[4*(nID*i+j)]);
+					gsl_matrix_int_set(diffVectors,j,i,h_scan[4*(nID*i+j)+2]);
+				}
+			}
+			
+			g_debug("x-y-h location calculation started");
+			for (j=0; j<nID; j++) {
+				gsl_matrix_int_get_row(rowOfSums,sumVectors,j);
+				gsl_matrix_int_get_row(rowOfDiffs,diffVectors,j);
+				last_location = locateFromData_H(rowOfDiffs,rowOfSums,parameters.ANGLE_ITERATIONS);
+				printf("Location of id %d: (x,y,h)=(%lf,%lf,%lf)\n",last_location.id,last_location.x,last_location.y,last_location.h);
 				log_file_txt(idVector,rowOfDiffs,rowOfSums,j,nID,parameters.ANGLE_ITERATIONS,last_location,logFileNameTXT);
 				sepaLocationUpdate(parameters.http_sepa_address,parameters.rid_identifier,last_location);
 				g_debug("Location calculation ended for ID%d",j);
@@ -266,14 +369,6 @@ int ridExecution(const char *usb_address,int iterations) {
 				g_message("%d iterations remaining",iterations);
 			}
 		}
-		
-		// send '+'
-		result = send_reset();
-		if (result==EXIT_FAILURE) {
-			g_critical("send_reset failure");
-			return EXIT_FAILURE;
-		}
-		g_debug("Reset packet sent");
 		
 		iter_done++;
 	} while ((continuousRead) || (iterations>0));
