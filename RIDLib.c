@@ -106,7 +106,7 @@ coord locateFromData_XY(intVector * diff,intVector * sum,int nAngles) {
 	maxIndexMPR = nAngles-1-gsl_vector_int_max_index(mpr);
 	theta = (thetaFind(maxIndexMPR)-parameters.dTheta0+parameters.dDegrees)*M_PI/180;
 	
-	if (json_item_ctrl=PARAM_JSON_ITEMS_1D) radius = radiusFind(maxIndexMPR,sum);
+	if (json_item_ctrl==PARAM_JSON_ITEMS_1D) radius = radiusFind(maxIndexMPR,sum);
 	else radius = radiusFind_2D(maxIndexMPR,sum);
 	
 #ifdef VERBOSE_CALCULATION
@@ -361,13 +361,13 @@ int parametrize(const char * fParam) {
 				completed++;
 				continue;
 			}
-			if (js_buffer[0]='H') { // HEIGHT_RID (2D)
+			if (js_buffer[0]=='H') { // HEIGHT_RID (2D)
 				sscanf(js_data,"%lf",&(parameters.HEIGHT_RID));
 				json_item_ctrl = PARAM_JSON_ITEMS_2D;
 				completed++;
 				continue;
 			}
-			if (js_buffer[0]='T') { // TILT_RID (2D)
+			if (js_buffer[0]=='T') { // TILT_RID (2D)
 				sscanf(js_data,"%lf",&(parameters.TILT_RID));
 				json_item_ctrl = PARAM_JSON_ITEMS_2D;
 				completed++;
@@ -463,24 +463,9 @@ int receive_request_confirm(char confirm_check) {
 	return result;
 }
 
-int receive_id_info(uint8_t *id_info_result,int *read_bytes){
-	int result;
-	result = read_until_terminator(ridSerial.serial_fd,ALLOC_ID_MAX,(void*) id_info_result,'\n');
-	if (result!=ERROR) {
-		*read_bytes = result;
-		result = EXIT_SUCCESS;
-#ifdef VERBOSE_CALCULATION
-		printUnsignedArray(id_info_result,*read_bytes);
-		printf("\n");
-#endif
-	}
-	else result = EXIT_FAILURE;
-	return result;
-}
-
 int scan_results(uint8_t *scan,int *read_bytes,int id_num){
 	int result;
-	result = read_until_terminator(ridSerial.serial_fd,4*id_num+2,(void*) scan,'\n');
+	result = read_until_terminator(ridSerial.serial_fd,id_num,(void*) scan,'\n');
 	if (result!=ERROR) {
 		*read_bytes = result;
 		result = EXIT_SUCCESS;
@@ -491,6 +476,10 @@ int scan_results(uint8_t *scan,int *read_bytes,int id_num){
 	}
 	else result = EXIT_FAILURE;
 	return result;
+}
+
+int receive_id_info(uint8_t *id_info_result,int *read_bytes){
+	return scan_results(id_info_result,read_bytes,ALLOC_ID_MAX);
 }
 
 int angle_iterations(int nID,int id_array_size,uint8_t *id_array) {

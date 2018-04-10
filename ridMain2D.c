@@ -152,10 +152,10 @@ int main(int argc, char **argv) {
 }
 
 int ridExecution(const char *usb_address,int iterations) {
-	int result,read_bytes,nID,j,iter_done=0;
+	int result,read_bytes,nID,i,j,iter_done=0;
 	uint8_t id_info_result[ALLOC_ID_MAX];
 	uint8_t *id_array,*h_scan,*v_scan;
-	intVector *rowOfSums,*rowOfDiffs,*rowOfDiffs_v;
+	intVector *rowOfSums,*rowOfDiffs;
 	coord last_location;
 	char logFileNameTXT[100]="";
 	
@@ -166,16 +166,6 @@ int ridExecution(const char *usb_address,int iterations) {
 	ridSerial.stopbits = ONE_STOP;
 	if (open_serial(usb_address,&ridSerial) == ERROR) return EXIT_FAILURE;
 	// serial opening end
-	
-	sleep(1);
-	ioctl(ridSerial.serial_fd, TCFLSH, 2); // flush both
-	
-	result = send_reset();
-	if (result==EXIT_FAILURE) {
-		g_critical("send_reset failure");
-		return EXIT_FAILURE;
-	}
-	g_debug("Reset packet sent");
 	
 	do {
 		
@@ -226,6 +216,7 @@ int ridExecution(const char *usb_address,int iterations) {
 		
 		// #id id_code_1 id_code_2 ...
 		result = receive_id_info(id_info_result,&read_bytes);
+		printUnsignedArray(stdout,id_info_result,read_bytes);
 		if (result==EXIT_FAILURE) {
 			g_critical("receive_id failure");
 			break;
@@ -253,12 +244,13 @@ int ridExecution(const char *usb_address,int iterations) {
 			g_debug("R packet sent");
 			
 			// read horizontal scan result
-			h_scan = (uint8_t*) malloc((4*nID+2)*sizeof(uint8_t));
+			h_scan = (uint8_t*) malloc((4*parameters.ANGLE_ITERATIONS*nID+2)*sizeof(uint8_t));
 			if (h_scan==NULL) {
 				g_critical("malloc error in h_scan");
 				return EXIT_FAILURE;
 			}
-			result = scan_results(h_scan,&read_bytes,nID);
+			result = scan_results(h_scan,&read_bytes,4*parameters.ANGLE_ITERATIONS*nID+2);
+			//printUnsignedArray(stdout,h_scan,read_bytes);
 			
 			sumVectors = gsl_matrix_int_alloc(nID,parameters.ANGLE_ITERATIONS);
 			diffVectors = gsl_matrix_int_alloc(nID,parameters.ANGLE_ITERATIONS);
@@ -268,6 +260,11 @@ int ridExecution(const char *usb_address,int iterations) {
 					gsl_matrix_int_set(diffVectors,j,i,h_scan[4*(nID*i+j)+1]);
 				}
 			}
+			gsl_matrix_int_add_constant(sumVectors,-CENTRE_RESCALE);
+			gsl_matrix_int_add_constant(diffVectors,-CENTRE_RESCALE);
+			
+			rowOfSums = gsl_vector_int_alloc(parameters.ANGLE_ITERATIONS);
+			rowOfDiffs = gsl_vector_int_alloc(parameters.ANGLE_ITERATIONS);
 			
 			g_debug("x-y location calculation started");
 			for (j=0; j<nID; j++) {
@@ -336,27 +333,27 @@ int ridExecution(const char *usb_address,int iterations) {
 			g_debug("R packet sent");
 				
 			// read vertical scan result
-			v_scan = (uint8_t*) malloc((4*nID+2)*sizeof(uint8_t));
+			v_scan = (uint8_t*) malloc((4*parameters.ANGLE_ITERATIONS*nID+2)*sizeof(uint8_t));
 			if (v_scan==NULL) {
 				g_critical("malloc error in v_scan");
 				return EXIT_FAILURE;
 			}
-			result = scan_results(v_scan,&read_bytes,nID);
+			result = scan_results(v_scan,&read_bytes,4*parameters.ANGLE_ITERATIONS*nID+2);
 				
-			sumVectors = gsl_matrix_int_alloc(nID,parameters.ANGLE_ITERATIONS);
-			diffVectors = gsl_matrix_int_alloc(nID,parameters.ANGLE_ITERATIONS);
 			for (j=0; j<nID; j++) {
 				for (i=0; i<parameters.ANGLE_ITERATIONS; i++) {
 					gsl_matrix_int_set(sumVectors,j,i,h_scan[4*(nID*i+j)]);
 					gsl_matrix_int_set(diffVectors,j,i,h_scan[4*(nID*i+j)+2]);
 				}
 			}
+			gsl_matrix_int_add_constant(sumVectors,-CENTRE_RESCALE);
+			gsl_matrix_int_add_constant(diffVectors,-CENTRE_RESCALE);
 			
 			g_debug("x-y-h location calculation started");
 			for (j=0; j<nID; j++) {
 				gsl_matrix_int_get_row(rowOfSums,sumVectors,j);
 				gsl_matrix_int_get_row(rowOfDiffs,diffVectors,j);
-				last_location = locateFromData_H(rowOfDiffs,rowOfSums,parameters.ANGLE_ITERATIONS);
+				last_location = locateFromData_H(rowOfDiffs,rowOfSums,parameters.ANGLE_ITERATIONS,last_location);
 				printf("Location of id %d: (x,y,h)=(%lf,%lf,%lf)\n",last_location.id,last_location.x,last_location.y,last_location.h);
 				log_file_txt(idVector,rowOfDiffs,rowOfSums,j,nID,parameters.ANGLE_ITERATIONS,last_location,logFileNameTXT);
 				sepaLocationUpdate(parameters.http_sepa_address,parameters.rid_identifier,last_location);

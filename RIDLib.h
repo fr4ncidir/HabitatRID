@@ -101,7 +101,7 @@ typedef struct coordinates {
 
 int log_file_txt(intVector * ids,intVector * diffs,intVector * sums,int index,int nID,int cols,coord location,char * logFileName);
 coord locateFromData_XY(intVector * diff,intVector * sum,int nAngles);
-coord locateFromData_H(intVector * diff,intVector * sum,int nAngles);
+coord locateFromData_H(intVector * diff,intVector * sum,int nAngles,coord xy_location);
 double radiusFind(int i_ref2,intVector * sum);
 double radiusFind_2D(int i_ref2,intVector * sum);
 double radiusFormula(double A,double B,double C);
@@ -114,6 +114,7 @@ int send_request();
 int send_request_R();
 int send_request_C();
 int receive_request_confirm(char confirm_check);
+int scan_results(uint8_t *scan,int *read_bytes,int id_num);
 int receive_id_info();
 int angle_iterations();
 int send_detect();
