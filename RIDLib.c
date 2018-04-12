@@ -72,6 +72,7 @@ int log_file_txt(intVector * ids,intVector * diffs,intVector * sums,int index,in
 	else positions = fopen("/var/www/html/posRID.txt","a");
 	if (positions==NULL) {
 		g_error("Error while opening in write mode /var/www/html/posRID.txt");
+        fclose(logFile);
 		return EXIT_FAILURE;
 	}
 	fprintf(positions,"%d %lf %lf %lf ",location.id,location.x,location.y,location.h);
@@ -240,7 +241,8 @@ long sepaLocationUpdate(const char * SEPA_address,int rid_id,coord location) {
 		else {
 			sprintf(bounded_sparql,PREFIX_RDF PREFIX_HBT SPARQL_FORMAT,rid_id,location.id,x,y);
 			g_debug("Update produced:\n%s\n",bounded_sparql);
-			result = kpProduce(bounded_sparql,SEPA_address,NULL);
+			//result = sepa_update(bounded_sparql,SEPA_address,NULL);
+            result = kpProduce(bounded_sparql,SEPA_address,NULL);
 			if (result!=200) g_message("Update http result = %ld\n",result);
 			free(bounded_sparql);
 		}
@@ -257,12 +259,10 @@ int parametrize(const char * fParam) {
 	char *jsonString,*js_buffer=NULL,*js_data=NULL,id_field[7];
 	int i=0,jDim=300,n_field,jstok_dim,completed=0;
 	
+    g_assert_nonnull(fParam);
 	json = fopen(fParam,"r");
 
-	if (json==NULL) {
-		g_critical("Error while opening %s.\n",fParam);
-		return EXIT_FAILURE;
-	}
+    g_assert_nonnull(json);
 	jsonString = (char *) malloc(jDim*sizeof(char));
 	if (jsonString==NULL) {
 		g_critical("Malloc error while opening %s.\n",fParam);
@@ -508,10 +508,7 @@ int angle_iterations(int nID,int id_array_size,uint8_t *id_array) {
 	diffVectors = gsl_matrix_int_alloc(nID,parameters.ANGLE_ITERATIONS);
 	
 	response = (uint8_t *) malloc(response_dim*sizeof(uint8_t));
-	if (response==NULL) {
-		g_critical("Malloc error in angle_iterations");
-		return EXIT_FAILURE;
-	}
+    g_assert_nonnull(response);
 	
 	g_debug("Starting Angle iterations");
 	timer = g_timer_new();
@@ -522,6 +519,9 @@ int angle_iterations(int nID,int id_array_size,uint8_t *id_array) {
 		if (result==EXIT_FAILURE) {
 			g_critical("send_request failure");
 			free(response);
+#ifdef VERBOSE_CALCULATION
+            fclose(verbose);
+#endif
 			return EXIT_FAILURE;
 		}
 		
@@ -529,6 +529,9 @@ int angle_iterations(int nID,int id_array_size,uint8_t *id_array) {
 		if (result == EXIT_FAILURE) {
 			g_critical("Reading sum-diff vector for %d-th angle failure",i+1);
 			free(response);
+#ifdef VERBOSE_CALCULATION
+            fclose(verbose);
+#endif
 			return EXIT_FAILURE;
 		}
 #ifdef VERBOSE_CALCULATION

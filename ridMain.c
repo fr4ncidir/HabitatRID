@@ -94,10 +94,11 @@ int main(int argc, char **argv) {
 				// the path to usb port
 				execution_code |= 0x02;
 				usbportAddress = strdup(optarg);
-				if (usbportAddress==NULL) {
-					g_error("malloc error in usbportAddress.");
-					return EXIT_FAILURE;
-				}
+                g_assert_nonnull(usbportAddress);
+				//if (usbportAddress==NULL) {
+					//g_error("malloc error in usbportAddress.");
+					//return EXIT_FAILURE;
+				//}
 				break;
 			case 'f':
 				// this parameter specifies where the configuration parameters JSON is stored
@@ -165,26 +166,18 @@ int ridExecution(const char *usb_address,int iterations) {
 	if (open_serial(usb_address,&ridSerial) == ERROR) return EXIT_FAILURE;
 	// serial opening end
 	
-	sleep(1);
-	ioctl(ridSerial.serial_fd, TCFLSH, 2); // flush both
-	
 	result = send_reset();
 	if (result==EXIT_FAILURE) {
 		g_critical("send_reset failure");
 		return EXIT_FAILURE;
 	}
 	g_debug("Reset packet sent");
-	//close(ridSerial.serial_fd);
 	
 	rowOfSums = gsl_vector_int_alloc(parameters.ANGLE_ITERATIONS);
 	rowOfDiffs = gsl_vector_int_alloc(parameters.ANGLE_ITERATIONS);
 	
 	do {
-		// serial reopening
-		//if (open_serial(usb_address,&ridSerial) == ERROR) return EXIT_FAILURE;
-		// serial opening end
-		
-		sleep(1);
+        sleep(1);
 		ioctl(ridSerial.serial_fd, TCFLSH, 2); // flush both
 		
 		// sending '<'
@@ -252,7 +245,7 @@ int ridExecution(const char *usb_address,int iterations) {
 			for (j=0; j<nID; j++) {
 				gsl_matrix_int_get_row(rowOfSums,sumVectors,j);
 				gsl_matrix_int_get_row(rowOfDiffs,diffVectors,j);
-				last_location = locateFromData(rowOfDiffs,rowOfSums,parameters.ANGLE_ITERATIONS);
+				last_location = locateFromData_XY(rowOfDiffs,rowOfSums,parameters.ANGLE_ITERATIONS);
 				last_location.id = gsl_vector_int_get(idVector,j);
 				printf("Location of id %d: (x,y)=(%lf,%lf)\n",last_location.id,last_location.x,last_location.y);
 				log_file_txt(idVector,rowOfDiffs,rowOfSums,j,nID,parameters.ANGLE_ITERATIONS,last_location,logFileNameTXT);

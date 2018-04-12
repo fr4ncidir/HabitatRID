@@ -29,7 +29,9 @@ gcc -Wall -I/usr/local/include ridMain2D.c RIDLib.c serial.c ../SEPA-C/sepa_prod
 #include <sys/ioctl.h>
 #include "RIDLib.h"
 
-// TODO use glib assert
+#define FREE_minmum         0
+#define FREE_idVector       1
+#define FREE_sumdiff        2   
 
 volatile int continuousRead = 0;
 int id_array_size;
@@ -96,10 +98,11 @@ int main(int argc, char **argv) {
 				// the path to usb port
 				execution_code |= 0x02;
 				usbportAddress = strdup(optarg);
-				if (usbportAddress==NULL) {
-					g_error("malloc error in usbportAddress.");
-					return EXIT_FAILURE;
-				}
+                g_assert_nonnull(usbportAddress);
+				//if (usbportAddress==NULL) {
+					//g_error("malloc error in usbportAddress.");
+					//return EXIT_FAILURE;
+				//}
 				break;
 			case 'f':
 				// this parameter specifies where the configuration parameters JSON is stored
@@ -152,7 +155,7 @@ int main(int argc, char **argv) {
 }
 
 int ridExecution(const char *usb_address,int iterations) {
-	int result,read_bytes,nID,i,j,iter_done=0;
+	int result=EXIT_SUCCESS,read_bytes,nID,i,j,iter_done=0,free_flag=FREE_minmum;
 	uint8_t id_info_result[ALLOC_ID_MAX];
 	uint8_t *id_array,*h_scan,*v_scan;
 	intVector *rowOfSums,*rowOfDiffs;
@@ -166,6 +169,9 @@ int ridExecution(const char *usb_address,int iterations) {
 	ridSerial.stopbits = ONE_STOP;
 	if (open_serial(usb_address,&ridSerial) == ERROR) return EXIT_FAILURE;
 	// serial opening end
+    
+    rowOfSums = gsl_vector_int_alloc(parameters.ANGLE_ITERATIONS);
+    rowOfDiffs = gsl_vector_int_alloc(parameters.ANGLE_ITERATIONS);
 	
 	do {
 		
@@ -183,9 +189,8 @@ int ridExecution(const char *usb_address,int iterations) {
 		// must receive "R\n"
 		result = receive_request_confirm('R');
 		if (result==EXIT_FAILURE) {
-			sleep(1);
 			g_critical("receive_request_confirm failure");
-			return EXIT_FAILURE;
+			break;
 		}
 		g_debug("R confirmation packet received");
 		
@@ -200,9 +205,8 @@ int ridExecution(const char *usb_address,int iterations) {
 		// must receive back the same row number and '\n'
 		result = receive_request_confirm((char) parameters.row);
 		if (result==EXIT_FAILURE) {
-			sleep(1);
 			g_critical("receive_request_confirm failure");
-			return EXIT_FAILURE;
+			break;
 		}
 		g_debug("Confirmation packet received");
 		
@@ -216,7 +220,7 @@ int ridExecution(const char *usb_address,int iterations) {
 		
 		// #id id_code_1 id_code_2 ...
 		result = receive_id_info(id_info_result,&read_bytes);
-		printUnsignedArray(stdout,id_info_result,read_bytes);
+		//printUnsignedArray(stdout,id_info_result,read_bytes);
 		if (result==EXIT_FAILURE) {
 			g_critical("receive_id failure");
 			break;
@@ -230,6 +234,7 @@ int ridExecution(const char *usb_address,int iterations) {
 			id_array = id_info_result+1;
 			
 			idVector = gsl_vector_int_alloc(nID);
+            free_flag |= FREE_idVector;
 			for (i=0; i<nID; i++) {
 				g_message("ID%d: %d",i,id_array[i]);
 				gsl_vector_int_set(idVector,i,id_array[i]);
@@ -245,26 +250,27 @@ int ridExecution(const char *usb_address,int iterations) {
 			
 			// read horizontal scan result
 			h_scan = (uint8_t*) malloc((4*parameters.ANGLE_ITERATIONS*nID+2)*sizeof(uint8_t));
-			if (h_scan==NULL) {
-				g_critical("malloc error in h_scan");
-				return EXIT_FAILURE;
-			}
+			g_assert_nonnull(h_scan);
+            
 			result = scan_results(h_scan,&read_bytes,4*parameters.ANGLE_ITERATIONS*nID+2);
+            if (result==EXIT_FAILURE) {
+				g_critical("h scan_results failure");
+				break;
+			}
 			//printUnsignedArray(stdout,h_scan,read_bytes);
 			
 			sumVectors = gsl_matrix_int_alloc(nID,parameters.ANGLE_ITERATIONS);
 			diffVectors = gsl_matrix_int_alloc(nID,parameters.ANGLE_ITERATIONS);
+            free_flag |= FREE_sumdiff;
 			for (j=0; j<nID; j++) {
 				for (i=0; i<parameters.ANGLE_ITERATIONS; i++) {
 					gsl_matrix_int_set(sumVectors,j,i,h_scan[4*(nID*i+j)]);
 					gsl_matrix_int_set(diffVectors,j,i,h_scan[4*(nID*i+j)+1]);
 				}
 			}
+            free(h_scan);
 			gsl_matrix_int_add_constant(sumVectors,-CENTRE_RESCALE);
 			gsl_matrix_int_add_constant(diffVectors,-CENTRE_RESCALE);
-			
-			rowOfSums = gsl_vector_int_alloc(parameters.ANGLE_ITERATIONS);
-			rowOfDiffs = gsl_vector_int_alloc(parameters.ANGLE_ITERATIONS);
 			
 			g_debug("x-y location calculation started");
 			for (j=0; j<nID; j++) {
@@ -286,9 +292,8 @@ int ridExecution(const char *usb_address,int iterations) {
 			// must receive "C\n"
 			result = receive_request_confirm('C');
 			if (result==EXIT_FAILURE) {
-				sleep(1);
 				g_critical("receive_request_confirm failure");
-				return EXIT_FAILURE;
+				break;
 			}
 			g_debug("C confirmation packet received");
 			
@@ -303,9 +308,8 @@ int ridExecution(const char *usb_address,int iterations) {
 			// must receive back the same col number and '\n'
 			result = receive_request_confirm((char) parameters.col);
 			if (result==EXIT_FAILURE) {
-				sleep(1);
 				g_critical("receive_request_confirm failure");
-				return EXIT_FAILURE;
+				break;
 			}
 			g_debug("Confirmation packet received");
 			
@@ -334,18 +338,16 @@ int ridExecution(const char *usb_address,int iterations) {
 				
 			// read vertical scan result
 			v_scan = (uint8_t*) malloc((4*parameters.ANGLE_ITERATIONS*nID+2)*sizeof(uint8_t));
-			if (v_scan==NULL) {
-				g_critical("malloc error in v_scan");
-				return EXIT_FAILURE;
-			}
+			g_assert_nonnull(v_scan);
 			result = scan_results(v_scan,&read_bytes,4*parameters.ANGLE_ITERATIONS*nID+2);
 				
 			for (j=0; j<nID; j++) {
 				for (i=0; i<parameters.ANGLE_ITERATIONS; i++) {
-					gsl_matrix_int_set(sumVectors,j,i,h_scan[4*(nID*i+j)]);
-					gsl_matrix_int_set(diffVectors,j,i,h_scan[4*(nID*i+j)+2]);
+					gsl_matrix_int_set(sumVectors,j,i,v_scan[4*(nID*i+j)]);
+					gsl_matrix_int_set(diffVectors,j,i,v_scan[4*(nID*i+j)+2]);
 				}
 			}
+            free(v_scan);
 			gsl_matrix_int_add_constant(sumVectors,-CENTRE_RESCALE);
 			gsl_matrix_int_add_constant(diffVectors,-CENTRE_RESCALE);
 			
@@ -365,19 +367,25 @@ int ridExecution(const char *usb_address,int iterations) {
 				iterations--;
 				g_message("%d iterations remaining",iterations);
 			}
-		}
-		
+            gsl_matrix_int_free(sumVectors);
+            gsl_matrix_int_free(diffVectors);
+            gsl_vector_int_free(idVector);
+            free_flag = FREE_minmum;
+        }
 		iter_done++;
 	} while ((continuousRead) || (iterations>0));
 	g_message("Done %d iterations",iter_done);
 	
-	gsl_vector_int_free(idVector);
-	gsl_vector_int_free(rowOfSums);
+	if (free_flag & FREE_idVector) gsl_vector_int_free(idVector);
+	if (free_flag & FREE_sumdiff) {
+        gsl_matrix_int_free(sumVectors);
+        gsl_matrix_int_free(diffVectors);
+    }
+	
+    close(ridSerial.serial_fd);
+    gsl_vector_int_free(rowOfSums);
 	gsl_vector_int_free(rowOfDiffs);
-	gsl_matrix_int_free(sumVectors);
-	gsl_matrix_int_free(diffVectors);
-	close(ridSerial.serial_fd);
-	return EXIT_SUCCESS;
+	return result;
 }
 
 void printUsage() {
